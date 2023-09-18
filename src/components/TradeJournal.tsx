@@ -117,7 +117,7 @@ const TradeJournal: React.FC = () => {
 
   const onSubmit = async (data: Trade) => {
     try {
-
+      console.log("Data before submission:", data);
       if (data.datetimeIn) {
         data.datetimeIn = convertToStandardDateTime(data.datetimeIn);
       }
@@ -248,17 +248,6 @@ const TradeJournal: React.FC = () => {
           <li key={trade.id}>{trade.ticker}</li>
         ))}
       </ul>
-
-      
-      {/* Display conversion rates */}
-      <div>
-        <h2>Conversion Rates</h2>
-        <ul>
-          {Object.keys(conversionRates).map((key) => (
-            <li key={key}>{`${key}/USD: ${conversionRates[key]}`}</li>
-          ))}
-        </ul>
-      </div>
     </div>
   );
 };
