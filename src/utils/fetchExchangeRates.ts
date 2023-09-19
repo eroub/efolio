@@ -1,3 +1,4 @@
+// fetchExchangeRates.ts
 import axios from "axios";
 
 type ConversionRates = Record<string, number>;

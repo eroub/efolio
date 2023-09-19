@@ -18,7 +18,7 @@ interface TradeFormProps {
 
 const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
   // Calculated Values
-  const { control, watch, handleSubmit } = useForm<PartialTrade>(); // <-- Note that I've added handleSubmit here
+  const { control, watch, handleSubmit } = useForm<PartialTrade>();
   const [riskPercent, setRiskPercent] = useState<number>(0);
   const [estimatedGain, setEstimatedGain] = useState<number>(0);
   const [estimatedRR, setEstimatedRR] = useState<number>(0);
