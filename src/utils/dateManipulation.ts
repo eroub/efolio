@@ -3,7 +3,7 @@
 // Take datetime object and convert it to yyyy-mm-dd hh:mm
 export const simplifyDate = (datetime: string | null) => {
   if (datetime === null) {
-    return ""; // or any placeholder you prefer
+    return null;
   }
   const date = new Date(datetime);
   const year = date.getFullYear();

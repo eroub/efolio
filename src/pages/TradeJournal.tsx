@@ -58,7 +58,7 @@ const TradeJournal: React.FC = () => {
         newTrade.datetimeIn = convertToStandardDateTime(newTrade.datetimeIn);
       }
       const response = await http.post("/api/trades", newTrade, {
-        headers: { 'Authorization': `Basic ${encodedCredentials}` }
+        headers: { Authorization: `Basic ${encodedCredentials}` },
       });
       // Update local state with the new trade
       setTrades([...trades, response.data]);
