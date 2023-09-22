@@ -9,8 +9,10 @@ interface TableHeaderProps {
 
 const Th = styled.th`
   border: 1px solid #dddddd;
-  text-align: left;
+  // text-align: left;
   padding: 8px;
+  align-items: center;
+  justify-content: center;
 
   @media (max-width: 768px) {
     padding: 4px; // reduce padding for smaller screens
@@ -65,20 +67,19 @@ const TableHeader: React.FC<TableHeaderProps> = ({ isTableExpanded }) => {
   return (
     <thead>
       <tr>
-        {headers.map((header, index) => (
-          <Th key={index}>
-            {isTableExpanded || !columnsToHide.includes(header) ? (
-              header === "Direction" ? (
-                <DirectionArrows />
-              ) : (
-                header
-              )
-            ) : null}
-          </Th>
-        ))}
+        {headers.map((header, index) => {
+          if (isTableExpanded || !columnsToHide.includes(header)) {
+            return (
+              <Th key={index}>
+                {header === "Direction" ? <DirectionArrows /> : header}
+              </Th>
+            );
+          } else {
+            return null;
+          }
+        })}
       </tr>
     </thead>
   );
 };
-
 export default TableHeader;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import styled from "styled-components";
 import http from "../services/http"; // Import the Axios configuration
 import { fetchExchangeRates } from "../utils/fetchExchangeRates"; // Import  exchange rates utility function
 import { convertToStandardDateTime } from "../utils/dateManipulation"; // Import date conversion utility function
@@ -13,6 +14,34 @@ import Loading from "../components/Loading";
 import TradeInit from "../components/TradeInit";
 import ClosedTradeTable from "../components/ClosedTradeTable/ClosedTradeTable";
 import { Expand, Shrink } from "../assets/Arrows";
+
+const ExpandShrinkButton = styled.button`
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  width: 26px; /* Same width as your SVG */
+  height: 26px; /* Same height as your SVG */
+  cursor: pointer;
+  outline: none;
+
+  /* Tooltip styling */
+  position: relative;
+
+  &:hover::before {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 5px;
+    border-radius: 3px;
+    font-size: 12px;
+    z-index: 10;
+  }
+`;
 
 const TradeJournal: React.FC = () => {
   // Authentication State
@@ -30,7 +59,7 @@ const TradeJournal: React.FC = () => {
   const [isError, setIsError] = useState(false);
 
   // Table shrink/expand state
-  const [isTableExpanded, setTableExpanded] = useState(true); // Initial state is 'Expanded'
+  const [isTableExpanded, setTableExpanded] = useState(false); // Initial state is 'Shrunk'
   const toggleTable = () => {
     setTableExpanded(!isTableExpanded);
   };
@@ -109,13 +138,16 @@ const TradeJournal: React.FC = () => {
       {/* Display list of trades */}
       <h3 style={{ display: "flex", alignItems: "center" }}>
         Completed Trades
-        <button onClick={toggleTable}>
+        <ExpandShrinkButton
+          onClick={toggleTable}
+          data-tooltip={isTableExpanded ? "Hide Details" : "Show Details"}
+        >
           {isTableExpanded ? (
             <Shrink style={{ marginLeft: "10px" }} />
           ) : (
             <Expand style={{ marginLeft: "10px" }} />
           )}
-        </button>
+        </ExpandShrinkButton>
       </h3>
       <ClosedTradeTable trades={trades} isTableExpanded={isTableExpanded} />
     </div>

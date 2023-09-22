@@ -1,6 +1,11 @@
 import React from "react";
 import styled from "styled-components";
 import { humanReadFormatDate } from "../../utils/dateManipulation"; // Import function to convert datetime object
+import {
+  formatCurrency,
+  formatPercentage,
+  formatSizeInK,
+} from "../../utils/formatters";
 import { Trade } from "../../models/TradeTypes"; // Import partial trade interface
 // Assets
 import { GreenUpArrow, RedDownArrow } from "../../assets/Arrows";
@@ -11,11 +16,6 @@ interface TableRowProps {
   trade: Trade;
   isTableExpanded: boolean;
 }
-
-const formatSizeInK = (size: number | null) => {
-  if (size === null) return null;
-  return `${(size / 1000).toFixed(1)}K`;
-};
 
 const Td = styled.td`
   border: 1px solid #dddddd;
@@ -29,10 +29,18 @@ const Td = styled.td`
   }
 `;
 
+// Smaller components for conditional rendering
+const ConditionalTd: React.FC<{ show: boolean; children: React.ReactNode }> = ({
+  show,
+  children,
+}) => {
+  return show ? <Td>{children}</Td> : null;
+};
+
 const TableRow: React.FC<TableRowProps> = ({ trade, isTableExpanded }) => {
   return (
     <tr>
-      <Td>{trade.id}</Td> {/* Note: Field names should match the interface */}
+      <Td>{trade.id}</Td>
       <Td>{trade.ticker}</Td>
       <Td>
         {trade.direction === "Long" ? (
@@ -41,66 +49,34 @@ const TableRow: React.FC<TableRowProps> = ({ trade, isTableExpanded }) => {
           <RedDownArrow />
         ) : null}
       </Td>
-      {isTableExpanded ? (
-        <Td>{humanReadFormatDate(trade.datetimeIn)}</Td>
-      ) : null}
-      {isTableExpanded ? (
-        <Td>{humanReadFormatDate(trade.datetimeOut)}</Td>
-      ) : null}
+      <ConditionalTd show={isTableExpanded}>
+        {humanReadFormatDate(trade.datetimeIn)}
+      </ConditionalTd>
+      <ConditionalTd show={isTableExpanded}>
+        {humanReadFormatDate(trade.datetimeOut)}
+      </ConditionalTd>
       <Td>{trade.totalHrs}</Td>
-      {isTableExpanded ? (
-        <Td>
-          {trade.equity !== null && trade.equity !== undefined
-            ? `$${trade.equity}`
-            : ""}
-        </Td>
-      ) : null}
-      {isTableExpanded ? <Td>{trade.entry}</Td> : null}
-      {isTableExpanded ? <Td>{trade.stopLoss}</Td> : null}
-      {isTableExpanded ? <Td>{trade.target}</Td> : null}
-      {isTableExpanded ? <Td>{formatSizeInK(trade.size)}</Td> : null}
-      <Td>
-        {trade.risk !== null && trade.risk !== undefined
-          ? `${trade.risk}%`
-          : ""}
-      </Td>
-      <Td>
-        {trade.estGain !== null && trade.estGain !== undefined
-          ? `${trade.estGain}%`
-          : ""}
-      </Td>
+      <ConditionalTd show={isTableExpanded}>
+        {formatCurrency(trade.equity)}
+      </ConditionalTd>
+      <ConditionalTd show={isTableExpanded}>{trade.entry}</ConditionalTd>
+      <ConditionalTd show={isTableExpanded}>{trade.stopLoss}</ConditionalTd>
+      <ConditionalTd show={isTableExpanded}>{trade.target}</ConditionalTd>
+      <ConditionalTd show={isTableExpanded}>
+        {formatSizeInK(trade.size)}
+      </ConditionalTd>
+      <Td>{formatPercentage(trade.risk)}</Td>
+      <Td>{formatPercentage(trade.estGain)}</Td>
       <Td>{trade.estRR}</Td>
-      <Td>{trade.exitPrice}</Td>
-      <Td>
-        {trade.projPL !== null && trade.projPL !== undefined
-          ? trade.projPL >= 0
-            ? `$${trade.projPL}`
-            : `-$${Math.abs(trade.projPL)}`
-          : ""}
-      </Td>
-      <Td>
-        {trade.realPL !== null && trade.realPL !== undefined
-          ? trade.realPL >= 0
-            ? `$${trade.realPL}`
-            : `-$${Math.abs(trade.realPL)}`
-          : ""}
-      </Td>
+      <ConditionalTd show={isTableExpanded}>{trade.exitPrice}</ConditionalTd>
+      <Td>{formatCurrency(trade.projPL)}</Td>
+      <Td>{formatCurrency(trade.realPL)}</Td>
       <Td>{trade.realRR}</Td>
-      <Td>
-        {trade.commission !== null && trade.commission !== undefined
-          ? trade.commission >= 0
-            ? `$${trade.commission}`
-            : `-$${Math.abs(trade.commission)}`
-          : ""}
-      </Td>
-      <Td>
-        {trade.percentChange !== null && trade.percentChange !== undefined
-          ? `${trade.percentChange}%`
-          : ""}
-      </Td>
+      <Td>{formatCurrency(trade.commission)}</Td>
+      <Td>{formatPercentage(trade.percentChange)}</Td>
       <Td>{trade.pips}</Td>
-      {isTableExpanded ? <Td>{trade.mfe}</Td> : null}
-      {isTableExpanded ? <Td>{trade.mae}</Td> : null}
+      <ConditionalTd show={isTableExpanded}>{trade.mfe}</ConditionalTd>
+      <ConditionalTd show={isTableExpanded}>{trade.mae}</ConditionalTd>
       <Td>{trade.mfeRatio}</Td>
       <Td>{trade.maeRatio}</Td>
       <Td>{trade.type}</Td>
