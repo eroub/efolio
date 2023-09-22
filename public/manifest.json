@@ -1,16 +1,16 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Trade Journal",
+  "name": "Evan Roubekas' Trade Journal",
   "icons": [
     {
       "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
+      "sizes": "16x16 32x32 48x48",
       "type": "image/x-icon"
     },
     {
       "src": "apple-touch-icon.png",
-      "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "57x57",
+      "type": "image/png"
     }
   ],
   "start_url": ".",

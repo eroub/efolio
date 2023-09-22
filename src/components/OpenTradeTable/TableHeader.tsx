@@ -1,6 +1,6 @@
 // TableHeader.tsx
 import React from "react";
-import styled from 'styled-components';
+import styled from "styled-components";
 
 const Th = styled.th`
   border: 1px solid #dddddd;
@@ -8,7 +8,7 @@ const Th = styled.th`
   padding: 8px;
 
   @media (max-width: 768px) {
-    padding: 4px;  // reduce padding for smaller screens
+    padding: 4px; // reduce padding for smaller screens
   }
 `;
 

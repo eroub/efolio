@@ -41,7 +41,7 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
   const ticker = watch("ticker");
 
   const submitTrade = (formData: PartialTrade) => {
-    console.log(formData)
+    console.log(formData);
     if (
       formData.datetimeIn &&
       formData.ticker &&
@@ -52,9 +52,8 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
       formData.target &&
       formData.size
     ) {
-
       // Update ticker to include "/" delimiter and add calculated fields
-      const updatedTicker = preprocessTicker(formData.ticker)
+      const updatedTicker = preprocessTicker(formData.ticker);
       const updatedData: PartialTrade = {
         ...formData,
         ticker: updatedTicker,

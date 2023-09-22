@@ -1,6 +1,6 @@
 // TradeTable.tsx
 import React from "react";
-import styled from 'styled-components';
+import styled from "styled-components";
 import TableHeader from "./TableHeader";
 import TableRow from "./TableRow";
 // Import trade interface
@@ -17,13 +17,12 @@ const StyledTable = styled.table`
 
   @media (max-width: 768px) {
     display: block;
-    font-size: 14px;  // reduce font-size for smaller screens
+    font-size: 14px; // reduce font-size for smaller screens
     overflow-x: auto;
   }
 `;
 
-
-const TradeTable: React.FC<TradeTableProps> = ({ trades }) => {
+const OpenTradeTable: React.FC<TradeTableProps> = ({ trades }) => {
   return (
     <StyledTable>
       <TableHeader />
@@ -36,4 +35,4 @@ const TradeTable: React.FC<TradeTableProps> = ({ trades }) => {
   );
 };
 
-export default TradeTable;
+export default OpenTradeTable;

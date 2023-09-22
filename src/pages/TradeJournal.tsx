@@ -11,7 +11,7 @@ import { Trade, PartialTrade } from "../models/TradeTypes";
 import Error from "../components/Error";
 import Loading from "../components/Loading";
 import TradeInit from "../components/TradeInit";
-import TradeTable from "../components/TradeTable/TradeTable";
+import OpenTradeTable from "../components/OpenTradeTable/OpenTradeTable";
 
 const TradeJournal: React.FC = () => {
   // Authentication State
@@ -99,7 +99,8 @@ const TradeJournal: React.FC = () => {
       {isError ? <Error message="An error occurred" /> : null}
 
       {/* Display list of trades */}
-      <TradeTable trades={trades} />
+      <h3>Open Trades</h3>
+      <OpenTradeTable trades={trades} />
     </div>
   );
 };

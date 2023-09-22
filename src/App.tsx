@@ -3,6 +3,22 @@ import styled from "styled-components";
 import TradeJournal from "./pages/TradeJournal";
 import AuthButton from "./auth/AuthButton";
 
+// Styles
+const AppContainer = styled.div`
+  text-align: center;
+`;
+
+const AppHeader = styled.header`
+  background-color: #282c34;
+  min-height: 8vh;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: center;
+  font-size: calc(10px + 0.5vmin);
+  color: white;
+`;
+
 const Header = styled.header`
   display: flex;
   justify-content: space-between;
@@ -26,18 +42,21 @@ const Subtitle = styled.h3`
   line-height: 1;
 `;
 
+// Component
 function App() {
   return (
-    <div className="App">
-      <Header>
-        <TitleContainer>
-          <Title>A Trade Journal</Title>
-          <Subtitle>By Evan Roubekas</Subtitle>
-        </TitleContainer>
-        <AuthButton />
-      </Header>
+    <AppContainer>
+      <AppHeader>
+        <Header>
+          <TitleContainer>
+            <Title>A Trade Journal</Title>
+            <Subtitle>By Evan Roubekas</Subtitle>
+          </TitleContainer>
+          <AuthButton />
+        </Header>
+      </AppHeader>
       <TradeJournal />
-    </div>
+    </AppContainer>
   );
 }
 
