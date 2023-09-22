@@ -15,7 +15,7 @@ export interface Trade {
   risk: number | null;
   estGain: number | null;
   estRR: number | null;
-  exit: number | null;
+  exitPrice: number | null;
   projPL: number | null;
   realPL: number | null;
   commission: number | null;

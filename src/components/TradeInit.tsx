@@ -224,6 +224,7 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
                 <option value="Bull Reversal">Bull Reversal</option>
                 <option value="Ascending Triangle">Ascending Triangle</option>
                 <option value="Descending Triangle">Descending Triangle</option>
+                <option value="News Event">Descending Triangle</option>
               </select>
             )}
           />

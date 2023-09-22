@@ -6,13 +6,28 @@ export const simplifyDate = (datetime: string | null) => {
     return null;
   }
   const date = new Date(datetime);
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1; // Months are zero-based
-  const day = date.getDate();
-  const hours = date.getHours();
-  const minutes = date.getMinutes();
+  const year = date.getUTCFullYear();
+  const month = date.getUTCMonth() + 1; // Months are zero-based
+  const day = date.getUTCDate();
+  const hours = date.getUTCHours();
+  const minutes = date.getUTCMinutes();
 
   return `${year}-${month}-${day} ${hours}:${minutes}`;
+};
+
+// Custom human readable date formatting (ex. Set 18, '23 11:34)
+export const humanReadFormatDate = (dateString: string | null) => {
+  if (dateString === null) {
+    return null;
+  }
+  const date = new Date(dateString);
+  const year = date.getUTCFullYear().toString().substr(-2); // get last 2 digits of year
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const month = monthNames[date.getUTCMonth()]; // get short month name
+  const day = date.getUTCDate();
+  const hours = date.getUTCHours();
+  const minutes = date.getUTCMinutes();
+  return `${month} ${day}, '${year} ${hours}:${minutes}`;
 };
 
 // Convert date string to standard date time object

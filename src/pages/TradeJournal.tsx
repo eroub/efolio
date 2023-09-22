@@ -37,6 +37,7 @@ const TradeJournal: React.FC = () => {
       try {
         const response = await http.get("/api/trades");
         setTrades(response.data);
+        console.log(response.data)
         setIsLoading(false);
       } catch (error) {
         console.error("Error fetching trades", error);

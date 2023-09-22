@@ -1,6 +1,7 @@
 // TableHeader.tsx
 import React from "react";
 import styled from "styled-components";
+import { DirectionArrows } from "../../assets/Arrows";
 
 const Th = styled.th`
   border: 1px solid #dddddd;
@@ -12,42 +13,50 @@ const Th = styled.th`
   }
 `;
 
+const headers = [
+  "ID",
+  "Ticker",
+  "Direction",
+  "In Time",
+  "Out Time",
+  "Hrs",
+  "Equity",
+  "Entry",
+  "S/L",
+  "Target",
+  "Size",
+  "Risk %",
+  "Est Gain %",
+  "Est R:R",
+  "Exit",
+  "Proj P/L",
+  "Real P/L",
+  "Real R:R",
+  "Comm/Slip",
+  "% Δ",
+  "Pip Δ",
+  "Max FE",
+  "Max AE",
+  "MFE R",
+  "MAE R",
+  "Type",
+  "Picture",
+  "Comment"
+];
+
 const TableHeader = () => {
   return (
     <thead>
       <tr>
-        <Th>ID</Th>
-        <Th>Ticker</Th>
-        <Th>Direction</Th>
-        <Th>Datetime In</Th>
-        <Th>Datetime Out</Th>
-        <Th>Total (Hrs)</Th>
-        <Th>Equity</Th>
-        <Th>Entry</Th>
-        <Th>Stop Loss</Th>
-        <Th>Target</Th>
-        <Th>Size</Th>
-        <Th>Risk %</Th>
-        <Th>Estimated Gain %</Th>
-        <Th>Estimated R:R</Th>
-        <Th>Exit Price</Th>
-        <Th>Projected P/L</Th>
-        <Th>Realized P/L</Th>
-        <Th>Commission / Slippage</Th>
-        <Th>% Change</Th>
-        <Th>Realized R:R</Th>
-        <Th>Pip Change</Th>
-        <Th>Maximimum Favorable Excursion</Th>
-        <Th>Maximimum Adverse Excursion</Th>
-        <Th>MFE Ratio</Th>
-        <Th>MAE Ratio</Th>
-        <Th>Type</Th>
-        <Th>Screenshot</Th>
-        <Th>Comment</Th>
-        {/* Add more table headers here */}
+        {headers.map((header, index) => (
+          <Th key={index}>
+            {header === "Direction" ? <DirectionArrows /> : header}
+          </Th>
+        ))}
       </tr>
     </thead>
   );
 };
+
 
 export default TableHeader;
