@@ -9,6 +9,7 @@ import { breakpoints } from "../../assets/breakpoints";
 
 interface TableRowProps {
   trade: Trade;
+  isTableExpanded: boolean;
 }
 
 const formatSizeInK = (size: number | null) => {
@@ -23,32 +24,41 @@ const Td = styled.td`
   align-items: center;
   justify-content: center;
 
-
   @media (max-width: ${breakpoints.medium}) {
     padding: 4px; // reduce padding for smaller screens
   }
 `;
 
-const TableRow: React.FC<TableRowProps> = ({ trade }) => {
+const TableRow: React.FC<TableRowProps> = ({ trade, isTableExpanded }) => {
   return (
     <tr>
       <Td>{trade.id}</Td> {/* Note: Field names should match the interface */}
       <Td>{trade.ticker}</Td>
       <Td>
-        {trade.direction === 'Long' ? <GreenUpArrow /> : trade.direction === 'Short' ? <RedDownArrow /> : null}
+        {trade.direction === "Long" ? (
+          <GreenUpArrow />
+        ) : trade.direction === "Short" ? (
+          <RedDownArrow />
+        ) : null}
       </Td>
-      <Td>{humanReadFormatDate(trade.datetimeIn)}</Td>
-      <Td>{humanReadFormatDate(trade.datetimeOut)}</Td>
+      {isTableExpanded ? (
+        <Td>{humanReadFormatDate(trade.datetimeIn)}</Td>
+      ) : null}
+      {isTableExpanded ? (
+        <Td>{humanReadFormatDate(trade.datetimeOut)}</Td>
+      ) : null}
       <Td>{trade.totalHrs}</Td>
-      <Td>
-        {trade.equity !== null && trade.equity !== undefined
-          ? `$${trade.equity}`
-          : ""}
-      </Td>
-      <Td>{trade.entry}</Td>
-      <Td>{trade.stopLoss}</Td>
-      <Td>{trade.target}</Td>
-      <Td>{formatSizeInK(trade.size)}</Td>
+      {isTableExpanded ? (
+        <Td>
+          {trade.equity !== null && trade.equity !== undefined
+            ? `$${trade.equity}`
+            : ""}
+        </Td>
+      ) : null}
+      {isTableExpanded ? <Td>{trade.entry}</Td> : null}
+      {isTableExpanded ? <Td>{trade.stopLoss}</Td> : null}
+      {isTableExpanded ? <Td>{trade.target}</Td> : null}
+      {isTableExpanded ? <Td>{formatSizeInK(trade.size)}</Td> : null}
       <Td>
         {trade.risk !== null && trade.risk !== undefined
           ? `${trade.risk}%`
@@ -89,8 +99,8 @@ const TableRow: React.FC<TableRowProps> = ({ trade }) => {
           : ""}
       </Td>
       <Td>{trade.pips}</Td>
-      <Td>{trade.mfe}</Td>
-      <Td>{trade.mae}</Td>
+      {isTableExpanded ? <Td>{trade.mfe}</Td> : null}
+      {isTableExpanded ? <Td>{trade.mae}</Td> : null}
       <Td>{trade.mfeRatio}</Td>
       <Td>{trade.maeRatio}</Td>
       <Td>{trade.type}</Td>

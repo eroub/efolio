@@ -11,7 +11,8 @@ import { Trade, PartialTrade } from "../models/TradeTypes";
 import Error from "../components/Error";
 import Loading from "../components/Loading";
 import TradeInit from "../components/TradeInit";
-import OpenTradeTable from "../components/OpenTradeTable/OpenTradeTable";
+import ClosedTradeTable from "../components/ClosedTradeTable/ClosedTradeTable";
+import { Expand, Shrink } from "../assets/Arrows";
 
 const TradeJournal: React.FC = () => {
   // Authentication State
@@ -28,6 +29,12 @@ const TradeJournal: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
 
+  // Table shrink/expand state
+  const [isTableExpanded, setTableExpanded] = useState(true); // Initial state is 'Expanded'
+  const toggleTable = () => {
+    setTableExpanded(!isTableExpanded);
+  };
+
   // Fetch trades from the server
   useEffect(() => {
     const fetchTrades = async () => {
@@ -37,7 +44,7 @@ const TradeJournal: React.FC = () => {
       try {
         const response = await http.get("/api/trades");
         setTrades(response.data);
-        console.log(response.data)
+        console.log(response.data);
         setIsLoading(false);
       } catch (error) {
         console.error("Error fetching trades", error);
@@ -100,8 +107,17 @@ const TradeJournal: React.FC = () => {
       {isError ? <Error message="An error occurred" /> : null}
 
       {/* Display list of trades */}
-      <h3>Open Trades</h3>
-      <OpenTradeTable trades={trades} />
+      <h3 style={{ display: "flex", alignItems: "center" }}>
+        Completed Trades
+        <button onClick={toggleTable}>
+          {isTableExpanded ? (
+            <Shrink style={{ marginLeft: "10px" }} />
+          ) : (
+            <Expand style={{ marginLeft: "10px" }} />
+          )}
+        </button>
+      </h3>
+      <ClosedTradeTable trades={trades} isTableExpanded={isTableExpanded} />
     </div>
   );
 };

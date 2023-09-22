@@ -8,6 +8,7 @@ import { Trade } from "../../models/TradeTypes";
 
 interface TradeTableProps {
   trades: Trade[];
+  isTableExpanded: boolean;
 }
 
 const StyledTable = styled.table`
@@ -22,17 +23,24 @@ const StyledTable = styled.table`
   }
 `;
 
-const OpenTradeTable: React.FC<TradeTableProps> = ({ trades }) => {
+const ClosedTradeTable: React.FC<TradeTableProps> = ({
+  trades,
+  isTableExpanded,
+}) => {
   return (
     <StyledTable>
-      <TableHeader />
+      <TableHeader isTableExpanded={isTableExpanded} />
       <tbody>
         {trades.map((trade, index) => (
-          <TableRow key={index} trade={trade} />
+          <TableRow
+            key={index}
+            trade={trade}
+            isTableExpanded={isTableExpanded}
+          />
         ))}
       </tbody>
     </StyledTable>
   );
 };
 
-export default OpenTradeTable;
+export default ClosedTradeTable;

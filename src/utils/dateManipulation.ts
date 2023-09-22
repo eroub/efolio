@@ -22,7 +22,20 @@ export const humanReadFormatDate = (dateString: string | null) => {
   }
   const date = new Date(dateString);
   const year = date.getUTCFullYear().toString().substr(-2); // get last 2 digits of year
-  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const monthNames = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
   const month = monthNames[date.getUTCMonth()]; // get short month name
   const day = date.getUTCDate();
   const hours = date.getUTCHours();

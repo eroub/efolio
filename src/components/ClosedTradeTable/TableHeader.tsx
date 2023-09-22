@@ -3,6 +3,10 @@ import React from "react";
 import styled from "styled-components";
 import { DirectionArrows } from "../../assets/Arrows";
 
+interface TableHeaderProps {
+  isTableExpanded: boolean;
+}
+
 const Th = styled.th`
   border: 1px solid #dddddd;
   text-align: left;
@@ -41,22 +45,40 @@ const headers = [
   "MAE R",
   "Type",
   "Picture",
-  "Comment"
+  "Comment",
 ];
 
-const TableHeader = () => {
+const TableHeader: React.FC<TableHeaderProps> = ({ isTableExpanded }) => {
+  const columnsToHide = [
+    "In Time",
+    "Out Time",
+    "Equity",
+    "Entry",
+    "S/L",
+    "Target",
+    "Size",
+    "Exit",
+    "Max FE",
+    "Max AE",
+  ];
+
   return (
     <thead>
       <tr>
         {headers.map((header, index) => (
           <Th key={index}>
-            {header === "Direction" ? <DirectionArrows /> : header}
+            {isTableExpanded || !columnsToHide.includes(header) ? (
+              header === "Direction" ? (
+                <DirectionArrows />
+              ) : (
+                header
+              )
+            ) : null}
           </Th>
         ))}
       </tr>
     </thead>
   );
 };
-
 
 export default TableHeader;
