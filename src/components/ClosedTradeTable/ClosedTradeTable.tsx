@@ -21,6 +21,10 @@ const StyledTable = styled.table`
     font-size: 14px; // reduce font-size for smaller screens
     overflow-x: auto;
   }
+
+  th, td {
+    padding: 6px
+  }
 `;
 
 const ClosedTradeTable: React.FC<TradeTableProps> = ({

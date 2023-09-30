@@ -1,6 +1,12 @@
 // formatters.ts
 export const formatCurrency = (value: number | null) => {
-  return value !== null ? `$${value}` : "";
+  if (value === null) {
+    return "";
+  }
+  if (value < 0) {
+    return `-$${Math.abs(value)}`;
+  }
+  return `$${value}`;
 };
 
 export const formatPercentage = (value: number | null) => {

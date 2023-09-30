@@ -17,16 +17,26 @@ interface TableRowProps {
   isTableExpanded: boolean;
 }
 
-const Td = styled.td`
+interface TdProps {
+  color?: string;
+}
+
+const Td = styled.td<TdProps>`
   border: 1px solid #dddddd;
-  // text-align: left;
   padding: 8px;
   align-items: center;
   justify-content: center;
 
+  color: ${(props) => props.color || "initial"};
+  font-weight: ${(props) => (props.color ? "bold" : "normal")};
+
   @media (max-width: ${breakpoints.medium}) {
     padding: 4px; // reduce padding for smaller screens
   }
+`;
+
+const StyledTr = styled.tr<{ highlight: string }>`
+  background-color: ${(props) => props.highlight};
 `;
 
 // Smaller components for conditional rendering
@@ -38,8 +48,17 @@ const ConditionalTd: React.FC<{ show: boolean; children: React.ReactNode }> = ({
 };
 
 const TableRow: React.FC<TableRowProps> = ({ trade, isTableExpanded }) => {
+  // Determine the background color based on the "Real P/L" value
+  const highlightColor = 
+    trade.realPL === null ? "transparent" : 
+    trade.realPL > 0 ? "rgba(0, 255, 0, 0.1)" : "rgba(255, 0, 0, 0.1)";
+  // Highlight "Real P/L" based on value
+  const realPLColor = 
+    trade.realPL === null ? "initial" : 
+    trade.realPL > 0 ? "green" : "red";
+
   return (
-    <tr>
+    <StyledTr highlight={highlightColor}>
       <Td>{trade.id}</Td>
       <Td>{trade.ticker}</Td>
       <Td>
@@ -70,7 +89,7 @@ const TableRow: React.FC<TableRowProps> = ({ trade, isTableExpanded }) => {
       <Td>{trade.estRR}</Td>
       <ConditionalTd show={isTableExpanded}>{trade.exitPrice}</ConditionalTd>
       <Td>{formatCurrency(trade.projPL)}</Td>
-      <Td>{formatCurrency(trade.realPL)}</Td>
+      <Td color={realPLColor}>{formatCurrency(trade.realPL)}</Td>
       <Td>{trade.realRR}</Td>
       <Td>{formatCurrency(trade.commission)}</Td>
       <Td>{formatPercentage(trade.percentChange)}</Td>
@@ -88,7 +107,7 @@ const TableRow: React.FC<TableRowProps> = ({ trade, isTableExpanded }) => {
         ) : null}
       </Td>
       <Td>{trade.comment}</Td>
-    </tr>
+    </StyledTr>
   );
 };
 
