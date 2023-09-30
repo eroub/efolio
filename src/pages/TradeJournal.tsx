@@ -13,6 +13,7 @@ import Error from "../components/Error";
 import Loading from "../components/Loading";
 import TradeInit from "../components/TradeInit";
 import ClosedTradeTable from "../components/ClosedTradeTable/ClosedTradeTable";
+import TradeStatistics from "../components/Statistics";
 import { Expand, Shrink } from "../assets/Arrows";
 
 const ExpandShrinkButton = styled.button`
@@ -119,6 +120,9 @@ const TradeJournal: React.FC = () => {
     getRates();
   }, []);
 
+  // Filter out the trades that have a status of "Closed"
+  const closedTrades = trades.filter((trade) => trade.status === "Closed");
+
   return (
     <div>
       {/* Only show trade create form if user is authenticated */}
@@ -136,7 +140,7 @@ const TradeJournal: React.FC = () => {
       {isError ? <Error message="An error occurred" /> : null}
 
       {/* Display list of trades */}
-      <h3 style={{ display: "flex", alignItems: "center" }}>
+      <h3 style={{ display: "flex", alignItems: "center", marginLeft: "10px" }}>
         Completed Trades
         <ExpandShrinkButton
           onClick={toggleTable}
@@ -149,7 +153,10 @@ const TradeJournal: React.FC = () => {
           )}
         </ExpandShrinkButton>
       </h3>
+      {/* Closed Trade Table */}
       <ClosedTradeTable trades={trades} isTableExpanded={isTableExpanded} />
+      {/* Trade Statistics Matrix */}
+      <TradeStatistics closedTrades={closedTrades} />
     </div>
   );
 };

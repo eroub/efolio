@@ -22,8 +22,9 @@ const StyledTable = styled.table`
     overflow-x: auto;
   }
 
-  th, td {
-    padding: 6px
+  th,
+  td {
+    padding: 6px;
   }
 `;
 

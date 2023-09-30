@@ -1,5 +1,4 @@
 // TradeTypes.ts
-
 export interface Trade {
   id: number;
   datetimeIn: string;
@@ -33,6 +32,7 @@ export interface Trade {
   riskUSD: number | null;
   estGainUSD: number | null;
   projPLUSD: number | null;
+  status: string;
 }
 
 export type PartialTrade = Partial<Trade>;

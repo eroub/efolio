@@ -49,13 +49,30 @@ const ConditionalTd: React.FC<{ show: boolean; children: React.ReactNode }> = ({
 
 const TableRow: React.FC<TableRowProps> = ({ trade, isTableExpanded }) => {
   // Determine the background color based on the "Real P/L" value
-  const highlightColor = 
-    trade.realPL === null ? "transparent" : 
-    trade.realPL > 0 ? "rgba(0, 255, 0, 0.1)" : "rgba(255, 0, 0, 0.1)";
+  const highlightColor =
+    trade.realPL === null
+      ? "transparent"
+      : trade.realPL > 0
+      ? "rgba(0, 255, 0, 0.1)"
+      : "rgba(255, 0, 0, 0.1)";
   // Highlight "Real P/L" based on value
-  const realPLColor = 
-    trade.realPL === null ? "initial" : 
-    trade.realPL > 0 ? "green" : "red";
+  const realPLColor =
+    trade.realPL === null ? "initial" : trade.realPL > 0 ? "green" : "red";
+  // Coloring for types
+  const tradeTypeColors = {
+    "Low Base": "blue",
+    "High Base": "orange",
+    "Bear Rally": "purple",
+    "Bull Pullback": "darkyellow",
+    "Bear Reversal": "darkblue",
+    "Bull Reversal": "darkorange",
+    "Ascending Triangle": "magenta",
+    "Descending Triangle": "cyan",
+    "News Event": "grey",
+  };
+  const tradeTypeColor = trade.type
+    ? (tradeTypeColors as { [key: string]: string })[trade.type]
+    : "initial";
 
   return (
     <StyledTr highlight={highlightColor}>
@@ -98,7 +115,7 @@ const TableRow: React.FC<TableRowProps> = ({ trade, isTableExpanded }) => {
       <ConditionalTd show={isTableExpanded}>{trade.mae}</ConditionalTd>
       <Td>{trade.mfeRatio}</Td>
       <Td>{trade.maeRatio}</Td>
-      <Td>{trade.type}</Td>
+      <Td color={tradeTypeColor}>{trade.type}</Td>
       <Td>
         {trade.screenshot ? (
           <a href={trade.screenshot} target="_blank" rel="noopener noreferrer">
