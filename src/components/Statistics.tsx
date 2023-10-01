@@ -39,7 +39,9 @@ import {
   calculateDrawdownDuration,
   calculateSkewnessAndKurtosis,
   calculateUlcerIndex,
-  calculateVaRandCVaR
+  calculateVaRandCVaR,
+  calculateNetDrawdown,
+  calculateCommissionMetrics,
 } from "../utils/statisticCalculations";
 
 interface StatisticsProps {
@@ -89,15 +91,22 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
     calculateAverageProfitabilityPerShort(closedTrades);
   const { avgWinDollar: averageWinDollar, avgWinRR: averageWinRR } =
     calculateAverageWin(closedTrades);
-  const { drawdownDurationDays, drawdownDurationHours } = calculateDrawdownDuration(closedTrades);
+  const { totalCommission, avgCommissionPercent } =
+    calculateCommissionMetrics(closedTrades);
+  const { drawdownDurationDays, drawdownDurationHours } =
+    calculateDrawdownDuration(closedTrades);
   const avgMaxAdverseExcursion =
     calculateMaxAdverseExcursionRatio(closedTrades);
   const avgMaxFavorableExcursion =
     calculateMaxFavorableExcursionRatio(closedTrades);
+  const { netDrawdownDollar, netDrawdownPercent } =
+    calculateNetDrawdown(closedTrades);
   const kRatio = calculateKRatio(closedTrades);
   const kellyPercentage = calculateKellyPercentage(closedTrades);
+  // eslint-disable-next-line
   const { largestGainDollar, largestGainRR } =
     calculateLargestGain(closedTrades);
+  // eslint-disable-next-line
   const { largestLossDollar, largestLossRR } =
     calculateLargestLoss(closedTrades);
   const { longPercentage, shortPercentage } =
@@ -105,12 +114,16 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
   const longWinPercentage = calculateLongWinPercentage(closedTrades);
   const maxConsecutiveLosses = calculateMaxConsecutiveLosses(closedTrades);
   const maxConsecutiveWins = calculateMaxConsecutiveWins(closedTrades);
-  const { maxDrawdownDollar, maxDrawdownRR } =
-    calculateMaxDrawdown(closedTrades);
+  const {
+    maxDrawdownDollar,
+    maxDrawdownRR,
+    drawdownPercentPL,
+    drawdownPercentRR,
+  } = calculateMaxDrawdown(closedTrades);
   const probabilityOfRandomChance =
     calculateProbabilityOfRandomChance(closedTrades);
   const profitFactor = calculateProfitFactor(closedTrades);
-  const { skewness, kurtosis} = calculateSkewnessAndKurtosis(closedTrades);
+  const { skewness, kurtosis } = calculateSkewnessAndKurtosis(closedTrades);
   const { sqnDollar, sqnRR } = calculateSystemQualityNumber(closedTrades);
   const { standardDeviationDollar, standardDeviationRR } =
     calculatePLStandardDeviation(closedTrades);
@@ -120,15 +133,17 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
   const { wins, losses } = calculateWinsLosses(closedTrades);
   const shortWinPercentage = calculateShortWinPercentage(closedTrades);
   const ulcerIndex = calculateUlcerIndex(closedTrades);
-  const {VaR, CVaR } = calculateVaRandCVaR(closedTrades);
+  const { VaR, CVaR } = calculateVaRandCVaR(closedTrades);
 
   return (
     <div>
       <h2>Trade Statistics</h2>
-      <div style={{ display: 'flex' }}>
+      {/* Profitability Metrics */}
+      <div style={{ display: "flex" }}>
+        <h3>Profitability Metrics</h3>
         <StatLine
           title="Total Gain/Loss:"
-          style={{ flexBasis: '33.333%' }}
+          style={{ flexBasis: "25%" }}
           stats={
             <>
               <p>($): {formatCurrency(totalGainLossDollar)}</p>
@@ -137,8 +152,8 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
           }
         />
         <StatLine
-          title="Average Profitability per Trade:"
-          style={{ flexBasis: '33.333%' }}
+          title="Avg. Profitability per Trade:"
+          style={{ flexBasis: "25%" }}
           stats={
             <>
               <p>($): {formatCurrency(averageProfitabilityDollar)}</p>
@@ -147,110 +162,8 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
           }
         />
         <StatLine
-          title="Trade P/L Standard Deviation:"
-          style={{ flexBasis: '33.333%' }}
-          stats={
-            <>
-              <p>($): {formatCurrency(standardDeviationDollar)}</p>
-              <p>(R:R): {standardDeviationRR}</p>
-            </>
-          }
-        />
-      </div>
-      <div style={{ display: 'flex' }}>
-        <StatLine
-          title="System Quality Number:"
-          style={{ flexBasis: '33.333%' }}
-          stats={
-            <>
-              <p>($): {sqnDollar}</p>
-              <p>(R:R): {sqnRR}</p>
-            </>
-          }
-        />
-        <StatLine
-          title="Kelly Percentage:"
-          style={{ flexBasis: '33.333%' }}
-          stats={
-            <>
-              <p>{kellyPercentage}%</p>
-            </>
-          }
-        />
-        <StatLine
-          title="Number Wins : Losses:"
-          style={{ flexBasis: '33.333%' }}
-          stats={
-            <>
-              <p>
-                {wins} : {losses}
-              </p>
-            </>
-          }
-        />
-      </div>
-      <div style={{ display: 'flex' }}>
-        <StatLine
-          title="Profit Factor:"
-          style={{ flexBasis: '33.333%' }}
-          stats={
-            <>
-              <p>{profitFactor}</p>
-            </>
-          }
-        />
-        <StatLine
-          title="K-Ratio:"
-          style={{ flexBasis: '33.333%' }}
-          stats={
-            <>
-              <p>{kRatio}</p>
-            </>
-          }
-        />
-        <StatLine
-          title="Probability of Random Chance:"
-          style={{ flexBasis: '33.333%' }}
-          stats={
-            <>
-              <p>{probabilityOfRandomChance}%</p>
-            </>
-          }
-        />
-      </div>
-      <div style={{ display: 'flex' }}>
-        <StatLine
-          title="Average Payoff Ratio:"
-          style={{ flexBasis: '33.333%' }}
-          stats={
-            <>
-              <p>{averagePayoffRatio}</p>
-            </>
-          }
-        />
-        <StatLine
-          title="Average % Move:"
-          style={{ flexBasis: '33.333%' }}
-          stats={
-            <>
-              <p>{averagePercentMove}%</p>
-            </>
-          }
-        />
-        <StatLine
-          title="Average % Risked:"
-          style={{ flexBasis: '33.333%' }}
-          stats={
-            <>
-              <p>{averagePercentRisked}%</p>
-            </>
-          }
-        />
-      </div>
-      <div style={{ display: 'flex' }}>
-        <StatLine
-          title="Average Win:"
-          style={{ flexBasis: '33.333%' }}
+          title="Avg. Win:"
+          style={{ flexBasis: "25%" }}
           stats={
             <>
               <p>($): {formatCurrency(averageWinDollar)}</p>
@@ -259,29 +172,8 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
           }
         />
         <StatLine
-          title="Largest Gain:"
-          style={{ flexBasis: '33.333%' }}
-          stats={
-            <>
-              <p>($): {formatCurrency(largestGainDollar)}</p>
-              <p>(R:R): {largestGainRR}</p>
-            </>
-          }
-        />
-        <StatLine
-          title="Max Consecutive Wins:"
-          style={{ flexBasis: '33.333%' }}
-          stats={
-            <>
-              <p>{maxConsecutiveWins}</p>
-            </>
-          }
-        />
-      </div>
-      <div style={{ display: 'flex' }}>
-        <StatLine
-          title="Average Loss:"
-          style={{ flexBasis: '33.333%' }}
+          title="Avg. Loss:"
+          style={{ flexBasis: "25%" }}
           stats={
             <>
               <p>($): {formatCurrency(averageLossDollar)}</p>
@@ -289,30 +181,55 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             </>
           }
         />
+      </div>
+      {/* Trade Characteristics */}
+      <div style={{ display: "flex" }}>
+        <h3>Trade Characteristics</h3>
         <StatLine
-          title="Largest Loss:"
-          style={{ flexBasis: '33.333%' }}
+          title="Number Wins : Losses:"
+          style={{ flexBasis: "25%" }}
           stats={
             <>
-              <p>($): {formatCurrency(largestLossDollar)}</p>
-              <p>(R:R): {largestLossRR}</p>
+              <p>
+                {wins} : {losses}
+              </p>
+            </>
+          }
+        />
+        <StatLine
+          title="Max Consecutive Wins:"
+          style={{ flexBasis: "25%" }}
+          stats={
+            <>
+              <p>{maxConsecutiveWins}</p>
             </>
           }
         />
         <StatLine
           title="Max Consecutive Losses:"
-          style={{ flexBasis: '33.333%' }}
+          style={{ flexBasis: "25%" }}
           stats={
             <>
               <p>{maxConsecutiveLosses}</p>
             </>
           }
         />
-      </div>
-      <div style={{ display: 'flex' }}>
         <StatLine
-          title="Average Hold Time:"
-          style={{ flexBasis: '33.333%' }}
+          title="Probability of Random Chance:"
+          style={{ flexBasis: "25%" }}
+          stats={
+            <>
+              <p>{probabilityOfRandomChance}%</p>
+            </>
+          }
+        />
+      </div>
+      {/* Trade Timing */}
+      <div style={{ display: "flex" }}>
+        <h3>Trade Timing</h3>
+        <StatLine
+          title="Avg. Hold Time:"
+          style={{ flexBasis: "25%" }}
           stats={
             <>
               <p>Mean: {avgHoldTimeMean} hrs</p>
@@ -321,8 +238,8 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
           }
         />
         <StatLine
-          title="Average Hold Time (Wins):"
-          style={{ flexBasis: '33.333%' }}
+          title="Avg. Hold Time (Wins):"
+          style={{ flexBasis: "25%" }}
           stats={
             <>
               <p>Mean: {avgHoldTimeWinsMean} hrs</p>
@@ -331,8 +248,8 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
           }
         />
         <StatLine
-          title="Average Hold Time (Losses):"
-          style={{ flexBasis: '33.333%' }}
+          title="Avg. Hold Time (Losses):"
+          style={{ flexBasis: "25%" }}
           stats={
             <>
               <p>Mean: {avgHoldTimeLossesMean} hrs</p>
@@ -340,11 +257,23 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             </>
           }
         />
+        <StatLine
+          title="Drawdown Duration:"
+          style={{ flexBasis: "25%" }}
+          stats={
+            <>
+              <p>Days: {drawdownDurationDays}</p>
+              <p>Hours: {drawdownDurationHours}</p>
+            </>
+          }
+        />
       </div>
-      <div style={{ display: 'flex' }}>
+      {/* Trade Direction Metrics */}
+      <div style={{ display: "flex" }}>
+        <h3>Trade Direction Metrics</h3>
         <StatLine
           title="Long Short Ratio:"
-          style={{ flexBasis: '33.333%' }}
+          style={{ flexBasis: "25%" }}
           stats={
             <>
               <p>Long Trades: {longPercentage}%</p>
@@ -354,7 +283,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
         />
         <StatLine
           title="Long Win Percentage:"
-          style={{ flexBasis: '33.333%' }}
+          style={{ flexBasis: "25%" }}
           stats={
             <>
               <p>{longWinPercentage}%</p>
@@ -363,59 +292,126 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
         />
         <StatLine
           title="Short Win Percentage:"
-          style={{ flexBasis: '33.333%' }}
+          style={{ flexBasis: "25%" }}
           stats={
             <>
               <p>{shortWinPercentage}%</p>
             </>
           }
         />
-      </div>
-      <div style={{ display: 'flex' }}>
-        <StatLine
-          title="Max Drawdown:"
-          style={{ flexBasis: '33.333%' }}
-          stats={
-            <>
-              <p>($): {formatCurrency(maxDrawdownDollar)}</p>
-              <p>(R:R): {maxDrawdownRR}</p>
-            </>
-          }
-        />
-        <StatLine
-          title="Average Profitability per Long:"
-          style={{ flexBasis: '33.333%' }}
-          stats={
-            <>
-              <p>($): {avgProfitLongDollar}</p>
-              <p>(R:R): {avgProfitLongRR}</p>
-            </>
-          }
-        />
-        <StatLine
-          title="Average Profitability per Short:"
-          style={{ flexBasis: '33.333%' }}
-          stats={
-            <>
-              <p>($): {avgProfitShortDollar}</p>
-              <p>(R:R): {avgProfitShortRR}</p>
-            </>
-          }
-        />
-      </div>
-      <div style={{ display: 'flex' }}>
         <StatLine
           title="Pip Gain/Loss:"
-          style={{ flexBasis: '33.333%' }}
+          style={{ flexBasis: "25%" }}
           stats={
             <>
               <p>{totalPipGainLoss}</p>
             </>
           }
         />
+      </div>
+      {/* Market Behavior */}
+      <div style={{ display: "flex" }}>
+        <h3>Market Behavior</h3>
         <StatLine
-          title="Average Max Favorable Excursion Ratio:"
-          style={{ flexBasis: '33.333%' }}
+          title="Avg. Payoff Ratio:"
+          style={{ flexBasis: "25%" }}
+          stats={
+            <>
+              <p>{averagePayoffRatio}</p>
+            </>
+          }
+        />
+        <StatLine
+          title="Avg. % Move:"
+          style={{ flexBasis: "25%" }}
+          stats={
+            <>
+              <p>{averagePercentMove}%</p>
+            </>
+          }
+        />
+        <StatLine
+          title="Avg. % Risked:"
+          style={{ flexBasis: "25%" }}
+          stats={
+            <>
+              <p>{averagePercentRisked}%</p>
+            </>
+          }
+        />
+        <StatLine
+          title="Skewness : Kurtosis"
+          style={{ flexBasis: "25%" }}
+          stats={
+            <>
+              <p>
+                {skewness} : {kurtosis}
+              </p>
+            </>
+          }
+        />
+      </div>
+      {/* Risk Metrics */}
+      <div style={{ display: "flex" }}>
+        <h3>Risk Metrics</h3>
+        <StatLine
+          title="Trade P/L Standard Deviation:"
+          style={{ flexBasis: "25%" }}
+          stats={
+            <>
+              <p>($): {formatCurrency(standardDeviationDollar)}</p>
+              <p>(R:R): {standardDeviationRR}</p>
+            </>
+          }
+        />
+        <StatLine
+          title="Value at Risk:"
+          style={{ flexBasis: "25%" }}
+          stats={
+            <>
+              <p>{VaR}</p>
+            </>
+          }
+        />
+        <StatLine
+          title="Conditional Value at Risk:"
+          style={{ flexBasis: "25%" }}
+          stats={
+            <>
+              <p>{CVaR}</p>
+            </>
+          }
+        />
+        <StatLine
+          title="Ulcer Index:"
+          style={{ flexBasis: "25%" }}
+          stats={
+            <>
+              <p>{ulcerIndex}</p>
+            </>
+          }
+        />
+      </div>
+      {/* Advanced Risk Metrics */}
+      <div style={{ display: "flex" }}>
+        <h3>Advanced Risk Metrics</h3>
+        <StatLine
+          title="Max Drawdown:"
+          style={{ flexBasis: "25%" }}
+          stats={
+            <>
+              <p>
+                ($): {formatCurrency(maxDrawdownDollar)} ({drawdownPercentPL}%)
+              </p>
+              <p>
+                (R:R): {maxDrawdownRR} ({drawdownPercentRR}%)
+              </p>
+            </>
+          }
+        />
+        <StatLine
+          title="Avg. Max Favorable Excursion Ratio:"
+          style={{ flexBasis: "25%" }}
           stats={
             <>
               <p>{avgMaxFavorableExcursion}</p>
@@ -423,72 +419,118 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
           }
         />
         <StatLine
-          title="Average Max Adverse Excursion Ratio:"
-          style={{ flexBasis: '33.333%' }}
+          title="Avg. Max Adverse Excursion Ratio:"
+          style={{ flexBasis: "25%" }}
           stats={
             <>
               <p>{avgMaxAdverseExcursion}</p>
             </>
           }
         />
-      </div>
-      <div style={{ display: 'flex' }}>
         <StatLine
-          title="Drawdown Duration:"
-          style={{ flexBasis: '33.333%' }}
-          stats={(
+          title="Avg. Profitability per Long:"
+          style={{ flexBasis: "25%" }}
+          stats={
             <>
-              <p>Days: {drawdownDurationDays}</p>
-              <p>Hours: {drawdownDurationHours}</p>
+              <p>($): {formatCurrency(avgProfitLongDollar)}</p>
+              <p>(R:R): {avgProfitLongRR}</p>
             </>
-          )}
+          }
         />
         <StatLine
-          title="Value at Risk"
-          style={{ flexBasis: '33.333%' }}
-          stats={(
+          title="Avg. Profitability per Short:"
+          style={{ flexBasis: "25%" }}
+          stats={
             <>
-              <p>{VaR}</p>
+              <p>($): {formatCurrency(avgProfitShortDollar)}</p>
+              <p>(R:R): {avgProfitShortRR}</p>
             </>
-          )}
-        />
-        <StatLine
-          title="Conditional Value at Risk"
-          style={{ flexBasis: '33.333%' }}
-          stats={(
-            <>
-              <p>{CVaR}</p>
-            </>
-          )}
+          }
         />
       </div>
-      <div style={{ display: 'flex' }}>
+      {/* Trading Strategy Quality */}
+      <div style={{ display: "flex" }}>
+        <h3>Trading Strategy Quality</h3>
         <StatLine
-          title="Ulcer Index"
-          style={{ flexBasis: '33.333%' }}
-          stats={(
+          title="System Quality Number:"
+          style={{ flexBasis: "25%" }}
+          stats={
             <>
-              <p>{ulcerIndex}</p>
+              <p>($): {sqnDollar}</p>
+              <p>(R:R): {sqnRR}</p>
             </>
-          )}
+          }
         />
         <StatLine
-          title="Skewness"
-          style={{ flexBasis: '33.333%' }}
-          stats={(
+          title="Profit Factor:"
+          style={{ flexBasis: "25%" }}
+          stats={
             <>
-              <p>{skewness}</p>
+              <p>{profitFactor}</p>
             </>
-          )}
+          }
         />
         <StatLine
-          title="Kurtosis"
-          style={{ flexBasis: '33.333%' }}
-          stats={(
+          title="K-Ratio:"
+          style={{ flexBasis: "25%" }}
+          stats={
             <>
-              <p>{kurtosis}</p>
+              <p>{kRatio}</p>
             </>
-          )}
+          }
+        />
+        <StatLine
+          title="Kelly Percentage:"
+          style={{ flexBasis: "25%" }}
+          stats={
+            <>
+              <p>{kellyPercentage}%</p>
+            </>
+          }
+        />
+      </div>
+      {/* Extreme Outcomes and Cost Metrics */}
+      <div style={{ display: "flex" }}>
+        <h3>Extreme Outcomes and Cost Metrics</h3>
+        <StatLine
+          title="Net Drawdown:"
+          style={{ flexBasis: "25%" }}
+          stats={
+            <>
+              <p>($): {formatCurrency(netDrawdownDollar)}</p>
+              <p>(%): {netDrawdownPercent}%</p>
+            </>
+          }
+        />
+        <StatLine
+          title="Comission/Slippage Costs:"
+          style={{ flexBasis: "25%" }}
+          stats={
+            <>
+              <p>Total ($): {formatCurrency(totalCommission)}</p>
+              <p>Avg.: {formatCurrency(avgCommissionPercent)}</p>
+            </>
+          }
+        />
+        <StatLine
+          title="Largest Gain:"
+          style={{ flexBasis: "25%" }}
+          stats={
+            <>
+              <p>($): {formatCurrency(largestGainDollar)}</p>
+              <p>(R:R): {largestGainRR}</p>
+            </>
+          }
+        />
+        <StatLine
+          title="Largest Loss:"
+          style={{ flexBasis: "25%" }}
+          stats={
+            <>
+              <p>($): {formatCurrency(largestLossDollar)}</p>
+              <p>(R:R): {largestLossRR}</p>
+            </>
+          }
         />
       </div>
     </div>

@@ -193,19 +193,15 @@ export const calculateKellyPercentage = (closedTrades: Trade[]) => {
 const runLinearRegression = (yValues: number[]) => {
   const xValues = Array.from({ length: yValues.length }, (_, i) => i);
   const n = yValues.length;
-
   // Calculate sums needed for slope and intercept
   const sumX = sum(xValues);
   const sumY = sum(yValues);
   const sumXX = sum(xValues.map((x) => x * x));
   const sumXY = sum(xValues.map((x, i) => x * yValues[i]));
-
   // Calculate slope (b) and intercept (a) for y = a + bx
   const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-
   // Calculate residuals
   const residuals = yValues.map((y, i) => y - slope * xValues[i]);
-
   // Calculate standard deviation of residuals
   const stdDevResiduals = standardDeviation(residuals);
 
@@ -243,7 +239,7 @@ export const calculateProbabilityOfRandomChance = (closedTrades: Trade[]) => {
   const zScore = (averageProfitabilityDollar - 0) / standardDeviationDollar;
   const prob = truncateToTwoDecimals(Math.pow(1 - zScore, closedTrades.length));
 
-  return prob;
+  return prob*100;
 };
 
 /**
@@ -455,22 +451,29 @@ export const calculateMaxDrawdown = (closedTrades: Trade[]) => {
   let currentPL = 0;
   let currentRR = 0;
 
+  let drawdownPercentPL = 0;
+  let drawdownPercentRR = 0;
+
   for (const trade of closedTrades) {
     if (trade.realPL !== null) {
       currentPL += trade.realPL;
       peakPL = Math.max(peakPL, currentPL);
       maxDrawdownDollar = Math.max(maxDrawdownDollar, peakPL - currentPL);
+      drawdownPercentPL = peakPL !== 0 ? (maxDrawdownDollar / peakPL) * 100 : 0;
     }
     if (trade.realRR !== null) {
       currentRR += trade.realRR;
       peakRR = Math.max(peakRR, currentRR);
       maxDrawdownRR = Math.max(maxDrawdownRR, peakRR - currentRR);
+      drawdownPercentRR = peakRR !== 0 ? (maxDrawdownRR / peakRR) * 100 : 0;
     }
   }
 
   return {
     maxDrawdownDollar: truncateToTwoDecimals(maxDrawdownDollar),
     maxDrawdownRR: truncateToTwoDecimals(maxDrawdownRR),
+    drawdownPercentPL: truncateToTwoDecimals(drawdownPercentPL),
+    drawdownPercentRR: truncateToTwoDecimals(drawdownPercentRR),
   };
 };
 
@@ -544,7 +547,10 @@ export const calculateMaxAdverseExcursionRatio = (closedTrades: Trade[]) => {
  * Formula: sqrt(Average(Drawdown Percentage^2))
  */
 export const calculateUlcerIndex = (closedTrades: Trade[]) => {
-  const sortedTrades = closedTrades.sort((a, b) => new Date(a.datetimeIn).getTime() - new Date(b.datetimeIn).getTime());
+  const sortedTrades = closedTrades.sort(
+    (a, b) =>
+      new Date(a.datetimeIn).getTime() - new Date(b.datetimeIn).getTime(),
+  );
   let peakValue = Number.NEGATIVE_INFINITY;
   let sumOfSquares = 0;
 
@@ -565,7 +571,10 @@ export const calculateUlcerIndex = (closedTrades: Trade[]) => {
  * Returns the duration of the drawdown in days and hours.
  */
 export const calculateDrawdownDuration = (closedTrades: Trade[]) => {
-  const sortedTrades = closedTrades.sort((a, b) => new Date(a.datetimeIn).getTime() - new Date(b.datetimeIn).getTime());
+  const sortedTrades = closedTrades.sort(
+    (a, b) =>
+      new Date(a.datetimeIn).getTime() - new Date(b.datetimeIn).getTime(),
+  );
 
   let peakValue = Number.NEGATIVE_INFINITY;
   let peakTime = 0;
@@ -588,14 +597,18 @@ export const calculateDrawdownDuration = (closedTrades: Trade[]) => {
   }
 
   const drawdownDurationMs = Math.abs(troughTime - peakTime);
-  
+
   // Convert the drawdown duration to days and hours
-  const drawdownDurationDays = Math.floor(drawdownDurationMs / (1000 * 60 * 60 * 24));
-  const drawdownDurationHours = Math.floor((drawdownDurationMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  
+  const drawdownDurationDays = Math.floor(
+    drawdownDurationMs / (1000 * 60 * 60 * 24),
+  );
+  const drawdownDurationHours = Math.floor(
+    (drawdownDurationMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+  );
+
   return {
     drawdownDurationDays,
-    drawdownDurationHours
+    drawdownDurationHours,
   };
 };
 
@@ -606,8 +619,10 @@ export const calculateDrawdownDuration = (closedTrades: Trade[]) => {
  */
 export const calculateSkewnessAndKurtosis = (closedTrades: Trade[]) => {
   const averagePL = average(closedTrades.map((trade) => trade.realPL ?? 0));
-  const stdDev = standardDeviation(closedTrades.map((trade) => trade.realPL ?? 0));
-  
+  const stdDev = standardDeviation(
+    closedTrades.map((trade) => trade.realPL ?? 0),
+  );
+
   let skewness = 0;
   let kurtosis = 0;
 
@@ -617,8 +632,12 @@ export const calculateSkewnessAndKurtosis = (closedTrades: Trade[]) => {
     kurtosis += Math.pow(x, 4);
   }
 
-  skewness = truncateToTwoDecimals((skewness / closedTrades.length) / Math.pow(stdDev, 3));
-  kurtosis = truncateToTwoDecimals((kurtosis / closedTrades.length) / Math.pow(stdDev, 4));
+  skewness = truncateToTwoDecimals(
+    skewness / closedTrades.length / Math.pow(stdDev, 3),
+  );
+  kurtosis = truncateToTwoDecimals(
+    kurtosis / closedTrades.length / Math.pow(stdDev, 4),
+  );
 
   return { skewness, kurtosis };
 };
@@ -628,10 +647,66 @@ export const calculateSkewnessAndKurtosis = (closedTrades: Trade[]) => {
  * VaR Formula: The investment value below which there lies a certain percent (alpha) of the distribution of returns.
  * CVaR Formula: The average of all the investment values below the VaR.
  */
-export const calculateVaRandCVaR = (closedTrades: Trade[], alpha: number = 0.05) => {
-  const losses = closedTrades.map((trade) => trade.realPL ?? 0).filter(pl => pl < 0).sort((a, b) => a - b);
-  let VaR = -(losses[Math.floor(alpha * losses.length)]);
-  let CVaR = -(losses.slice(0, Math.floor(alpha * losses.length)).reduce((acc, val) => acc + val, 0) / Math.floor(alpha * losses.length));
+export const calculateVaRandCVaR = (
+  closedTrades: Trade[],
+  alpha: number = 0.05,
+) => {
+  const losses = closedTrades
+    .map((trade) => trade.realPL ?? 0)
+    .filter((pl) => pl < 0)
+    .sort((a, b) => a - b);
+  let VaR = -losses[Math.floor(alpha * losses.length)];
+  let numLosses = Math.floor(alpha * losses.length);
+  let CVaR: number;
+  if (numLosses === 0 || isNaN(alpha)) {
+    CVaR = NaN; // or some other default value
+  } else {
+    CVaR = -(
+      losses.slice(0, numLosses).reduce((acc, val) => acc + val, 0) / numLosses
+    );
+  }
 
-  return {VaR, CVaR };
+  return { VaR, CVaR };
+};
+
+/**
+ * Calculate Net Drawdown in terms of % and $.
+ * Formula: ((Peak Equity - Trough Equity) / Peak Equity) * 100
+ */
+export const calculateNetDrawdown = (closedTrades: Trade[]) => {
+  let peakEquity = Number.NEGATIVE_INFINITY;
+  let troughEquity = Number.POSITIVE_INFINITY;
+
+  for (const trade of closedTrades) {
+    if (trade.equity !== null) {
+      peakEquity = Math.max(peakEquity, trade.equity);
+      troughEquity = Math.min(troughEquity, trade.equity);
+    }
+  }
+
+  const netDrawdownDollar = peakEquity - troughEquity;
+  const netDrawdownPercent = (netDrawdownDollar / peakEquity) * 100;
+
+  return {
+    netDrawdownDollar: truncateToTwoDecimals(netDrawdownDollar),
+    netDrawdownPercent: truncateToTwoDecimals(netDrawdownPercent),
+  };
+};
+
+/**
+ * Calculate Sum of Commission and Average % of P/L going towards Commission
+ * Formula: Sum of all commission costs and (Total Commission / Total P/L) * 100
+ */
+export const calculateCommissionMetrics = (closedTrades: Trade[]) => {
+  const totalCommission = sum(
+    closedTrades.map((trade) => trade.commission ?? 0),
+  );
+  const totalPL = sum(closedTrades.map((trade) => trade.realPL ?? 0));
+
+  const avgCommissionPercent = (totalCommission / totalPL) * 100;
+
+  return {
+    totalCommission: truncateToTwoDecimals(totalCommission),
+    avgCommissionPercent: truncateToTwoDecimals(avgCommissionPercent),
+  };
 };
