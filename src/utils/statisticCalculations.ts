@@ -239,7 +239,7 @@ export const calculateProbabilityOfRandomChance = (closedTrades: Trade[]) => {
   const zScore = (averageProfitabilityDollar - 0) / standardDeviationDollar;
   const prob = truncateToTwoDecimals(Math.pow(1 - zScore, closedTrades.length));
 
-  return prob*100;
+  return prob * 100;
 };
 
 /**

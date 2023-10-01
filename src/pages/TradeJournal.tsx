@@ -13,7 +13,7 @@ import Error from "../components/Error";
 import Loading from "../components/Loading";
 import TradeInit from "../components/TradeInit";
 import ClosedTradeTable from "../components/ClosedTradeTable/ClosedTradeTable";
-import TradeStatistics from "../components/Statistics";
+import TradeStatistics from "../components/Statistics/Statistics";
 import { Expand, Shrink } from "../assets/Arrows";
 
 const ExpandShrinkButton = styled.button`
@@ -140,7 +140,7 @@ const TradeJournal: React.FC = () => {
       {isError ? <Error message="An error occurred" /> : null}
 
       {/* Display list of trades */}
-      <h3 style={{ display: "flex", alignItems: "center", marginLeft: "10px" }}>
+      <h3 style={{ display: "flex", alignItems: "center", marginLeft: "15px" }}>
         Completed Trades
         <ExpandShrinkButton
           onClick={toggleTable}
