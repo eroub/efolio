@@ -116,14 +116,14 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
   const { VaR, CVaR } = calculateVaRandCVaR(closedTrades);
 
   return (
-    <div style={{ margin: "auto", width: "75%" }}>
+    <div style={{ margin: "auto", width: "85%" }}>
       <h2>Trade Statistics</h2>
       {/* Profitability Metrics */}
       <MetricRow
         groupingTitle="Profitability Metrics"
         statLines={[
           <StatLine
-            title="Total Gain/Loss:"
+            title="Total Gain/Loss"
             stats={
               <>
                 <p>($): {formatCurrency(totalGainLossDollar)}</p>
@@ -132,7 +132,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Avg. Profitability per Trade:"
+            title="Avg. Profitability per Trade"
             stats={
               <>
                 <p>($): {formatCurrency(averageProfitabilityDollar)}</p>
@@ -141,7 +141,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Avg. Win:"
+            title="Avg. Win"
             stats={
               <>
                 <p>($): {formatCurrency(averageWinDollar)}</p>
@@ -150,7 +150,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Avg. Loss:"
+            title="Avg. Loss"
             stats={
               <>
                 <p>($): {formatCurrency(averageLossDollar)}</p>
@@ -165,7 +165,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
         groupingTitle="Trade Characteristics"
         statLines={[
           <StatLine
-            title="Number Wins : Losses:"
+            title="Wins:Losses"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -176,7 +176,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Max Consecutive Wins:"
+            title="Max Consecutive Wins"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -185,7 +185,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Max Consecutive Losses:"
+            title="Max Consecutive Losses"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -195,7 +195,8 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
           />,
 
           <StatLine
-            title="Probability of Random Chance:"
+            title="Probability of Random Chance"
+            tooltip="Assesses the likelihood that your trading system's performance can be attributed to random chance, helping you discern skill from luck."
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -210,7 +211,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
         groupingTitle="Trade Timing"
         statLines={[
           <StatLine
-            title="Avg. Hold Time:"
+            title="Avg. Hold Time"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -220,7 +221,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Avg. Hold Time (Wins):"
+            title="Avg. Hold Time (Wins)"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -230,7 +231,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Avg. Hold Time (Losses):"
+            title="Avg. Hold Time (Losses)"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -240,7 +241,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Drawdown Duration:"
+            title="Drawdown Duration"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -256,17 +257,17 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
         groupingTitle="Trade Direction Metrics"
         statLines={[
           <StatLine
-            title="Long Short Ratio:"
+            title="Long Short Ratio"
             style={{ flexBasis: "25%" }}
             stats={
               <>
-                <p>Long Trades: {longPercentage}%</p>
-                <p>Short Trades: {shortPercentage}%</p>
+                <p>Long: {longPercentage}%</p>
+                <p>Short: {shortPercentage}%</p>
               </>
             }
           />,
           <StatLine
-            title="Long Win Percentage:"
+            title="Long Win Percentage"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -275,7 +276,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Short Win Percentage:"
+            title="Short Win Percentage"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -284,7 +285,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Pip Gain/Loss:"
+            title="Pip Gain/Loss"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -299,7 +300,8 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
         groupingTitle="Trade Behavior"
         statLines={[
           <StatLine
-            title="Avg. Payoff Ratio:"
+            title="Avg. Payoff Ratio"
+            tooltip="Measures the average profit relative to the average loss per trade, guiding you on the system's reward-to-risk efficiency."
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -308,7 +310,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Avg. % Move:"
+            title="Avg. % Move"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -317,7 +319,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Avg. % Risked:"
+            title="Avg. % Risked"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -326,7 +328,8 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Skewness : Kurtosis"
+            title="Skewness:Kurtosis"
+            tooltip="Skewness quantifies the asymmetry in your returns distribution, while kurtosis measures the 'tailedness.' Both help in understanding the distribution's shape and risk."
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -343,7 +346,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
         groupingTitle="Risk Metrics"
         statLines={[
           <StatLine
-            title="Trade P/L Standard Deviation:"
+            title="P/L Standard Deviation"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -353,7 +356,8 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Value at Risk:"
+            title="Value at Risk"
+            tooltip="Quantifies the maximum potential loss over a specified time period at a given confidence level, serving as a risk management tool."
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -362,7 +366,8 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Conditional Value at Risk:"
+            title="Conditional Value at Risk"
+            tooltip="Unlike VaR, which considers losses up to a certain confidence level, CVaR estimates the expected loss beyond that level, providing a more comprehensive risk assessment."
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -371,7 +376,8 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Ulcer Index:"
+            title="Ulcer Index"
+            tooltip="Measures the depth and duration of percentage drawdowns in performance, offering a more detailed view of potential declines than standard deviation."
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -386,7 +392,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
         groupingTitle="Advanced Risk Metrics"
         statLines={[
           <StatLine
-            title="Max Drawdown:"
+            title="Max Drawdown"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -401,7 +407,8 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Avg. MFE : MAE Ratios"
+            title="Avg. MFE:MAE Ratios"
+            tooltip="Compares the average Maximum Favorable Excursion (potential profit) to the Maximum Adverse Excursion (potential loss), providing insights into trade optimization."
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -412,7 +419,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Avg. Profitability per Long:"
+            title="Avg. Profitability per Long"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -422,7 +429,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Avg. Profitability per Short:"
+            title="Avg. Profitability per Short"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -438,7 +445,8 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
         groupingTitle="Trading Strategy Quality"
         statLines={[
           <StatLine
-            title="System Quality Number:"
+            title="System Quality Number"
+            tooltip="A single metric that evaluates the performance, risk, and consistency of a trading system, useful for comparing different strategies."
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -448,7 +456,8 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Profit Factor:"
+            title="Profit Factor"
+            tooltip="The ratio of gross profit to gross loss, offering a quick snapshot of a system's profitability potential."
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -457,7 +466,8 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="K-Ratio:"
+            title="K-Ratio"
+            tooltip="Evaluates the consistency of a system's returns over time, helping to identify the sustainability of a trading strategy."
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -466,7 +476,8 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Kelly Percentage:"
+            title="Kelly %"
+            tooltip="Calculates the optimal size of a series of bets to maximize the logarithm of wealth, aiding in optimal capital allocation for trades."
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -481,7 +492,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
         groupingTitle="Extreme Outcomes and Cost Metrics"
         statLines={[
           <StatLine
-            title="Net Drawdown:"
+            title="Net Drawdown"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -491,7 +502,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Comm/Slip Costs:"
+            title="Comm/Slip Costs"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -501,7 +512,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Largest Gain:"
+            title="Largest Gain"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -511,7 +522,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Largest Loss:"
+            title="Largest Loss"
             style={{ flexBasis: "25%" }}
             stats={
               <>
