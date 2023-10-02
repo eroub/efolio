@@ -14,6 +14,7 @@ import Loading from "../components/Loading";
 import TradeInit from "../components/TradeInit";
 import ClosedTradeTable from "../components/ClosedTradeTable/ClosedTradeTable";
 import TradeStatistics from "../components/Statistics/Statistics";
+import Charts from "../components/Charts/Chart";
 import { Expand, Shrink } from "../assets/Arrows";
 
 const ExpandShrinkButton = styled.button`
@@ -74,7 +75,6 @@ const TradeJournal: React.FC = () => {
       try {
         const response = await http.get("/api/trades");
         setTrades(response.data);
-        console.log(response.data);
         setIsLoading(false);
       } catch (error) {
         console.error("Error fetching trades", error);
@@ -157,6 +157,8 @@ const TradeJournal: React.FC = () => {
       <ClosedTradeTable trades={trades} isTableExpanded={isTableExpanded} />
       {/* Trade Statistics Matrix */}
       <TradeStatistics closedTrades={closedTrades} />
+      {/* Performance Charts */}
+      <Charts closedTrades={closedTrades} />
     </div>
   );
 };

@@ -659,7 +659,7 @@ export const calculateVaRandCVaR = (
   let numLosses = Math.floor(alpha * losses.length);
   let CVaR: number;
   if (numLosses === 0 || isNaN(alpha)) {
-    CVaR = NaN; // or some other default value
+    CVaR = Infinity; // or some other default value
   } else {
     CVaR = -(
       losses.slice(0, numLosses).reduce((acc, val) => acc + val, 0) / numLosses
@@ -701,12 +701,21 @@ export const calculateCommissionMetrics = (closedTrades: Trade[]) => {
   const totalCommission = sum(
     closedTrades.map((trade) => trade.commission ?? 0),
   );
-  const totalPL = sum(closedTrades.map((trade) => trade.realPL ?? 0));
 
-  const avgCommissionPercent = (totalCommission / totalPL) * 100;
+  const additionalRiskPercentages = closedTrades.map((trade) => {
+    const absoluteCommission = Math.abs(trade.commission ?? 0);
+    const equity = trade.equity ?? 0;
+    if (equity !== 0) {
+      return (absoluteCommission / equity) * 100;
+    }
+    return 0;
+  });
+
+  const avgAdditionalRiskPercent =
+    sum(additionalRiskPercentages) / additionalRiskPercentages.length;
 
   return {
     totalCommission: truncateToTwoDecimals(totalCommission),
-    avgCommissionPercent: truncateToTwoDecimals(avgCommissionPercent),
+    avgAdditionalRiskPercent: truncateToTwoDecimals(avgAdditionalRiskPercent),
   };
 };

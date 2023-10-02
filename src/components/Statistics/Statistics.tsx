@@ -71,7 +71,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
     calculateAverageProfitabilityPerShort(closedTrades);
   const { avgWinDollar: averageWinDollar, avgWinRR: averageWinRR } =
     calculateAverageWin(closedTrades);
-  const { totalCommission, avgCommissionPercent } =
+  const { totalCommission, avgAdditionalRiskPercent } =
     calculateCommissionMetrics(closedTrades);
   const { drawdownDurationDays, drawdownDurationHours } =
     calculateDrawdownDuration(closedTrades);
@@ -487,9 +487,9 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
           />,
         ]}
       />
-      {/* Extreme Outcomes and Cost Metrics */}
+      {/* Extreme Outcomes & Cost Metrics */}
       <MetricRow
-        groupingTitle="Extreme Outcomes and Cost Metrics"
+        groupingTitle="Extreme Outcomes & Cost Metrics"
         statLines={[
           <StatLine
             title="Net Drawdown"
@@ -502,12 +502,13 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Comm/Slip Costs"
+            title="Comm/Slip"
+            tooltip="Avg. % represents the average additional percentage of your equity at risk due to commission and slippage costs. It quantifies how much these trading costs inflate the percentage of your capital exposed to loss."
             style={{ flexBasis: "25%" }}
             stats={
               <>
                 <p>Total ($): {formatCurrency(totalCommission)}</p>
-                <p>Avg.: {formatCurrency(avgCommissionPercent)}</p>
+                <p>Avg. (%): {avgAdditionalRiskPercent}%</p>
               </>
             }
           />,

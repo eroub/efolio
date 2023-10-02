@@ -11,7 +11,7 @@ export const QuestionMark = () => {
       width="12px"
       height="12px"
       viewBox="0 0 512 512"
-      style={{ transform: 'translateY(2px)' }}
+      style={{ transform: "translateY(2px)" }}
     >
       <g>
         <g>

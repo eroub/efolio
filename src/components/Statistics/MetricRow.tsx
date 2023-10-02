@@ -36,6 +36,8 @@ const StatLine: React.FC<StatLineProps> = ({
     fontSize: "12px",
     zIndex: 10,
     visibility: tooltipVisible ? "visible" : "hidden",
+    width: "200px",
+    whiteSpace: "normal",
   };
 
   return (
@@ -59,8 +61,8 @@ const StatLine: React.FC<StatLineProps> = ({
         <h3
           style={{
             marginRight: "8px",
-            marginBottom: '10px', // Add bottom margin for more vertical space
-            paddingLeft: '5px', // Add left padding for more horizontal space
+            marginBottom: "10px", // Add bottom margin for more vertical space
+            paddingLeft: "5px", // Add left padding for more horizontal space
           }}
         >
           <span style={{ display: "inline" }}>{title}</span>
@@ -77,7 +79,9 @@ const StatLine: React.FC<StatLineProps> = ({
           <span style={{ display: "inline" }}>:</span>
         </h3>
       </div>
-      <div style={{ flexBasis: "70%", textAlign: "center" }}>{stats}</div>
+      <div style={{ flexBasis: "70%", textAlign: "center" }}>
+        {typeof stats === "number" ? (isNaN(stats) ? "N/A" : stats) : stats}
+      </div>
     </div>
   );
 };

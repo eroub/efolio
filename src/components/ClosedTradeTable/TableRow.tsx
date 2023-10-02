@@ -35,8 +35,8 @@ const Td = styled.td<TdProps>`
   }
 `;
 
-const StyledTr = styled.tr<{ highlight: string }>`
-  background-color: ${(props) => props.highlight};
+const StyledTr = styled.tr<{ $highlight: string }>`
+  background-color: ${(props) => props.$highlight};
 `;
 
 // Smaller components for conditional rendering
@@ -75,7 +75,7 @@ const TableRow: React.FC<TableRowProps> = ({ trade, isTableExpanded }) => {
     : "initial";
 
   return (
-    <StyledTr highlight={highlightColor}>
+    <StyledTr $highlight={highlightColor}>
       <Td>{trade.id}</Td>
       <Td>{trade.ticker}</Td>
       <Td>
