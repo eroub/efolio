@@ -37,8 +37,8 @@ const WinLossPieChart: React.FC<PieChartProps> = ({ trades }) => {
       "rgba(255, 0, 0, 0.5)",
     ]);
 
-    const width = 225;
-    const height = 275;
+    const width = 150;
+    const height = 200;
     const radius = Math.min(width, height) / 2;
 
     const svg = d3
@@ -83,6 +83,7 @@ const WinLossPieChart: React.FC<PieChartProps> = ({ trades }) => {
       .append("text")
       .attr("transform", (d) => `translate(${path.centroid(d)})`)
       .attr("text-anchor", "middle")
+      .attr("font-size", "12px")
       .attr("dy", "0.35em")
       .text(
         (d) =>

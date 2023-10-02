@@ -43,8 +43,8 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
       .remove();
 
     // Initialize SVG
-    const width = 500,
-      height = 300;
+    const width = 700,
+      height = 400;
     const svg = d3
       .select(`#cumulativePL${sanitizedMode}`)
       .append("svg")
@@ -56,6 +56,7 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
       .scaleLinear()
       .domain([0, d3.max(data, (d) => d.id)!])
       .range([50, width - 50]);
+
     const y = d3
       .scaleLinear()
       .domain([d3.min(data, (d) => d.value)!, d3.max(data, (d) => d.value)!])
@@ -69,11 +70,18 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
       yAxis.tickFormat((d: any) => formatCurrency(Number(d)) as any);
     }
 
+    // Append X-axis
     svg
       .append("g")
       .attr("transform", `translate(0, ${height - 50})`)
       .call(xAxis);
-    svg.append("g").attr("transform", `translate(50, 0)`).call(yAxis);
+
+    // Append Y-axis
+    svg
+      .append("g")
+      .attr("class", "grid") // Add a class for easier selection
+      .attr("transform", `translate(50, 0)`)
+      .call(yAxis);
 
     // Add grid lines
     svg

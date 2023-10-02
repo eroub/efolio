@@ -29,18 +29,19 @@ const PairPerformanceChart: React.FC<PairPerformanceProps> = ({
       }
     });
 
-    const data: ChartData[] = Object.keys(pairData).map((ticker) => ({
-      ticker,
-      value: pairData[ticker],
-    }));
-
+    const data: ChartData[] = Object.keys(pairData)
+      .map((ticker) => ({
+        ticker,
+        value: pairData[ticker],
+      }))
+      .sort((a, b) => a.ticker.localeCompare(b.ticker));
     // Remove existing SVG
     const id = `pairPerformance${sanitizedMode}`;
     d3.select(`#${id} svg`).remove();
 
     // Initialize SVG and Dimensions
-    const margin = { top: 50, right: 30, bottom: 70, left: 60 },
-      width = 500 - margin.left - margin.right,
+    const margin = { top: 50, right: 30, bottom: 50, left: 60 },
+      width = 700 - margin.left - margin.right,
       height = 400 - margin.top - margin.bottom;
 
     const svg = d3
@@ -75,20 +76,42 @@ const PairPerformanceChart: React.FC<PairPerformanceProps> = ({
     }
     svg.append("g").call(yAxis);
 
-    // Bars
+    // Render the bars
     svg
       .selectAll(".bar")
       .data(data)
       .enter()
       .append("rect")
       .attr("class", "bar")
-      .attr("x", (d) => x(d.ticker) || 0)
+      .attr("x", (d) => x(d.ticker) ?? 0)
       .attr("y", (d) => y(Math.max(0, d.value)))
       .attr("width", x.bandwidth())
       .attr("height", (d) => Math.abs(y(d.value) - y(0)))
-      .attr("fill", (d) =>
-        d.value >= 0 ? "rgba(0, 255, 0, 0.7)" : "rgba(255, 0, 0, 0.7)",
-      );
+      .attr("fill", (d) => (d.value >= 0 ? "green" : "red"))
+      // Add these lines for the hover effect
+      .on("mouseover", function (event, d) {
+        const xPosition = x(d.ticker) ?? 0; // Provide a default value
+        d3.select(this)
+          .attr("stroke", d.value >= 0 ? "darkgreen" : "darkred")
+          .attr("stroke-width", 2);
+
+        // Show the y-axis value
+        svg
+          .append("text")
+          .attr("id", "hoverText")
+          .attr("x", xPosition + x.bandwidth() / 2)
+          .attr("y", y(d.value) - 5)
+          .attr("text-anchor", "middle")
+          .attr("font-size", "12px")
+          .attr("fill", "black")
+          .text(d.value.toFixed(2));
+      })
+      .on("mouseout", function (event, d) {
+        d3.select(this).attr("stroke", "none").attr("stroke-width", 0);
+
+        // Remove the y-axis value
+        svg.select("#hoverText").remove();
+      });
 
     // Add Title
     svg

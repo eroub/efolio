@@ -3,9 +3,12 @@ import React, { useEffect } from "react";
 import * as d3 from "d3";
 // Trade Interface
 import { Trade } from "../../models/TradeTypes";
+// Format currency for $
+import { formatCurrency } from "../../utils/formatters";
 
-interface BarChartProps {
+interface ComparisonChartProps {
   trades: Trade[];
+  mode: "$" | "R:R";
 }
 
 interface ChartData {
@@ -13,31 +16,43 @@ interface ChartData {
   value: number;
 }
 
-const RRBarChart: React.FC<BarChartProps> = ({ trades }) => {
+const ComparisonChart: React.FC<ComparisonChartProps> = ({ trades, mode }) => {
+  const sanitizedMode = mode.replace(":", "").replace("$", "dollar"); // Sanitize the mode
   useEffect(() => {
-    // Aggregate Real R:R for Winning and Losing trades
-    let winRR = 0,
-      lossRR = 0;
+    // Aggregate Real ($/R:R) for Winning and Losing trades
+    let winValue = 0,
+      lossValue = 0;
+
     trades.forEach((trade) => {
-      if (trade.realRR !== null) {
-        trade.realRR > 0 ? (winRR += trade.realRR) : (lossRR += trade.realRR);
+      if (mode === "$") {
+        // Assuming trade.realPL is your profit/loss in $
+        trade.realPL !== null &&
+          (trade.realPL > 0
+            ? (winValue += trade.realPL)
+            : (lossValue += trade.realPL));
+      } else {
+        // For R:R
+        trade.realRR !== null &&
+          (trade.realRR > 0
+            ? (winValue += trade.realRR)
+            : (lossValue += trade.realRR));
       }
     });
 
     const data: ChartData[] = [
-      { label: "Winning R:R", value: winRR },
-      { label: "Losing R:R", value: lossRR },
+      { label: `Winning ${mode}`, value: winValue },
+      { label: `Losing ${mode}`, value: lossValue },
     ];
 
     // Define dimensions
-    const width = 400,
+    const width = 300,
       height = 200;
 
     // Remove existing SVG if present
-    d3.select("#rrBarChart svg").remove();
+    d3.select(`#comparisonBarChart-${sanitizedMode} svg`).remove();
 
     const svg = d3
-      .select("#rrBarChart")
+      .select(`#comparisonBarChart-${sanitizedMode}`)
       .append("svg")
       .attr("width", width)
       .attr("height", height);
@@ -61,7 +76,7 @@ const RRBarChart: React.FC<BarChartProps> = ({ trades }) => {
       .attr("y", 20)
       .attr("text-anchor", "middle")
       .style("font-size", "16px")
-      .text("Win/Loss P/L Comparison (R:R)");
+      .text(`Win/Loss Comparison (${mode})`);
 
     // Create bars
     svg
@@ -91,20 +106,24 @@ const RRBarChart: React.FC<BarChartProps> = ({ trades }) => {
       .text((d) => (d.value > 0 ? "Gain" : "Loss"));
 
     // Add Values at the end of bars
-    // Add Values at the end of bars, on top
     svg
       .selectAll(".bar-value")
       .data(data)
       .enter()
       .append("text")
       .attr("class", "bar-value")
-      .attr("x", (d) => x(Math.abs(d.value)) - 40) // Adjust this value to place the text at the end of the bar
+      .attr("x", (d) => x(Math.abs(d.value)) - (mode === "$" ? 70 : 40)) // Adjust this value to place the text at the end of the bar
       .attr("y", (d) => y(d.label)! + 25) // Adjust this value to place the text on top of the bar
       .attr("dy", ".35em")
-      .text((d) => d.value.toFixed(2));
-  }, [trades]);
+      .text((d) => {
+        if (mode === "$") {
+          return formatCurrency(Number(d.value)); // Use formatCurrency for "$" mode
+        }
+        return d.value.toFixed(2); // Keep as-is for "R:R" mode
+      });
+  }, [trades, mode, sanitizedMode]);
 
-  return <div id="rrBarChart"></div>;
+  return <div id={`comparisonBarChart-${sanitizedMode}`}></div>;
 };
 
-export default RRBarChart;
+export default ComparisonChart;
