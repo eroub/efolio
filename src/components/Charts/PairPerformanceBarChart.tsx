@@ -3,6 +3,8 @@ import React, { useEffect } from "react";
 import * as d3 from "d3";
 // Trade Interface
 import { Trade } from "../../models/TradeTypes";
+// Format currency utility
+import { formatCurrency } from "../../utils/formatters";
 
 interface PairPerformanceProps {
   trades: Trade[];
@@ -104,7 +106,7 @@ const PairPerformanceChart: React.FC<PairPerformanceProps> = ({
           .attr("text-anchor", "middle")
           .attr("font-size", "12px")
           .attr("fill", "black")
-          .text(d.value.toFixed(2));
+          .text(() => mode === "$" ? formatCurrency(d.value) : d.value);
       })
       .on("mouseout", function (event, d) {
         d3.select(this).attr("stroke", "none").attr("stroke-width", 0);

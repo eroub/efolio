@@ -107,7 +107,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
   const { sqnDollar, sqnRR } = calculateSystemQualityNumber(closedTrades);
   const { standardDeviationDollar, standardDeviationRR } =
     calculatePLStandardDeviation(closedTrades);
-  const { totalGainLossDollar, totalGainLossRR } =
+  const { totalGainLossDollar, totalGainLossRR, percentageGainLossDollar } =
     calculateTotalGainLoss(closedTrades);
   const totalPipGainLoss = calculatePipGainLoss(closedTrades);
   const { wins, losses } = calculateWinsLosses(closedTrades);
@@ -128,6 +128,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
               <>
                 <p>($): {formatCurrency(totalGainLossDollar)}</p>
                 <p>(R:R): {totalGainLossRR}</p>
+                <p>(%): {percentageGainLossDollar}%</p>
               </>
             }
           />,

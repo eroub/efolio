@@ -37,11 +37,6 @@ const Title = styled.h1`
   line-height: 1;
 `;
 
-const Subtitle = styled.h3`
-  margin: 0 0 0 8px;
-  line-height: 1;
-`;
-
 // Component
 function App() {
   return (
@@ -49,8 +44,7 @@ function App() {
       <AppHeader>
         <Header>
           <TitleContainer>
-            <Title>A Trade Journal</Title>
-            <Subtitle>By Evan Roubekas</Subtitle>
+            <Title>efolio</Title>
           </TitleContainer>
           <AuthButton />
         </Header>

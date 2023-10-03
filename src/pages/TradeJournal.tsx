@@ -16,6 +16,8 @@ import ClosedTradeTable from "../components/ClosedTradeTable/ClosedTradeTable";
 import TradeStatistics from "../components/Statistics/Statistics";
 import Charts from "../components/Charts/Chart";
 import { Expand, Shrink } from "../assets/Arrows";
+import SizeCalculator from "../components/Calculators/SizeCalc";
+import PipCalculator from "../components/Calculators/PipDiffCalc";
 
 const ExpandShrinkButton = styled.button`
   border: none;
@@ -113,6 +115,7 @@ const TradeJournal: React.FC = () => {
       try {
         const rates = await fetchExchangeRates();
         setConversionRates(rates);
+        console.log(rates)
       } catch (error) {
         console.error(error);
       }
@@ -134,6 +137,10 @@ const TradeJournal: React.FC = () => {
           />
         </div>
       )}
+
+      {/* Size and Pip Diff Calculators */}
+      <SizeCalculator conversionRates={conversionRates}/>
+      <PipCalculator/>
 
       {/* Loading and Error Components */}
       {isLoading ? <Loading /> : null}
