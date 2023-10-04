@@ -1,7 +1,9 @@
 // tradeCalculations.ts
+// Helper to truncate to two decimals
+const truncateToTwoDecimals = (num: number) => parseFloat(num.toFixed(2));
 /**
  * Calculate the PIP difference between two numbers.
- * 
+ *
  * @param num1 - First number
  * @param num2 - Second number
  * @returns The PIP difference
@@ -22,7 +24,7 @@ export const calculatePipDifference = (num1: number, num2: number) => {
 /**
  * Calculate the trade size based on risk percentage, account equity, and conversion rates.
  * Formula: Size = (Equity * Risk%) / Stop Loss
- * 
+ *
  * @param equity - Current account equity
  * @param riskPercent - Risk percentage per trade
  * @param stopLoss - Stop loss value for the trade
@@ -31,29 +33,29 @@ export const calculatePipDifference = (num1: number, num2: number) => {
  * @returns The size of the trade
  */
 export const calculateSize = (
-  equity: number, 
+  equity: number,
   riskPercent: number,
   entry: number,
-  stopLoss: number, 
-  ticker: string, 
-  conversionRates: Record<string, number>
-  ) => {
-    const isJPY = ticker.slice(-3) === 'JPY'; // Check if it's a JPY pair
-    const pipFactor = isJPY ? 100 : 10000; // Pip factor to calculate pip risk
-    const pipRisk = Math.abs(entry - stopLoss) * pipFactor;
-  
-    // Determine Pip Value
-    let pipValue = 1 / pipFactor;
-    if (ticker.slice(-3) !== 'USD') {
-      const quoteCurrency = ticker.slice(-3);
-      const conversionRate = conversionRates[quoteCurrency] || 1;
-      pipValue /= conversionRate;
-    }
-  
-    // Calculate Position Size
-    const positionSize = (equity * (riskPercent / 100)) / (pipRisk * pipValue);
-    return Math.round(positionSize);
-  };
+  stopLoss: number,
+  ticker: string,
+  conversionRates: Record<string, number>,
+) => {
+  const isJPY = ticker.slice(-3) === "JPY"; // Check if it's a JPY pair
+  const pipFactor = isJPY ? 100 : 10000; // Pip factor to calculate pip risk
+  const pipRisk = Math.abs(entry - stopLoss) * pipFactor;
+
+  // Determine Pip Value
+  let pipValue = 1 / pipFactor;
+  if (ticker.slice(-3) !== "USD") {
+    const quoteCurrency = ticker.slice(-3);
+    const conversionRate = conversionRates[quoteCurrency] || 1;
+    pipValue /= conversionRate;
+  }
+
+  // Calculate Position Size
+  const positionSize = (equity * (riskPercent / 100)) / (pipRisk * pipValue);
+  return Math.round(positionSize);
+};
 // ^ Same params but calculated risk when given size
 export const calculateRiskPercent = (
   entry: number,
@@ -75,7 +77,7 @@ export const calculateRiskPercent = (
     calculatedRisk = (absDifference * lotSize) / (exchangeRate * equity);
   }
 
-  return calculatedRisk * 100; // Multiply by 100 to get percentage
+  return truncateToTwoDecimals(calculatedRisk * 100); // Multiply by 100 to get percentage
 };
 
 export const calculateEstimatedGain = (
@@ -98,12 +100,12 @@ export const calculateEstimatedGain = (
     calculatedGain = (absDifferenceGain * lotSize) / (exchangeRate * equity);
   }
 
-  return calculatedGain * 100; // Multiply by 100 to get percentage
+  return truncateToTwoDecimals(calculatedGain * 100); // Multiply by 100 to get percentage
 };
 
 export const calculateEstimatedRR = (
   riskPercent: number,
   estimatedGain: number,
 ) => {
-  return estimatedGain / riskPercent;
+  return truncateToTwoDecimals(estimatedGain / riskPercent);
 };

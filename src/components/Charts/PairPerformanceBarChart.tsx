@@ -106,7 +106,7 @@ const PairPerformanceChart: React.FC<PairPerformanceProps> = ({
           .attr("text-anchor", "middle")
           .attr("font-size", "12px")
           .attr("fill", "black")
-          .text(() => mode === "$" ? formatCurrency(d.value) : d.value);
+          .text(() => (mode === "$" ? formatCurrency(d.value) : d.value));
       })
       .on("mouseout", function (event, d) {
         d3.select(this).attr("stroke", "none").attr("stroke-width", 0);

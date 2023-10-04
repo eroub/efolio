@@ -40,8 +40,8 @@ const calculateMedian = (arr: number[]) => {
 export const calculateTotalGainLoss = (trades: Trade[]) => {
   // Find the trade with ID 1 to get the starting equity
   const startingTrade = trades.find((trade) => trade.id === 1);
-  const startingEquity = startingTrade ? startingTrade.equity ?? 0 : 0;  // Assuming 'equity' is the field in your Trade type
-  
+  const startingEquity = startingTrade ? startingTrade.equity ?? 0 : 0; // Assuming 'equity' is the field in your Trade type
+
   const realPL = trades.map((trade) => trade.realPL ?? 0);
   const realRR = trades.map((trade) => trade.realRR ?? 0);
 
@@ -49,14 +49,13 @@ export const calculateTotalGainLoss = (trades: Trade[]) => {
   const totalGainLossRR = truncateToTwoDecimals(sum(realRR));
 
   // Calculate the percentage gain/loss based on the starting equity
-  const percentageGainLossDollar = startingEquity !== 0 
-    ? ((totalGainLossDollar / startingEquity) * 100) 
-    : 0;  // Avoid division by zero
+  const percentageGainLossDollar =
+    startingEquity !== 0 ? (totalGainLossDollar / startingEquity) * 100 : 0; // Avoid division by zero
 
   return {
     totalGainLossDollar,
     totalGainLossRR,
-    percentageGainLossDollar: truncateToTwoDecimals(percentageGainLossDollar)
+    percentageGainLossDollar: truncateToTwoDecimals(percentageGainLossDollar),
   };
 };
 

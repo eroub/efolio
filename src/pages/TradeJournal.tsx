@@ -115,7 +115,7 @@ const TradeJournal: React.FC = () => {
       try {
         const rates = await fetchExchangeRates();
         setConversionRates(rates);
-        console.log(rates)
+        console.log(rates);
       } catch (error) {
         console.error(error);
       }
@@ -139,8 +139,8 @@ const TradeJournal: React.FC = () => {
       )}
 
       {/* Size and Pip Diff Calculators */}
-      <SizeCalculator conversionRates={conversionRates}/>
-      <PipCalculator/>
+      <SizeCalculator conversionRates={conversionRates} />
+      <PipCalculator />
 
       {/* Loading and Error Components */}
       {isLoading ? <Loading /> : null}

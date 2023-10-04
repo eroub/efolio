@@ -1,5 +1,21 @@
-import React, { useState, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import React, { useEffect, useState } from "react";
+import { useFormik } from "formik";
+import {
+  TextField,
+  Grid,
+  Container,
+  Paper,
+  Typography,
+  Button,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  MenuItem,
+  InputLabel,
+  Select,
+  FormControl,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 // Functions for calculating risk %, estimated gain %, and estimated R:R
 import {
   calculateRiskPercent,
@@ -27,48 +43,66 @@ const preprocessTicker = (ticker: string) => {
 
 const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
   // Calculated Values
-  const { control, watch, handleSubmit } = useForm<PartialTrade>();
   const [riskPercent, setRiskPercent] = useState<number>(0);
   const [estimatedGain, setEstimatedGain] = useState<number>(0);
   const [estimatedRR, setEstimatedRR] = useState<number>(0);
 
+  // Initialize datetimein
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+  const day = String(now.getDate()).padStart(2, "0");
+  const hour = String(now.getHours()).padStart(2, "0");
+  const minute = String(now.getMinutes()).padStart(2, "0");
+  const formattedDateTime = `${year}-${month}-${day}T${hour}:${minute}`;
+
   // Form values used in calculations
-  const equity = watch("equity");
-  const entry = watch("entry");
-  const stopLoss = watch("stopLoss");
-  const target = watch("target");
-  const size = watch("size");
-  const ticker = watch("ticker");
+  const formik = useFormik({
+    initialValues: {
+      datetimeIn: formattedDateTime,
+      ticker: "",
+      direction: "Long",
+      type: "",
+      equity: 0,
+      entry: 0,
+      stopLoss: 0,
+      target: 0,
+      size: 0,
+    },
+    onSubmit: (values: PartialTrade) => {
+      console.log(values);
+      if (
+        values.datetimeIn &&
+        values.ticker &&
+        values.direction &&
+        values.equity &&
+        values.entry &&
+        values.stopLoss &&
+        values.target &&
+        values.size
+      ) {
+        // Update ticker to include "/" delimiter and add calculated fields
+        const updatedTicker = preprocessTicker(values.ticker);
+        const updatedData: PartialTrade = {
+          ...values,
+          ticker: updatedTicker,
+          risk: riskPercent,
+          estGain: estimatedGain,
+          estRR: estimatedRR,
+        };
 
-  const submitTrade = (formData: PartialTrade) => {
-    console.log(formData);
-    if (
-      formData.datetimeIn &&
-      formData.ticker &&
-      formData.direction &&
-      formData.equity &&
-      formData.entry &&
-      formData.stopLoss &&
-      formData.target &&
-      formData.size
-    ) {
-      // Update ticker to include "/" delimiter and add calculated fields
-      const updatedTicker = preprocessTicker(formData.ticker);
-      const updatedData: PartialTrade = {
-        ...formData,
-        ticker: updatedTicker,
-        risk: riskPercent,
-        estGain: estimatedGain,
-        estRR: estimatedRR,
-      };
-
-      addTrade(updatedData);
-    } else {
-      alert("Please fill in all required fields.");
-    }
-  };
+        addTrade(updatedData);
+      } else {
+        alert("Please fill in all required fields.");
+      }
+    },
+  });
+  const { values } = formik;
+  // Button validation
+  const allValuesFilled = Object.values(values).every((v) => v !== "");
 
   useEffect(() => {
+    const { equity, entry, stopLoss, target, size, ticker } = values;
     if (entry && stopLoss && size && equity && ticker) {
       const riskPercentValue = calculateRiskPercent(
         entry,
@@ -95,148 +129,173 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
       const estimatedRRValue = calculateEstimatedRR(riskPercent, estimatedGain);
       setEstimatedRR(parseFloat(estimatedRRValue.toFixed(3)));
     }
-  }, [
-    equity,
-    entry,
-    stopLoss,
-    target,
-    size,
-    conversionRates,
-    ticker,
-    estimatedGain,
-    riskPercent,
-  ]);
+  }, [values, conversionRates, estimatedGain, riskPercent, estimatedRR]);
 
   return (
-    <div>
-      <div className="left-side">
-        <form onSubmit={handleSubmit(submitTrade)}>
-          <Controller
-            name="datetimeIn"
-            control={control}
-            render={({ field }) => (
-              <input type="datetime-local" {...field} required />
-            )}
-          />
-          <Controller
-            name="ticker"
-            control={control}
-            render={({ field }) => (
-              <input type="text" placeholder="Ticker" {...field} required />
-            )}
-          />
-          <Controller
-            name="direction"
-            control={control}
-            defaultValue="Long"
-            render={({ field }) => (
-              <select {...field} required>
-                <option value="" disabled>
-                  Select Direction
-                </option>
-                <option value="Long">Long</option>
-                <option value="Short">Short</option>
-              </select>
-            )}
-          />
-          <Controller
-            name="equity"
-            control={control}
-            render={({ field }) => (
-              <input
-                type="number"
-                placeholder="Equity"
-                value={field.value || ""}
-                onChange={field.onChange}
-                onBlur={field.onBlur}
-              />
-            )}
-          />
-          <Controller
-            name="entry"
-            control={control}
-            render={({ field }) => (
-              <input
-                type="number"
-                placeholder="Entry"
-                value={field.value || ""}
-                onChange={field.onChange}
-                onBlur={field.onBlur}
-              />
-            )}
-          />
-          <Controller
-            name="stopLoss"
-            control={control}
-            render={({ field }) => (
-              <input
-                type="number"
-                placeholder="Stop Loss"
-                value={field.value || ""}
-                onChange={field.onChange}
-                onBlur={field.onBlur}
-              />
-            )}
-          />
-          <Controller
-            name="target"
-            control={control}
-            render={({ field }) => (
-              <input
-                type="number"
-                placeholder="Target"
-                value={field.value || ""}
-                onChange={field.onChange}
-                onBlur={field.onBlur}
-              />
-            )}
-          />
-          <Controller
-            name="size"
-            control={control}
-            render={({ field }) => (
-              <input
-                type="number"
-                placeholder="Size"
-                value={field.value || ""}
-                onChange={field.onChange}
-                onBlur={field.onBlur}
-              />
-            )}
-          />
-          <Controller
-            name="type"
-            control={control}
-            render={({ field }) => (
-              <select
-                value={field.value || ""}
-                onChange={field.onChange}
-                onBlur={field.onBlur}
-              >
-                <option value="" disabled>
-                  Select Type
-                </option>
-                <option value="Low Base">Low Base</option>
-                <option value="High Base">High Base</option>
-                <option value="Bear Rally">Bear Rally</option>
-                <option value="Bull Pullback">Bull Pullback</option>
-                <option value="Bear Reversal">Bear Reversal</option>
-                <option value="Bull Reversal">Bull Reversal</option>
-                <option value="Ascending Triangle">Ascending Triangle</option>
-                <option value="Descending Triangle">Descending Triangle</option>
-                <option value="News Event">Descending Triangle</option>
-              </select>
-            )}
-          />
-          <button type="submit">Add Trade</button>
-        </form>
-      </div>
-      <div className="right-side">
-        <div>Risk %: {riskPercent}</div>
-        <div>Estimated Gain %: {estimatedGain}</div>
-        <div>Estimated R:R: {estimatedRR}</div>
-      </div>
-    </div>
+    <Container
+      component={Paper}
+      elevation={0}
+      style={{
+        marginTop: "20px",
+        width: "600px",
+      }}
+    >
+      <Accordion
+        elevation={1}
+        style={{ boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)" }}
+      >
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="h6">Trade Init.</Typography>
+          <div
+            style={{
+              display: "flex",
+              gap: "16px",
+              marginLeft: "auto",
+              alignItems: "center",
+            }}
+          >
+            <div
+              style={{
+                fontWeight: riskPercent > 2 ? "bold" : "normal",
+                color: riskPercent > 2 ? "red" : "black",
+              }}
+            >
+              Risk: {riskPercent}%
+            </div>
+            <div>Est. Gain: {estimatedGain}%</div>
+            <div>Est. R:R: {estimatedRR}</div>
+          </div>
+        </AccordionSummary>
+        <AccordionDetails
+          style={{ flexDirection: "column", paddingTop: "0px" }}
+        >
+          <form onSubmit={formik.handleSubmit}>
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <TextField
+                  name="equity"
+                  label="Equity"
+                  fullWidth
+                  onChange={formik.handleChange}
+                  value={values.equity}
+                  size="small"
+                  margin="dense"
+                />
+                <TextField
+                  name="entry"
+                  label="Entry"
+                  fullWidth
+                  onChange={formik.handleChange}
+                  value={values.entry}
+                  size="small"
+                  margin="dense"
+                />
+                <TextField
+                  name="stopLoss"
+                  label="Stop Loss"
+                  fullWidth
+                  onChange={formik.handleChange}
+                  value={values.stopLoss}
+                  size="small"
+                  margin="dense"
+                />
+                <TextField
+                  name="target"
+                  label="Target"
+                  fullWidth
+                  onChange={formik.handleChange}
+                  value={values.target}
+                  size="small"
+                  margin="dense"
+                />
+                <TextField
+                  name="size"
+                  label="Size"
+                  fullWidth
+                  onChange={formik.handleChange}
+                  value={values.size}
+                  size="small"
+                  margin="dense"
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  name="datetimeIn"
+                  label="Datetime In"
+                  type="datetime-local"
+                  fullWidth
+                  onChange={formik.handleChange}
+                  value={values.datetimeIn}
+                  size="small"
+                  margin="dense"
+                />
+                <TextField
+                  name="ticker"
+                  label="Ticker"
+                  fullWidth
+                  onChange={formik.handleChange}
+                  value={values.ticker}
+                  size="small"
+                  margin="dense"
+                />
+                <FormControl fullWidth size="small" margin="dense">
+                  <InputLabel>Direction</InputLabel>
+                  <Select
+                    name="direction"
+                    label="Direction"
+                    value={values.direction}
+                    onChange={formik.handleChange}
+                    sx={{
+                      textAlign: "left",
+                      "& .MuiSelect-select": {
+                        textAlign: "left",
+                      },
+                    }}
+                  >
+                    <MenuItem value="Long">Long</MenuItem>
+                    <MenuItem value="Short">Short</MenuItem>
+                  </Select>
+                </FormControl>
+                <FormControl fullWidth size="small" margin="dense">
+                  <InputLabel>Type</InputLabel>
+                  <Select
+                    name="type"
+                    label="Type"
+                    value={values.type}
+                    onChange={formik.handleChange}
+                    sx={{
+                      textAlign: "left",
+                      "& .MuiSelect-select": {
+                        textAlign: "left",
+                      },
+                    }}
+                  >
+                    <MenuItem value="High Base">High Base</MenuItem>
+                    <MenuItem value="Low Base">Low Base</MenuItem>
+                    <MenuItem value="Bear Rally">Bear Rally</MenuItem>
+                    <MenuItem value="Bull Pullback">Bull Pullback</MenuItem>
+                    <MenuItem value="Bear Reversal">Bear Reversal</MenuItem>
+                    <MenuItem value="Bull Reversal">Bull Reversal</MenuItem>
+                    <MenuItem value="Ascending">Ascending</MenuItem>
+                    <MenuItem value="Descending">Descending</MenuItem>
+                    <MenuItem value="News Event">News Event</MenuItem>
+                  </Select>
+                </FormControl>
+                <Button
+                  style={{ marginTop: "10px" }}
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  disabled={!allValuesFilled}
+                >
+                  Submit
+                </Button>
+              </Grid>
+            </Grid>
+          </form>
+        </AccordionDetails>
+      </Accordion>
+    </Container>
   );
 };
 
