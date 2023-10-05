@@ -17,6 +17,13 @@ const GlobalStyle = createGlobalStyle`
       background-color: #403F3B;
       color: #E6E3D3; // Cream
     }
+    tr {
+      background-color: #504E49;  // Existing background color
+    }
+
+    tr > td {
+      color: #E6E3D3;  // Text color as in the dark color scheme
+    }
   }
   
   code {

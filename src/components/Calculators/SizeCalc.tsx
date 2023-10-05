@@ -131,7 +131,7 @@ const SizeCalculator: React.FC<SizeCalculatorProps> = ({ conversionRates }) => {
             align="center"
             style={{ marginTop: "5px" }}
           >
-            Calculated Size: {calculatedSize}
+            Size: {calculatedSize}
           </Typography>
         </AccordionDetails>
       </Accordion>

@@ -1,5 +1,11 @@
 // QuestionMark.tsx
 export const QuestionMark = () => {
+  // Determine if dark mode is active
+  const isDarkMode =
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches;
+  // Set the fill color based on dark mode status
+  const fillColor = isDarkMode ? "#E6E3D3" : "black";
   return (
     <svg
       version="1.1"
@@ -16,12 +22,14 @@ export const QuestionMark = () => {
       <g>
         <g>
           <path
+            fill={fillColor}
             d="M256,0C114.609,0,0,114.609,0,256c0,141.391,114.609,256,256,256c141.391,0,256-114.609,256-256
 			C512,114.609,397.391,0,256,0z M256,472c-119.297,0-216-96.703-216-216S136.703,40,256,40s216,96.703,216,216S375.297,472,256,472
 			z"
           />
-          <rect x="240" y="352" width="32" height="32" />
+          <rect x="240" y="352" width="32" height="32" fill={fillColor} />
           <path
+            fill={fillColor}
             d="M317.734,150.148c-6.484-6.625-14.688-11.922-24.767-16.031c-10.202-4.102-22.172-6.117-36.28-6.117
 			c-11.97,0-22.875,2.016-32.781,6.117c-9.938,4.109-18.5,9.773-25.688,17.125c-7.125,7.289-12.672,14.508-16.5,24.773
 			C177.906,186.281,176,192,176,208h32.656c0-16,4.234-28.109,12.938-38.516c8.594-10.453,20.266-14.82,35.093-14.82
