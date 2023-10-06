@@ -73,7 +73,7 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
       values.exitPrice = Number(values.exitPrice);
       values.mfe = Number(values.mfe);
       values.mae = Number(values.mae);
-      values.realPL = Number(values.realPL)
+      values.realPL = Number(values.realPL);
       const completedTrade = {
         ...openTrade,
         ...values,

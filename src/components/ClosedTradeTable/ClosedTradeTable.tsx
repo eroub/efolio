@@ -1,5 +1,5 @@
 // TradeTable.tsx
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import styled from "styled-components";
 import TableHeader from "./TableHeader";
 import TableRow from "./TableRow";
@@ -60,6 +60,11 @@ const StyledTable = styled.table`
 const ClosedTradeTable: React.FC<TradeTableProps> = ({ trades }) => {
   // Table shrink/expand state
   const [isTableExpanded, setTableExpanded] = useState(false); // Initial state is 'Shrunk'
+  // Use useMemo to derive sorted trades only when trades change
+  const memoizedTrades = useMemo(() => {
+    return [...trades].sort((a, b) => b.id - a.id);
+  }, [trades]);
+
   const toggleTable = () => {
     setTableExpanded(!isTableExpanded);
   };
@@ -82,7 +87,7 @@ const ClosedTradeTable: React.FC<TradeTableProps> = ({ trades }) => {
       <StyledTable>
         <TableHeader isTableExpanded={isTableExpanded} />
         <tbody>
-          {trades.map((trade, index) => (
+          {memoizedTrades.map((trade, index) => (
             <TableRow
               key={index}
               trade={trade}

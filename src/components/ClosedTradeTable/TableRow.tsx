@@ -19,7 +19,7 @@ interface TableRowProps {
 
 interface TdProps {
   color?: string;
-  externalColor?: string;
+  $externalColor?: string;
 }
 
 const isDarkMode =
@@ -32,7 +32,7 @@ const Td = styled.td<TdProps>`
   justify-content: center;
 
   color: ${(props) =>
-    props.externalColor || (isDarkMode ? "#E6E3D3" : "initial")};
+    props.$externalColor || (isDarkMode ? "#E6E3D3" : "initial")};
   font-weight: ${(props) => (props.color ? "bold" : "normal")};
 
   @media (max-width: ${breakpoints.medium}) {
@@ -71,8 +71,8 @@ const TableRow: React.FC<TableRowProps> = ({ trade, isTableExpanded }) => {
     "Bull Pullback": "darkyellow",
     "Bear Reversal": "darkblue",
     "Bull Reversal": "darkorange",
-    "Ascending Triangle": "magenta",
-    "Descending Triangle": "cyan",
+    "Ascending": "magenta",
+    "Descending": "cyan",
     "News Event": "grey",
   };
   const tradeTypeColor = trade.type
@@ -111,7 +111,7 @@ const TableRow: React.FC<TableRowProps> = ({ trade, isTableExpanded }) => {
       <Td>{trade.estRR}</Td>
       <ConditionalTd show={isTableExpanded}>{trade.exitPrice}</ConditionalTd>
       <Td>{formatCurrency(trade.projPL)}</Td>
-      <Td externalColor={realPLColor}>{formatCurrency(trade.realPL)}</Td>
+      <Td $externalColor={realPLColor}>{formatCurrency(trade.realPL)}</Td>
       <Td>{trade.realRR}</Td>
       <Td>{formatCurrency(trade.commission)}</Td>
       <Td>{formatPercentage(trade.percentChange)}</Td>
@@ -120,7 +120,7 @@ const TableRow: React.FC<TableRowProps> = ({ trade, isTableExpanded }) => {
       <ConditionalTd show={isTableExpanded}>{trade.mae}</ConditionalTd>
       <Td>{trade.mfeRatio}</Td>
       <Td>{trade.maeRatio}</Td>
-      <Td externalColor={tradeTypeColor}>{trade.type}</Td>
+      <Td $externalColor={tradeTypeColor}>{trade.type}</Td>
       <Td>
         {trade.screenshot ? (
           <a href={trade.screenshot} target="_blank" rel="noopener noreferrer">
