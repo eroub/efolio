@@ -54,7 +54,7 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
     // Create scales
     const x = d3
       .scaleLinear()
-      .domain([0, d3.max(data, (d) => d.id)!])
+      .domain([1, d3.max(data, (d) => d.id)!])
       .range([50, width - 50]);
 
     const y = d3

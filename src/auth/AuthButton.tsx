@@ -1,6 +1,7 @@
 // AuthButton.tsx
 import React from "react";
 import { useAuth } from "./AuthContext";
+import http from "../services/http"; // Import the Axios configuration
 
 const AuthButton: React.FC = () => {
   const { auth, authenticate } = useAuth();
@@ -23,21 +24,25 @@ const AuthButton: React.FC = () => {
     const base64Credentials = btoa(username + ":" + password);
 
     try {
-      const response = await fetch("/auth", {
-        method: "GET",
-        headers: {
-          Authorization: `Basic ${base64Credentials}`,
-        },
+      const response = await http.get("/auth", {
+        headers: { Authorization: `Basic ${base64Credentials}` },
       });
 
       if (response.status === 200) {
         alert("Authenticated successfully");
         authenticate(username, password);
-      } else {
-        alert("Authentication failed");
       }
-    } catch (error) {
-      alert("An error occurred during authentication");
+    } catch (error: unknown) {
+      if (typeof error === "object" && error !== null && "response" in error) {
+        const axiosError = error as { response: { status: number } };
+        if (axiosError.response.status === 401) {
+          alert("Authentication failed");
+        } else {
+          alert("A network error occurred during authentication");
+        }
+      } else {
+        alert("A network error occurred during authentication");
+      }
     }
   };
 

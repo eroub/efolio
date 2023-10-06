@@ -6,14 +6,14 @@ export interface Trade {
   totalHrs: number | null;
   ticker: string;
   direction: "Long" | "Short";
-  equity: number | null;
-  entry: number | null;
-  stopLoss: number | null;
-  target: number | null;
-  size: number | null;
-  risk: number | null;
-  estGain: number | null;
-  estRR: number | null;
+  equity: number;
+  entry: number;
+  stopLoss: number;
+  target: number;
+  size: number;
+  risk: number;
+  estGain: number;
+  estRR: number;
   exitPrice: number | null;
   projPL: number | null;
   realPL: number | null;
@@ -25,13 +25,9 @@ export interface Trade {
   mae: number | null;
   mfeRatio: number | null;
   maeRatio: number | null;
-  type: string | null;
+  type: string;
   screenshot: string | null;
   comment: string | null;
-  // USD specific fields
-  riskUSD: number | null;
-  estGainUSD: number | null;
-  projPLUSD: number | null;
   status: string;
 }
 

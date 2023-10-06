@@ -22,6 +22,7 @@ import {
   calculateEstimatedGain,
   calculateEstimatedRR,
 } from "../utils/tradeCalculations";
+import { dateInit } from "../utils/dates"; // Date utility
 // Import partial trade interface
 import { PartialTrade } from "../models/TradeTypes";
 
@@ -48,13 +49,7 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
   const [estimatedRR, setEstimatedRR] = useState<number>(0);
 
   // Initialize datetimein
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0"); // Months are zero-based
-  const day = String(now.getDate()).padStart(2, "0");
-  const hour = String(now.getHours()).padStart(2, "0");
-  const minute = String(now.getMinutes()).padStart(2, "0");
-  const formattedDateTime = `${year}-${month}-${day}T${hour}:${minute}`;
+  const formattedDateTime = dateInit();
 
   // Form values used in calculations
   const formik = useFormik({
@@ -70,7 +65,6 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
       size: 0,
     },
     onSubmit: (values: PartialTrade) => {
-      console.log(values);
       if (
         values.datetimeIn &&
         values.ticker &&

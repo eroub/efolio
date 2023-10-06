@@ -1,12 +1,10 @@
 // tradeCalculations.ts
 // Helper to truncate to two decimals
 const truncateToTwoDecimals = (num: number) => parseFloat(num.toFixed(2));
+
 /**
- * Calculate the PIP difference between two numbers.
- *
- * @param num1 - First number
- * @param num2 - Second number
- * @returns The PIP difference
+ * Calculate the PIP difference between entry and exit prices.
+ * Accounts for different types of currency pairs.
  */
 export const calculatePipDifference = (num1: number, num2: number) => {
   const difference = Math.abs(num1 - num2);
@@ -23,14 +21,8 @@ export const calculatePipDifference = (num1: number, num2: number) => {
 
 /**
  * Calculate the trade size based on risk percentage, account equity, and conversion rates.
+ * Uses different pip factors for JPY and non-JPY pairs.
  * Formula: Size = (Equity * Risk%) / Stop Loss
- *
- * @param equity - Current account equity
- * @param riskPercent - Risk percentage per trade
- * @param stopLoss - Stop loss value for the trade
- * @param ticker - Ticker of the asset being traded
- * @param conversionRates - Conversion rates for currencies
- * @returns The size of the trade
  */
 export const calculateSize = (
   equity: number,
@@ -56,7 +48,11 @@ export const calculateSize = (
   const positionSize = (equity * (riskPercent / 100)) / (pipRisk * pipValue);
   return Math.round(positionSize);
 };
-// ^ Same params but calculated risk when given size
+
+/**
+ * Calculate the risk percentage when given trade size.
+ * Formula: Risk = (Absolute Difference between Stop Loss and Entry * Lot Size) / (Exchange Rate * Equity)
+ */
 export const calculateRiskPercent = (
   entry: number,
   stopLoss: number,
@@ -80,6 +76,10 @@ export const calculateRiskPercent = (
   return truncateToTwoDecimals(calculatedRisk * 100); // Multiply by 100 to get percentage
 };
 
+/**
+ * Calculate the estimated gain for a given trade.
+ * Formula: Gain = (Absolute Difference between Target and Entry * Lot Size) / (Exchange Rate * Equity)
+ */
 export const calculateEstimatedGain = (
   entry: number,
   target: number,
@@ -103,9 +103,135 @@ export const calculateEstimatedGain = (
   return truncateToTwoDecimals(calculatedGain * 100); // Multiply by 100 to get percentage
 };
 
+/**
+ * Calculate the estimated Risk-to-Reward ratio.
+ * Formula: Estimated R:R = Estimated Gain / Risk Percentage
+ */
 export const calculateEstimatedRR = (
   riskPercent: number,
   estimatedGain: number,
 ) => {
   return truncateToTwoDecimals(estimatedGain / riskPercent);
+};
+
+/**
+ * Calculate total hours between two datetime strings.
+ * Formula: ROUND((Datetime Out - Datetime In) * 24, 3)
+ */
+export const calculateTotalHours = (
+  datetimeIn: string,
+  datetimeOut: string,
+): number => {
+  const dateIn = new Date(datetimeIn);
+  const dateOut = new Date(datetimeOut);
+  const diff = (dateOut.getTime() - dateIn.getTime()) / (1000 * 60 * 60); // Convert total milliseconds to hours
+  return truncateToTwoDecimals(diff);
+};
+
+/**
+ * Calculate Commission
+ * Formula: Real P/L - Projected P/L
+ */
+export const calculateCommission = (
+  realPL: number,
+  projectedPL: number,
+): number => {
+  return truncateToTwoDecimals(realPL - projectedPL);
+};
+
+/**
+ * Calculate Percent Change
+ * Formula: ((Real P/L + Equity) / Equity) - 1
+ */
+export const calculatePercentChange = (
+  realPL: number,
+  equity: number,
+): number => {
+  if (typeof realPL !== "number" || typeof equity !== "number") {
+    return NaN;
+  }
+  return truncateToTwoDecimals(((realPL + equity) / equity - 1) * 100);
+};
+
+/**
+ * Calculate Realized R:R
+ * Formula: Real P/L / (Equity * Risk), if Risk is not 0
+ */
+export const calculateRealRR = (
+  realPL: number,
+  equity: number,
+  risk: number,
+): number => {
+  if (risk === 0) return 0;
+  return truncateToTwoDecimals(realPL / (equity * (risk / 100)));
+};
+
+/**
+ * Calculate Pips (gain/loss)
+ */
+export const calculatePips = (
+  direction: string,
+  ticker: string,
+  entry: number,
+  exit: number,
+): number => {
+  const factor = ticker.split("/")[1] === "JPY" ? 100 : 10000;
+  return direction === "Short"
+    ? truncateToTwoDecimals((entry - exit) * factor)
+    : truncateToTwoDecimals((exit - entry) * factor);
+};
+
+/**
+ * Calculate MFE Ratio
+ * Formula: ABS(MFE - Entry) / ABS(Entry - Stop Loss)
+ */
+export const calculateMFERatio = (
+  mfe: number,
+  entry: number,
+  stopLoss: number,
+): number => {
+  return truncateToTwoDecimals(
+    Math.abs(mfe - entry) / Math.abs(entry - stopLoss),
+  );
+};
+
+/**
+ * Calculate MAE Ratio
+ * Formula: ABS(MAE - Entry) / ABS(Entry - Stop Loss)
+ */
+export const calculateMAERatio = (
+  mae: number,
+  entry: number,
+  stopLoss: number,
+): number => {
+  return truncateToTwoDecimals(
+    Math.abs(mae - entry) / Math.abs(entry - stopLoss),
+  );
+};
+
+/**
+ * Calculate Projected Profit/Loss in USD
+ */
+export const calculateProjectedPL = (
+  direction: string,
+  entry: number,
+  exit: number,
+  size: number,
+  ticker: string,
+  conversionRates: Record<string, number>,
+): number => {
+  let projectedPL = 0;
+
+  if (direction === "Short") {
+    projectedPL = (entry - exit) * size;
+  } else {
+    projectedPL = (exit - entry) * size;
+  }
+  if (!ticker.endsWith("USD")) {
+    const quoteCurrency = ticker.slice(-3);
+    const exchangeRate = conversionRates[quoteCurrency] || 1;
+    projectedPL = projectedPL / exchangeRate;
+  }
+
+  return truncateToTwoDecimals(projectedPL);
 };

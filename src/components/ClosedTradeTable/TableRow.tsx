@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { humanReadFormatDate } from "../../utils/dateManipulation"; // Import function to convert datetime object
+import { humanReadFormatDate } from "../../utils/dates"; // Import function to convert datetime object
 import {
   formatCurrency,
   formatPercentage,

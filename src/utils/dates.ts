@@ -1,4 +1,15 @@
-// dateManipulation.ts
+// dates.ts
+
+// Init Datetime Object to current date
+export const dateInit = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+  const day = String(now.getDate()).padStart(2, "0");
+  const hour = String(now.getHours()).padStart(2, "0");
+  const minute = String(now.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day}T${hour}:${minute}`;
+};
 
 // Take datetime object and convert it to yyyy-mm-dd hh:mm
 export const simplifyDate = (datetime: string | null) => {

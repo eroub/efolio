@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import styled from "styled-components";
 import http from "../services/http"; // Import the Axios configuration
 import { fetchExchangeRates } from "../utils/fetchExchangeRates"; // Import  exchange rates utility function
-import { convertToStandardDateTime } from "../utils/dateManipulation"; // Import date conversion utility function
+import { convertToStandardDateTime } from "../utils/dates"; // Import date conversion utility function
 import { useAuth } from "../auth/AuthContext"; // Authentication State
 
 // Trade interface
@@ -12,40 +11,12 @@ import { Trade, PartialTrade } from "../models/TradeTypes";
 import Error from "../components/Error";
 import Loading from "../components/Loading";
 import TradeInit from "../components/TradeInit";
+import CompleteTradeForm from "../components/CompleteTradeForm/CompleteTradeForm";
 import ClosedTradeTable from "../components/ClosedTradeTable/ClosedTradeTable";
 import TradeStatistics from "../components/Statistics/Statistics";
 import Charts from "../components/Charts/Chart";
-import { Expand, Shrink } from "../assets/Arrows";
 import SizeCalculator from "../components/Calculators/SizeCalc";
 import PipCalculator from "../components/Calculators/PipDiffCalc";
-
-const ExpandShrinkButton = styled.button`
-  border: none;
-  background: transparent;
-  padding: 0;
-  margin: 0;
-  width: 26px; /* Same width as your SVG */
-  height: 26px; /* Same height as your SVG */
-  cursor: pointer;
-  outline: none;
-
-  /* Tooltip styling */
-  position: relative;
-
-  &:hover::before {
-    content: attr(data-tooltip);
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #333;
-    color: #fff;
-    padding: 5px;
-    border-radius: 3px;
-    font-size: 12px;
-    z-index: 10;
-  }
-`;
 
 const TradeJournal: React.FC = () => {
   // Authentication State
@@ -61,12 +32,6 @@ const TradeJournal: React.FC = () => {
   // Error / Loading States
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
-
-  // Table shrink/expand state
-  const [isTableExpanded, setTableExpanded] = useState(false); // Initial state is 'Shrunk'
-  const toggleTable = () => {
-    setTableExpanded(!isTableExpanded);
-  };
 
   // Fetch trades from the server
   useEffect(() => {
@@ -115,7 +80,6 @@ const TradeJournal: React.FC = () => {
       try {
         const rates = await fetchExchangeRates();
         setConversionRates(rates);
-        console.log(rates);
       } catch (error) {
         console.error(error);
       }
@@ -124,10 +88,18 @@ const TradeJournal: React.FC = () => {
   }, []);
 
   // Filter out the trades that have a status of "Closed"
-  const closedTrades = trades.filter((trade) => trade.status === "Closed");
+  const firstOpenTrade = trades.find((trade) => trade.status === "Open");
+  // Filter out the trades that have a status of "Open" (sort in by most recent trades)
+  const closedTrades = trades
+    .filter((trade) => trade.status === "Closed")
+    .sort((a, b) => b.id - a.id);
 
   return (
     <div>
+      {/* Loading and Error Components */}
+      {isLoading ? <Loading /> : null}
+      {isError ? <Error message="An error occurred" /> : null}
+
       {/* Only show trade create form if user is authenticated */}
       {auth.isAuthenticated && (
         <div className="trade-form">
@@ -142,26 +114,18 @@ const TradeJournal: React.FC = () => {
       <SizeCalculator conversionRates={conversionRates} />
       <PipCalculator />
 
-      {/* Loading and Error Components */}
-      {isLoading ? <Loading /> : null}
-      {isError ? <Error message="An error occurred" /> : null}
+      {/* Form for completing trades */}
+      {auth.isAuthenticated && firstOpenTrade ? (
+        <CompleteTradeForm
+          openTrade={firstOpenTrade}
+          conversionRates={conversionRates}
+        />
+      ) : (
+        <div></div>
+      )}
 
-      {/* Display list of trades */}
-      <h3 style={{ display: "flex", alignItems: "center", marginLeft: "15px" }}>
-        Completed Trades
-        <ExpandShrinkButton
-          onClick={toggleTable}
-          data-tooltip={isTableExpanded ? "Hide Details" : "Show Details"}
-        >
-          {isTableExpanded ? (
-            <Shrink style={{ marginLeft: "10px" }} />
-          ) : (
-            <Expand style={{ marginLeft: "10px" }} />
-          )}
-        </ExpandShrinkButton>
-      </h3>
       {/* Closed Trade Table */}
-      <ClosedTradeTable trades={trades} isTableExpanded={isTableExpanded} />
+      <ClosedTradeTable trades={closedTrades} />
       {/* Trade Statistics Matrix */}
       <TradeStatistics closedTrades={closedTrades} />
       {/* Performance Charts */}
