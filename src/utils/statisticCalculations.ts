@@ -2,13 +2,14 @@
 import { Trade } from "../models/TradeTypes";
 
 // Helper for validating that no number are NaN or undefined
-const validateNumber = (value: number, defaultValue: number = 0): number =>  {
+const validateNumber = (value: number, defaultValue: number = 0): number => {
   return isNaN(value) ? defaultValue : value;
-}
+};
 // Helper function to calculate the sum of an array of numbers
 const sum = (arr: number[]) => arr.reduce((acc, val) => acc + val, 0);
 // Helper to truncate to two decimals
-const truncateToTwoDecimals = (num: number) => validateNumber(parseFloat(num.toFixed(2)));
+const truncateToTwoDecimals = (num: number) =>
+  validateNumber(parseFloat(num.toFixed(2)));
 // Helper function to calculate the standard deviation of an array of numbers
 const standardDeviation = (arr: number[]) => {
   const avg = sum(arr) / arr.length;
@@ -21,7 +22,6 @@ export const average = (arr: number[]): number => {
   const sum = arr.reduce((acc, val) => acc + val, 0);
   return sum / arr.length;
 };
-
 
 /**
  * Helper for calculating the Median of an array of numbers.
@@ -617,12 +617,12 @@ export const calculateDrawdownDuration = (closedTrades: Trade[]) => {
   const drawdownDurationMs = Math.abs(troughTime - peakTime);
 
   // Convert the drawdown duration to days and hours
-  const drawdownDurationDays = validateNumber(Math.floor(
-    drawdownDurationMs / (1000 * 60 * 60 * 24),
-  ));
-  const drawdownDurationHours = validateNumber(Math.floor(
-    (drawdownDurationMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
-  ));
+  const drawdownDurationDays = validateNumber(
+    Math.floor(drawdownDurationMs / (1000 * 60 * 60 * 24)),
+  );
+  const drawdownDurationHours = validateNumber(
+    Math.floor((drawdownDurationMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+  );
 
   return {
     drawdownDurationDays,

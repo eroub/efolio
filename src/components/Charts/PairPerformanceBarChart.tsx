@@ -5,6 +5,8 @@ import * as d3 from "d3";
 import { Trade } from "../../models/TradeTypes";
 // Format currency utility
 import { formatCurrency } from "../../utils/formatters";
+// Global Style
+import useAppColorScheme from "../../hooks/useAppColorScheme";
 
 interface PairPerformanceProps {
   trades: Trade[];
@@ -20,6 +22,8 @@ const PairPerformanceChart: React.FC<PairPerformanceProps> = ({
   trades,
   mode,
 }) => {
+  // Styling
+  const colorScheme = useAppColorScheme();
   const sanitizedMode = mode.replace(":", "").replace("$", "S"); // Replacing $ with S for clarity
   useEffect(() => {
     // Data Aggregation
@@ -105,7 +109,7 @@ const PairPerformanceChart: React.FC<PairPerformanceProps> = ({
           .attr("y", y(d.value) - 5)
           .attr("text-anchor", "middle")
           .attr("font-size", "12px")
-          .attr("fill", "black")
+          .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
           .text(() => (mode === "$" ? formatCurrency(d.value) : d.value));
       })
       .on("mouseout", function (event, d) {
@@ -122,8 +126,9 @@ const PairPerformanceChart: React.FC<PairPerformanceProps> = ({
       .attr("y", -20)
       .attr("text-anchor", "middle")
       .style("font-size", "16px")
+      .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
       .text(`Pair Performance (${mode})`);
-  }, [trades, mode, sanitizedMode]);
+  }, [trades, mode, sanitizedMode, colorScheme]);
 
   return <div id={`pairPerformance${sanitizedMode}`}></div>;
 };

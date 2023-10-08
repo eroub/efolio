@@ -5,6 +5,8 @@ import * as d3 from "d3";
 import { Trade } from "../../models/TradeTypes";
 // Format currency utility function
 import { formatCurrency } from "../../utils/formatters";
+// Global Style
+import useAppColorScheme from "../../hooks/useAppColorScheme";
 
 interface CumulativePLChartProps {
   trades: Trade[];
@@ -20,6 +22,9 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
   trades,
   mode,
 }) => {
+  // Styling
+  const colorScheme = useAppColorScheme();
+
   const sanitizedMode = mode.replace(":", "").replace("$", "dollar");
   useEffect(() => {
     // Sort trades by ID
@@ -97,6 +102,7 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
       .append("text")
       .attr("transform", `translate(${width / 2}, ${height - 10})`)
       .attr("text-anchor", "middle")
+      .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
       .text("Trade ID");
 
     svg
@@ -105,6 +111,7 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
       .attr("y", 15)
       .attr("x", -height / 2)
       .attr("text-anchor", "middle")
+      .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
       .text("Cumulative P/L");
 
     // Add Title
@@ -114,6 +121,7 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
       .attr("y", 30)
       .attr("text-anchor", "middle")
       .style("font-size", "16px")
+      .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
       .text(`Net Cumulative P/L (${mode})`);
 
     // Create line generator
@@ -151,7 +159,7 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
           .attr("y", y(d.value) - 10)
           .attr("text-anchor", "middle")
           .attr("font-size", "12px")
-          .attr("fill", "black")
+          .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
           .text(
             `ID: ${d.id}, Value: ${
               mode === "$" ? formatCurrency(Number(d.value)) : d.value
@@ -162,7 +170,7 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
         d3.select(this).attr("r", 5).attr("fill", "steelblue");
         d3.select("#tooltip").remove();
       });
-  }, [trades, mode, sanitizedMode]);
+  }, [trades, mode, sanitizedMode, colorScheme]);
 
   return <div id={`cumulativePL${sanitizedMode}`}></div>;
 };

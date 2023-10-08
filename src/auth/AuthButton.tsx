@@ -46,7 +46,9 @@ const AuthButton: React.FC = () => {
     }
   };
 
-  return <button onClick={handleAuthenticate}>Authenticate</button>;
+  return !auth.isAuthenticated ? (
+    <button onClick={handleAuthenticate}>Authenticate</button>
+  ) : null;
 };
 
 export default AuthButton;

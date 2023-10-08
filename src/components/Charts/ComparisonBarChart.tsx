@@ -5,6 +5,8 @@ import * as d3 from "d3";
 import { Trade } from "../../models/TradeTypes";
 // Format currency for $
 import { formatCurrency } from "../../utils/formatters";
+// Global Style
+import useAppColorScheme from "../../hooks/useAppColorScheme";
 
 interface ComparisonChartProps {
   trades: Trade[];
@@ -17,6 +19,8 @@ interface ChartData {
 }
 
 const ComparisonChart: React.FC<ComparisonChartProps> = ({ trades, mode }) => {
+  // Styling
+  const colorScheme = useAppColorScheme();
   const sanitizedMode = mode.replace(":", "").replace("$", "dollar"); // Sanitize the mode
   useEffect(() => {
     // Aggregate Real ($/R:R) for Winning and Losing trades
@@ -76,6 +80,7 @@ const ComparisonChart: React.FC<ComparisonChartProps> = ({ trades, mode }) => {
       .attr("y", 20)
       .attr("text-anchor", "middle")
       .style("font-size", "16px")
+      .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
       .text(`Win/Loss Comparison (${mode})`);
 
     // Create bars
@@ -103,6 +108,7 @@ const ComparisonChart: React.FC<ComparisonChartProps> = ({ trades, mode }) => {
       .attr("x", 5)
       .attr("y", (d) => y(d.label)! + y.bandwidth() / 2)
       .attr("dy", ".35em")
+      .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
       .text((d) => (d.value > 0 ? "Gain" : "Loss"));
 
     // Add Values at the end of bars
@@ -115,13 +121,14 @@ const ComparisonChart: React.FC<ComparisonChartProps> = ({ trades, mode }) => {
       .attr("x", (d) => x(Math.abs(d.value)) - (mode === "$" ? 70 : 40)) // Adjust this value to place the text at the end of the bar
       .attr("y", (d) => y(d.label)! + 25) // Adjust this value to place the text on top of the bar
       .attr("dy", ".35em")
+      .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
       .text((d) => {
         if (mode === "$") {
           return formatCurrency(Number(d.value)); // Use formatCurrency for "$" mode
         }
         return d.value.toFixed(2); // Keep as-is for "R:R" mode
       });
-  }, [trades, mode, sanitizedMode]);
+  }, [trades, mode, sanitizedMode, colorScheme]);
 
   return <div id={`comparisonBarChart-${sanitizedMode}`}></div>;
 };

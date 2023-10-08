@@ -71,8 +71,8 @@ const TableRow: React.FC<TableRowProps> = ({ trade, isTableExpanded }) => {
     "Bull Pullback": "darkyellow",
     "Bear Reversal": "darkblue",
     "Bull Reversal": "darkorange",
-    "Ascending": "magenta",
-    "Descending": "cyan",
+    Ascending: "magenta",
+    Descending: "cyan",
     "News Event": "grey",
   };
   const tradeTypeColor = trade.type

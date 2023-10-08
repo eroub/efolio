@@ -3,6 +3,8 @@ import React, { useEffect } from "react";
 import * as d3 from "d3";
 // Trade Interface
 import { Trade } from "../../models/TradeTypes";
+// Global Style
+import useAppColorScheme from "../../hooks/useAppColorScheme";
 
 interface PieChartProps {
   trades: Trade[];
@@ -14,7 +16,10 @@ interface ChartData {
 }
 
 const WinLossPieChart: React.FC<PieChartProps> = ({ trades }) => {
+  // Styling
+  const colorScheme = useAppColorScheme();
   useEffect(() => {
+
     let wins = 0,
       losses = 0;
     trades.forEach((trade) => {
@@ -54,6 +59,7 @@ const WinLossPieChart: React.FC<PieChartProps> = ({ trades }) => {
       .attr("y", 20)
       .attr("text-anchor", "middle")
       .style("font-size", "16px")
+      .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
       .text("Win/Loss %");
 
     const g = svg
@@ -81,6 +87,7 @@ const WinLossPieChart: React.FC<PieChartProps> = ({ trades }) => {
     // Center text labels
     arcs
       .append("text")
+      .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
       .attr("transform", (d) => `translate(${path.centroid(d)})`)
       .attr("text-anchor", "middle")
       .attr("font-size", "12px")
@@ -89,7 +96,7 @@ const WinLossPieChart: React.FC<PieChartProps> = ({ trades }) => {
         (d) =>
           `${Math.round(((d.endAngle - d.startAngle) / (2 * Math.PI)) * 100)}%`,
       );
-  }, [trades]);
+  }, [trades, colorScheme]);
 
   return <div id="winLossPie"></div>;
 };
