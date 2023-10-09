@@ -19,7 +19,6 @@ const WinLossPieChart: React.FC<PieChartProps> = ({ trades }) => {
   // Styling
   const colorScheme = useAppColorScheme();
   useEffect(() => {
-
     let wins = 0,
       losses = 0;
     trades.forEach((trade) => {

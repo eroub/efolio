@@ -2,7 +2,7 @@ import React from "react";
 import { TextField, Grid, Button, Typography } from "@mui/material";
 import { FormikProps } from "formik";
 // Format currency values
-import { formatCurrency, formatPercentage } from "../../utils/formatters";
+import { formatCurrency, formatPercentage } from "../../../utils/formatters";
 
 interface Calculations {
   totalHrs: number | null;

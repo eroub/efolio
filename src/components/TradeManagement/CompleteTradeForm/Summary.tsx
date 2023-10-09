@@ -1,10 +1,10 @@
 import React from "react";
-import { Trade } from "../../models/TradeTypes";
+import { Trade } from "../../../models/TradeTypes";
 import { Card, CardContent, Typography } from "@mui/material";
 // Import function to convert datetime object
-import { humanReadFormatDate } from "../../utils/dates";
+import { humanReadFormatDate } from "../../../utils/dates";
 // Format currency
-import { formatCurrency } from "../../utils/formatters";
+import { formatCurrency } from "../../../utils/formatters";
 
 type SummarySectionProps = {
   openTrade: Trade;

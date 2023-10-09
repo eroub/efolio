@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useAuth } from "../../auth/AuthContext"; // Authentication State
-import http from "../../services/http"; // Import the Axios configuration
+import { useAuth } from "../../../auth/AuthContext"; // Authentication State
+import http from "../../../services/http"; // Import the Axios configuration
 import { useFormik } from "formik";
-import { Trade } from "../../models/TradeTypes";
+import { Trade } from "../../../models/TradeTypes";
 import { SummarySection } from "./Summary";
 import { FormSection } from "./Form";
 import { Container, Paper } from "@mui/material";
@@ -15,8 +15,8 @@ import {
   calculatePips,
   calculateMAERatio,
   calculateMFERatio,
-} from "../../utils/tradeCalculations";
-import { dateInit } from "../../utils/dates"; // Date utility
+} from "../../../utils/tradeCalculations";
+import { dateInit } from "../../../utils/dates"; // Date utility
 
 interface CompleteTradeFormProps {
   openTrade: Trade;

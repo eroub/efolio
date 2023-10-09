@@ -21,10 +21,10 @@ import {
   calculateRiskPercent,
   calculateEstimatedGain,
   calculateEstimatedRR,
-} from "../utils/tradeCalculations";
-import { dateInit } from "../utils/dates"; // Date utility
+} from "../../utils/tradeCalculations";
+import { dateInit } from "../../utils/dates"; // Date utility
 // Import partial trade interface
-import { PartialTrade } from "../models/TradeTypes";
+import { PartialTrade } from "../../models/TradeTypes";
 
 type AddTradeFunction = (trade: PartialTrade) => void;
 
