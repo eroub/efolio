@@ -12,7 +12,8 @@ interface TradeTableProps {
   trades: Trade[];
 }
 
-const ExpandShrinkButton = styled.button`
+// Button that shows/hides columns
+const ColumnButton = styled.button`
   border: none;
   background: transparent;
   padding: 0;
@@ -35,9 +36,28 @@ const ExpandShrinkButton = styled.button`
     color: #fff;
     padding: 5px;
     border-radius: 3px;
-    font-size: 12px;
+    font-size: 8px;
     z-index: 10;
   }
+`;
+
+// Button that shows/hides rows
+const RowButton = styled.button`
+background: rgba(0, 0, 0, 0.1);  // Light background
+border: none;
+cursor: pointer;
+text-align: center;
+width: 100%;
+padding: 10px 0;
+font-size: 20px;
+color: #333;  // Darker color for better visibility
+box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);  // subtle box-shadow
+transition: color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+
+&:hover {
+  color: #111;  // Darken text on hover
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);  // Intensify box-shadow on hover
+}
 `;
 
 const StyledTable = styled.table`
@@ -60,21 +80,29 @@ const StyledTable = styled.table`
 const ClosedTradeTable: React.FC<TradeTableProps> = ({ trades }) => {
   // Table shrink/expand state
   const [isTableExpanded, setTableExpanded] = useState(false); // Initial state is 'Shrunk'
+  // New state for row expansion
+  const [showAllRows, setShowAllRows] = useState(false); // Initial state is to hide all but the most recent 5 trades
+
   // Use useMemo to derive sorted trades only when trades change
   const memoizedTrades = useMemo(() => {
     return [...trades].sort((a, b) => b.id - a.id);
   }, [trades]);
 
-  const toggleTable = () => {
+  // Toggle for showing/hiding columns
+  const toggleColumns = () => {
     setTableExpanded(!isTableExpanded);
+  };
+  // Toggle for showing/hiding columsn
+  const toggleRows = () => {
+    setShowAllRows(!showAllRows);
   };
 
   return (
     <div>
       <h3 style={{ display: "flex", alignItems: "center", marginLeft: "15px" }}>
         Completed Trades
-        <ExpandShrinkButton
-          onClick={toggleTable}
+        <ColumnButton
+          onClick={toggleColumns}
           data-tooltip={isTableExpanded ? "Hide Details" : "Show Details"}
         >
           {isTableExpanded ? (
@@ -82,20 +110,23 @@ const ClosedTradeTable: React.FC<TradeTableProps> = ({ trades }) => {
           ) : (
             <Expand style={{ marginLeft: "10px" }} />
           )}
-        </ExpandShrinkButton>
+        </ColumnButton>
       </h3>
       <StyledTable>
         <TableHeader isTableExpanded={isTableExpanded} />
         <tbody>
-          {memoizedTrades.map((trade, index) => (
-            <TableRow
-              key={index}
-              trade={trade}
-              isTableExpanded={isTableExpanded}
-            />
-          ))}
+          {memoizedTrades
+            .slice(0, showAllRows ? memoizedTrades.length : 5)
+            .map((trade, index) => (
+              <TableRow
+                key={index}
+                trade={trade}
+                isTableExpanded={isTableExpanded}
+              />
+            ))}
         </tbody>
       </StyledTable>
+      <RowButton onClick={toggleRows}>{showAllRows ? "Hide" : "Show All"}</RowButton>
     </div>
   );
 };
