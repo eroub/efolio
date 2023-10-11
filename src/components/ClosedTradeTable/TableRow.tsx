@@ -84,7 +84,7 @@ const TableRow: React.FC<TableRowProps> = ({ trade, isTableExpanded }) => {
   return (
     <ThemeProvider theme={theme}>
       <StyledTr $highlight={highlightColor}>
-        <Td>{trade.id}</Td>
+        <ConditionalTd show={isTableExpanded}>{trade.id}</ConditionalTd>
         <Td>{trade.ticker}</Td>
         <Td>
           {trade.direction === "Long" ? (

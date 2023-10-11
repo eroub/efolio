@@ -122,9 +122,28 @@ export const calculateTotalHours = (
   datetimeIn: string,
   datetimeOut: string,
 ): number => {
-  const dateIn = new Date(datetimeIn);
-  const dateOut = new Date(datetimeOut);
-  const diff = (dateOut.getTime() - dateIn.getTime()) / (1000 * 60 * 60); // Convert total milliseconds to hours
+  // Extract date and time components
+  const [dateInStr, timeInStr] = datetimeIn.split("T");
+  const [yearIn, monthIn, dayIn] = dateInStr.split("-").map(Number);
+  const [hourIn, minuteIn, secondIn] = timeInStr
+    .split(":")
+    .map((str) => Number(str.split(".")[0]));
+
+  const [dateOutStr, timeOutStr] = datetimeOut.split("T");
+  const [yearOut, monthOut, dayOut] = dateOutStr.split("-").map(Number);
+  const [hourOut, minuteOut] = timeOutStr.split(":").map(Number);
+
+  // Create Date objects using Date.UTC
+  const dateInUTC = new Date(
+    Date.UTC(yearIn, monthIn - 1, dayIn, hourIn, minuteIn, secondIn),
+  );
+  const dateOutUTC = new Date(
+    Date.UTC(yearOut, monthOut - 1, dayOut, hourOut, minuteOut),
+  );
+
+  // Calculate the difference in hours
+  const diff = (dateOutUTC.getTime() - dateInUTC.getTime()) / (1000 * 60 * 60);
+
   return truncateToTwoDecimals(diff);
 };
 

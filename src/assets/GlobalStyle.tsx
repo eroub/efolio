@@ -1,7 +1,8 @@
 import { createGlobalStyle } from "styled-components";
-import useAppColorScheme from "../hooks/useAppColorScheme";
+import { Theme } from "./themes";
 
-const GlobalStyle = createGlobalStyle<{ colorScheme: string }>`
+// Use the Theme type to define the prop type
+const GlobalStyle = createGlobalStyle<{ theme: Theme }>`
   body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -9,39 +10,26 @@ const GlobalStyle = createGlobalStyle<{ colorScheme: string }>`
     sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: white;
-    color: black;
 
-    background-color: ${({ colorScheme }) =>
-      colorScheme === "dark" ? "#403F3B" : "white"};
-    color: ${({ colorScheme }) =>
-      colorScheme === "dark" ? "#E6E3D3" : "black"};
+    background-color: ${({ theme }) => theme.bodyBackgroundColor};
+    color: ${({ theme }) => theme.textColor};
   }
 
   svg text {
-    color: ${({ colorScheme }) =>
-      colorScheme === "dark" ? "#E6E3D3" : "black"};
+    color: ${({ theme }) => theme.textColor};
   }
 
   tr {
-    background-color: ${({ colorScheme }) =>
-      colorScheme === "dark" ? "#504E49" : "yourLightModeColor"};
+    background-color: ${({ theme }) => theme.tableRowColor};
   }
 
   tr > td {
-    color: ${({ colorScheme }) =>
-      colorScheme === "dark" ? "#E6E3D3" : "yourLightModeColor"};
+    color: ${({ theme }) => theme.textColor};
   }
   
   code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
   }
 `;
 
-const AppGlobalStyle = () => {
-  const colorScheme = useAppColorScheme(); // Use the custom hook
-  return <GlobalStyle colorScheme={colorScheme} />;
-};
-
-export default AppGlobalStyle;
+export default GlobalStyle;

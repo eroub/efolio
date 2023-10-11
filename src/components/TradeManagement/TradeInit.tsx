@@ -136,6 +136,7 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
     >
       <Accordion
         elevation={1}
+        defaultExpanded
         style={{ boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)" }}
       >
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -282,7 +283,7 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
                   color="primary"
                   disabled={!allValuesFilled}
                 >
-                  Submit
+                  Open
                 </Button>
               </Grid>
             </Grid>

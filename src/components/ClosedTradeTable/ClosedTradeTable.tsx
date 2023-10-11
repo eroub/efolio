@@ -43,21 +43,23 @@ const ColumnButton = styled.button`
 
 // Button that shows/hides rows
 const RowButton = styled.button`
-background: rgba(0, 0, 0, 0.1);  // Light background
-border: none;
-cursor: pointer;
-text-align: center;
-width: 100%;
-padding: 10px 0;
-font-size: 20px;
-color: #333;  // Darker color for better visibility
-box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);  // subtle box-shadow
-transition: color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  background: rgba(0, 0, 0, 0.1); // Light background
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+  padding: 10px 0;
+  font-size: 20px;
+  color: #333; // Darker color for better visibility
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); // subtle box-shadow
+  transition:
+    color 0.3s ease-in-out,
+    box-shadow 0.3s ease-in-out;
 
-&:hover {
-  color: #111;  // Darken text on hover
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);  // Intensify box-shadow on hover
-}
+  &:hover {
+    color: #111; // Darken text on hover
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3); // Intensify box-shadow on hover
+  }
 `;
 
 const StyledTable = styled.table`
@@ -126,7 +128,11 @@ const ClosedTradeTable: React.FC<TradeTableProps> = ({ trades }) => {
             ))}
         </tbody>
       </StyledTable>
-      <RowButton onClick={toggleRows}>{showAllRows ? "Hide" : "Show All"}</RowButton>
+      {memoizedTrades.length > 5 && (
+        <RowButton onClick={toggleRows}>
+          {showAllRows ? "Hide" : "Show All"}
+        </RowButton>
+      )}
     </div>
   );
 };

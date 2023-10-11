@@ -3,9 +3,18 @@ import { useAuth } from "../../../auth/AuthContext"; // Authentication State
 import http from "../../../services/http"; // Import the Axios configuration
 import { useFormik } from "formik";
 import { Trade } from "../../../models/TradeTypes";
-import { SummarySection } from "./Summary";
 import { FormSection } from "./Form";
-import { Container, Paper } from "@mui/material";
+import {
+  Container,
+  Paper,
+  Card,
+  CardContent,
+  Typography,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   calculateTotalHours,
   calculateProjectedPL,
@@ -17,6 +26,8 @@ import {
   calculateMFERatio,
 } from "../../../utils/tradeCalculations";
 import { dateInit } from "../../../utils/dates"; // Date utility
+import { humanReadFormatDate } from "../../../utils/dates";
+import { formatCurrency } from "../../../utils/formatters";
 
 interface CompleteTradeFormProps {
   openTrade: Trade;
@@ -155,14 +166,67 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
   ]);
 
   return (
-    <Container>
-      <Paper elevation={3}>
-        <>
-          <SummarySection openTrade={openTrade} />
-          {/* Pass Formik form and calculated fiels to form */}
+    <Container
+      component={Paper}
+      elevation={0}
+      style={{
+        marginTop: "20px",
+        width: "600px",
+      }}
+    >
+      <Accordion
+        elevation={1}
+        defaultExpanded
+        style={{ boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)" }}
+      >
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              width: "100%",
+            }}
+          >
+            <Typography variant="h6">Trade #{openTrade.id}</Typography>
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-end",
+              }}
+            >
+              {/* Secondary Information */}
+              <div>
+                <Typography variant="body1" display="inline">
+                  Equity: {formatCurrency(openTrade.equity)}
+                </Typography>
+                <Typography variant="body1" display="inline">
+                  &nbsp; | &nbsp;Opened:{" "}
+                  {humanReadFormatDate(openTrade.datetimeIn)}
+                </Typography>
+              </div>
+
+              {/* Tertiary Information */}
+              <div>
+                <Typography variant="caption" display="inline">
+                  Ticker: {openTrade.ticker}
+                </Typography>
+                <Typography variant="caption" display="inline">
+                  &nbsp; | &nbsp;Type: {openTrade.type}
+                </Typography>
+              </div>
+            </div>
+          </div>
+        </AccordionSummary>
+
+        <AccordionDetails
+          style={{ flexDirection: "column", paddingTop: "0px" }}
+        >
+          {/* Pass Formik form and calculated fields to form */}
           <FormSection formik={formik} calc={calculations} />
-        </>
-      </Paper>
+        </AccordionDetails>
+      </Accordion>
     </Container>
   );
 };

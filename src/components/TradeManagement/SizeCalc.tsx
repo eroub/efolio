@@ -61,6 +61,14 @@ const SizeCalculator: React.FC<SizeCalculatorProps> = ({ conversionRates }) => {
     submitForm(); // Auto-submit form on changes
   }, [values, conversionRates, submitForm]);
 
+  // Step value to determine how much to increase/decrease entry/SL when pressing "up"
+  const getStepValue = (ticker: string) => {
+    if (ticker.slice(-3) === "JPY") {
+      return 0.005;
+    }
+    return 0.00005;
+  };
+
   return (
     <Container
       component={Paper}
@@ -95,14 +103,14 @@ const SizeCalculator: React.FC<SizeCalculatorProps> = ({ conversionRates }) => {
                 style={{ width: "48%" }}
               />
               <TextField
-                name="riskPercent"
-                label="Risk %"
-                type="number"
+                name="ticker"
+                label="Ticker"
+                type="text"
                 variant="outlined"
+                fullWidth
                 margin="dense"
                 onChange={handleChange}
-                disabled
-                value={values.riskPercent}
+                value={values.ticker}
                 size="small"
                 style={{ width: "48%" }}
               />
@@ -119,6 +127,7 @@ const SizeCalculator: React.FC<SizeCalculatorProps> = ({ conversionRates }) => {
                 value={values.entry}
                 size="small"
                 style={{ width: "48%" }}
+                inputProps={{ step: getStepValue(values.ticker) }}
               />
               <TextField
                 name="stopLoss"
@@ -131,18 +140,18 @@ const SizeCalculator: React.FC<SizeCalculatorProps> = ({ conversionRates }) => {
                 value={values.stopLoss}
                 size="small"
                 style={{ width: "48%" }}
+                inputProps={{ step: getStepValue(values.ticker) }}
               />
             </div>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               <TextField
-                name="ticker"
-                label="Ticker"
-                type="text"
+                name="riskPercent"
+                label="Risk %"
+                type="number"
                 variant="outlined"
-                fullWidth
                 margin="dense"
                 onChange={handleChange}
-                value={values.ticker}
+                value={values.riskPercent}
                 size="small"
                 style={{ width: "48%" }}
               />

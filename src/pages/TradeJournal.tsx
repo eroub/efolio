@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import http from "../services/http"; // Import the Axios configuration
 import { fetchExchangeRates } from "../utils/fetchExchangeRates"; // Import  exchange rates utility function
-import { convertToStandardDateTime } from "../utils/dates"; // Import date conversion utility function
+import { convertToMST } from "../utils/dates"; // Import date conversion utility function
 import { useAuth } from "../auth/AuthContext"; // Authentication State
 
 // Trade interface
@@ -10,13 +10,10 @@ import { Trade, PartialTrade } from "../models/TradeTypes";
 // Components
 import Error from "../components/Error";
 import Loading from "../components/Loading";
-import TradeInit from "../components/TradeInit";
-import CompleteTradeForm from "../components/CompleteTradeForm/CompleteTradeForm";
 import ClosedTradeTable from "../components/ClosedTradeTable/ClosedTradeTable";
 import TradeStatistics from "../components/Statistics/Statistics";
 import Charts from "../components/Charts/Chart";
-import SizeCalculator from "../components/Calculators/SizeCalc";
-import PipCalculator from "../components/Calculators/PipDiffCalc";
+import TradeManagement from "../components/TradeManagement/TradeManagement";
 
 const TradeJournal: React.FC = () => {
   // Authentication State
@@ -60,7 +57,7 @@ const TradeJournal: React.FC = () => {
     setIsError(false);
     try {
       if (newTrade.datetimeIn) {
-        newTrade.datetimeIn = convertToStandardDateTime(newTrade.datetimeIn);
+        newTrade.datetimeIn = convertToMST(newTrade.datetimeIn);
       }
       const response = await http.post("/api/trades", newTrade, {
         headers: { Authorization: `Basic ${encodedCredentials}` },
@@ -100,29 +97,12 @@ const TradeJournal: React.FC = () => {
       {isLoading ? <Loading /> : null}
       {isError ? <Error message="An error occurred" /> : null}
 
-      {/* Only show trade create form if user is authenticated */}
-      {auth.isAuthenticated && (
-        <div className="trade-form">
-          <TradeInit
-            addTrade={addInitialTrade}
-            conversionRates={conversionRates}
-          />
-        </div>
-      )}
-
-      {/* Size and Pip Diff Calculators */}
-      <SizeCalculator conversionRates={conversionRates} />
-      <PipCalculator />
-
-      {/* Form for completing trades */}
-      {auth.isAuthenticated && firstOpenTrade ? (
-        <CompleteTradeForm
-          openTrade={firstOpenTrade}
-          conversionRates={conversionRates}
-        />
-      ) : (
-        <div></div>
-      )}
+      <TradeManagement
+        conversionRates={conversionRates}
+        isAuthenticated={auth.isAuthenticated}
+        firstOpenTrade={firstOpenTrade}
+        addInitialTrade={addInitialTrade}
+      />
 
       {/* Closed Trade Table */}
       <ClosedTradeTable trades={closedTrades} />

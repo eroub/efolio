@@ -52,6 +52,7 @@ const headers = [
 
 const TableHeader: React.FC<TableHeaderProps> = ({ isTableExpanded }) => {
   const columnsToHide = [
+    "ID",
     "In Time",
     "Out Time",
     "Equity",

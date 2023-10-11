@@ -1,4 +1,6 @@
 // dates.ts
+import { utcToZonedTime, format } from "date-fns-tz";
+const timeZone = "America/Edmonton";
 
 // Init Datetime Object to current date
 export const dateInit = () => {
@@ -26,7 +28,7 @@ export const simplifyDate = (datetime: string | null) => {
   return `${year}-${month}-${day} ${hours}:${minutes}`;
 };
 
-// Custom human readable date formatting (ex. Set 18, '23 11:34)
+// Custom human readable date formatting (ex. Set 18th, '23 11:34)
 export const humanReadFormatDate = (dateString: string | null) => {
   if (dateString === null) {
     return null;
@@ -49,9 +51,14 @@ export const humanReadFormatDate = (dateString: string | null) => {
   ];
   const month = monthNames[date.getUTCMonth()]; // get short month name
   const day = date.getUTCDate();
+  // Add appropriate ordinal suffix to the day
+  const ordinal =
+    ["st", "nd", "rd"][((((day + 90) % 100) - 10) % 10) - 1] || "th";
   const hours = date.getUTCHours();
-  const minutes = date.getUTCMinutes();
-  return `${month} ${day}, '${year} ${hours}:${minutes}`;
+  // Add an extra 0 in minutes if necessary
+  const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+
+  return `${month} ${day}${ordinal}, '${year} ${hours}:${minutes}`;
 };
 
 // Convert date string to standard date time object
@@ -63,4 +70,15 @@ export const convertToStandardDateTime = (input: string) => {
   )}-${String(date.getDate()).padStart(2, "0")} ${String(
     date.getHours(),
   ).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+};
+
+// Convert date string to MST
+export const convertToMST = (input: string) => {
+  // Convert the UTC time to Edmonton's local time
+  const zonedDate = utcToZonedTime(input, timeZone);
+  // Format it to MySQL datetime format
+  const edmontonDateTime = format(zonedDate, "yyyy-MM-dd HH:mm:ss", {
+    timeZone,
+  });
+  return edmontonDateTime;
 };

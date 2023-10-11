@@ -1,19 +1,29 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { ThemeProvider } from "styled-components";
 import App from "./App";
-// Import AuthProvider to wrap entire App with
 import { AuthProvider } from "./auth/AuthContext";
-// Import GlobalStyles to standardize styling across the app
-import AppGlobalStyle from "./assets/GlobalStyle";
+import GlobalStyle from "./assets/GlobalStyle";
+import useAppColorScheme from "./hooks/useAppColorScheme";
+import { lightTheme, darkTheme } from "./assets/themes";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement,
 );
-root.render(
-  <React.StrictMode>
-    <AppGlobalStyle />
-    <AuthProvider>
-      <App />
-    </AuthProvider>
-  </React.StrictMode>,
-);
+
+const RootComponent = () => {
+  const colorScheme = useAppColorScheme(); // Use your custom hook
+
+  return (
+    <React.StrictMode>
+      <ThemeProvider theme={colorScheme === "light" ? lightTheme : darkTheme}>
+        <GlobalStyle theme={colorScheme === "light" ? lightTheme : darkTheme} />
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </ThemeProvider>
+    </React.StrictMode>
+  );
+};
+
+root.render(<RootComponent />);
