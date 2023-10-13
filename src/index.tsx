@@ -4,7 +4,7 @@ import { ThemeProvider } from "styled-components";
 import App from "./App";
 import { AuthProvider } from "./auth/AuthContext";
 import GlobalStyle from "./assets/GlobalStyle";
-import useAppColorScheme from "./hooks/useAppColorScheme";
+import { useAppColorScheme } from "./hooks/useAppColorScheme";
 import { lightTheme, darkTheme } from "./assets/themes";
 
 const root = ReactDOM.createRoot(

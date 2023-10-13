@@ -18,7 +18,7 @@ const TradeManagement: React.FC<TradeManagementProps> = ({
   isAuthenticated,
   firstOpenTrade,
   addInitialTrade,
-  completedTrade
+  completedTrade,
 }) => {
   return (
     <Grid container spacing={2}>

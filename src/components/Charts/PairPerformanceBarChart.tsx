@@ -6,7 +6,7 @@ import { Trade } from "../../models/TradeTypes";
 // Format currency utility
 import { formatCurrency } from "../../utils/formatters";
 // Global Style
-import useAppColorScheme from "../../hooks/useAppColorScheme";
+import { useAppColorScheme } from "../../hooks/useAppColorScheme";
 
 interface PairPerformanceProps {
   trades: Trade[];

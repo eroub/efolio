@@ -4,7 +4,7 @@ import * as d3 from "d3";
 // Trade Interface
 import { Trade } from "../../models/TradeTypes";
 // Global Style
-import useAppColorScheme from "../../hooks/useAppColorScheme";
+import { useAppColorScheme } from "../../hooks/useAppColorScheme";
 
 interface PieChartProps {
   trades: Trade[];

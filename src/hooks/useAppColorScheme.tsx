@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const useAppColorScheme = () => {
+export const useAppColorScheme = () => {
   const [colorScheme, setColorScheme] = useState(
     window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
@@ -24,4 +24,7 @@ const useAppColorScheme = () => {
   return colorScheme;
 };
 
-export default useAppColorScheme;
+export const useCurrentTheme = (): "dark" | "light" => {
+  const colorScheme = useAppColorScheme();
+  return colorScheme === "dark" ? "dark" : "light";
+};

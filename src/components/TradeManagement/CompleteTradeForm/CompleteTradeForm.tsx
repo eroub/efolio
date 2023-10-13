@@ -47,7 +47,7 @@ interface Calculations {
 const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
   openTrade,
   conversionRates,
-  completedTrade
+  completedTrade,
 }) => {
   // Auth
   const { getEncodedCredentials } = useAuth();
@@ -92,9 +92,13 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
         status: "Closed",
       };
       try {
-        const response = await http.post("/api/trades/update", completedTradeData, {
-          headers: { Authorization: `Basic ${encodedCredentials}` },
-        });
+        const response = await http.post(
+          "/api/trades/update",
+          completedTradeData,
+          {
+            headers: { Authorization: `Basic ${encodedCredentials}` },
+          },
+        );
         console.log(response);
       } catch (error) {
         console.error("Error updating trade", error);

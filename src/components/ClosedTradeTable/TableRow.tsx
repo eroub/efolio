@@ -1,9 +1,8 @@
 import React from "react";
-// Global Style
-import useAppColorScheme from "../../hooks/useAppColorScheme";
 import styled from "styled-components";
-import { ThemeProvider } from "styled-components";
-import { darkTheme, lightTheme } from "../../assets/themes";
+// Global Style
+import { useCurrentTheme } from "../../hooks/useAppColorScheme";
+import { colorScheme } from "../../assets/themes";
 import { humanReadFormatDate } from "../../utils/dates"; // Import function to convert datetime object
 import {
   formatCurrency,
@@ -53,91 +52,101 @@ const ConditionalTd: React.FC<{ show: boolean; children: React.ReactNode }> = ({
 };
 
 const TableRow: React.FC<TableRowProps> = ({ trade, isTableExpanded }) => {
-  const colorScheme = useAppColorScheme();
-  const theme = colorScheme ? darkTheme : lightTheme;
+  // Determine current theme color (dark/light)
+  const themeColor = useCurrentTheme();
+
   // Determine the background color based on the "Real P/L" value
   const highlightColor =
     trade.realPL === null
       ? "transparent"
-      : trade.realPL > 0
-      ? "rgba(0, 255, 0, 0.1)"
-      : "rgba(255, 0, 0, 0.1)";
+      : `rgba(${trade.realPL > 0 ? "0, 255, 0" : "255, 0, 0"}, 0.1)`;
+
   // Highlight "Real P/L" based on value
   const realPLColor =
-    trade.realPL === null ? "initial" : trade.realPL > 0 ? "green" : "red";
-  // Coloring for types
-  const tradeTypeColors = {
-    "Low Base": "blue",
-    "High Base": "orange",
-    "Bear Rally": "purple",
-    "Bull Pullback": "darkyellow",
-    "Bear Reversal": "darkblue",
-    "Bull Reversal": "darkorange",
-    Ascending: "magenta",
-    Descending: "cyan",
-    "News Event": "grey",
+    trade.realPL === null
+      ? "initial"
+      : colorScheme[themeColor][trade.realPL > 0 ? "green" : "red"];
+
+  // Coloring for types, dynamically fetch colors based on theme
+  type TradeTypeColors = {
+    [key: string]:
+      | keyof typeof colorScheme.dark
+      | keyof typeof colorScheme.light;
   };
-  const tradeTypeColor = trade.type
-    ? (tradeTypeColors as { [key: string]: string })[trade.type]
-    : "initial";
+
+  const getTradeColor = (tradeType: string) => {
+    const tradeTypeColors: TradeTypeColors = {
+      "Low Base": "blue",
+      "High Base": "orange",
+      "Bear Rally": "purple",
+      "Bull Pullback": "darkyellow",
+      "Bear Reversal": "darkblue",
+      "Bull Reversal": "darkorange",
+      Ascending: "magenta",
+      Descending: "cyan",
+    };
+
+    return tradeType === "News Event"
+      ? colorScheme.base["500"]
+      : colorScheme[themeColor][
+          tradeTypeColors[
+            tradeType as keyof typeof tradeTypeColors
+          ] as keyof typeof colorScheme.dark
+        ] || "initial";
+  };
+  const tradeTypeColor = trade.type ? getTradeColor(trade.type) : "initial";
 
   return (
-    <ThemeProvider theme={theme}>
-      <StyledTr $highlight={highlightColor}>
-        <ConditionalTd show={isTableExpanded}>{trade.id}</ConditionalTd>
-        <Td>{trade.ticker}</Td>
-        <Td>
-          {trade.direction === "Long" ? (
-            <GreenUpArrow />
-          ) : trade.direction === "Short" ? (
-            <RedDownArrow />
-          ) : null}
-        </Td>
-        <ConditionalTd show={isTableExpanded}>
-          {humanReadFormatDate(trade.datetimeIn)}
-        </ConditionalTd>
-        <ConditionalTd show={isTableExpanded}>
-          {humanReadFormatDate(trade.datetimeOut)}
-        </ConditionalTd>
-        <Td>{trade.totalHrs}</Td>
-        <ConditionalTd show={isTableExpanded}>
-          {formatCurrency(trade.equity)}
-        </ConditionalTd>
-        <ConditionalTd show={isTableExpanded}>{trade.entry}</ConditionalTd>
-        <ConditionalTd show={isTableExpanded}>{trade.stopLoss}</ConditionalTd>
-        <ConditionalTd show={isTableExpanded}>{trade.target}</ConditionalTd>
-        <ConditionalTd show={isTableExpanded}>
-          {formatSizeInK(trade.size)}
-        </ConditionalTd>
-        <Td>{formatPercentage(trade.risk)}</Td>
-        <Td>{formatPercentage(trade.estGain)}</Td>
-        <Td>{trade.estRR}</Td>
-        <ConditionalTd show={isTableExpanded}>{trade.exitPrice}</ConditionalTd>
-        <Td>{formatCurrency(trade.projPL)}</Td>
-        <Td $externalColor={realPLColor}>{formatCurrency(trade.realPL)}</Td>
-        <Td>{trade.realRR}</Td>
-        <Td>{formatCurrency(trade.commission)}</Td>
-        <Td>{formatPercentage(trade.percentChange)}</Td>
-        <Td>{trade.pips}</Td>
-        <ConditionalTd show={isTableExpanded}>{trade.mfe}</ConditionalTd>
-        <ConditionalTd show={isTableExpanded}>{trade.mae}</ConditionalTd>
-        <Td>{trade.mfeRatio}</Td>
-        <Td>{trade.maeRatio}</Td>
-        <Td $externalColor={tradeTypeColor}>{trade.type}</Td>
-        <Td>
-          {trade.screenshot ? (
-            <a
-              href={trade.screenshot}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Polaroid />
-            </a>
-          ) : null}
-        </Td>
-        <Td>{trade.comment}</Td>
-      </StyledTr>
-    </ThemeProvider>
+    <StyledTr $highlight={highlightColor}>
+      <ConditionalTd show={isTableExpanded}>{trade.id}</ConditionalTd>
+      <Td>{trade.ticker}</Td>
+      <Td>
+        {trade.direction === "Long" ? (
+          <GreenUpArrow />
+        ) : trade.direction === "Short" ? (
+          <RedDownArrow />
+        ) : null}
+      </Td>
+      <ConditionalTd show={isTableExpanded}>
+        {humanReadFormatDate(trade.datetimeIn)}
+      </ConditionalTd>
+      <ConditionalTd show={isTableExpanded}>
+        {humanReadFormatDate(trade.datetimeOut)}
+      </ConditionalTd>
+      <Td>{trade.totalHrs}</Td>
+      <ConditionalTd show={isTableExpanded}>
+        {formatCurrency(trade.equity)}
+      </ConditionalTd>
+      <ConditionalTd show={isTableExpanded}>{trade.entry}</ConditionalTd>
+      <ConditionalTd show={isTableExpanded}>{trade.stopLoss}</ConditionalTd>
+      <ConditionalTd show={isTableExpanded}>{trade.target}</ConditionalTd>
+      <ConditionalTd show={isTableExpanded}>
+        {formatSizeInK(trade.size)}
+      </ConditionalTd>
+      <Td>{formatPercentage(trade.risk)}</Td>
+      <Td>{formatPercentage(trade.estGain)}</Td>
+      <Td>{trade.estRR}</Td>
+      <ConditionalTd show={isTableExpanded}>{trade.exitPrice}</ConditionalTd>
+      <Td>{formatCurrency(trade.projPL)}</Td>
+      <Td $externalColor={realPLColor}>{formatCurrency(trade.realPL)}</Td>
+      <Td>{trade.realRR}</Td>
+      <Td>{formatCurrency(trade.commission)}</Td>
+      <Td>{formatPercentage(trade.percentChange)}</Td>
+      <Td>{trade.pips}</Td>
+      <ConditionalTd show={isTableExpanded}>{trade.mfe}</ConditionalTd>
+      <ConditionalTd show={isTableExpanded}>{trade.mae}</ConditionalTd>
+      <Td>{trade.mfeRatio}</Td>
+      <Td>{trade.maeRatio}</Td>
+      <Td $externalColor={tradeTypeColor}>{trade.type}</Td>
+      <Td>
+        {trade.screenshot ? (
+          <a href={trade.screenshot} target="_blank" rel="noopener noreferrer">
+            <Polaroid />
+          </a>
+        ) : null}
+      </Td>
+      <Td>{trade.comment}</Td>
+    </StyledTr>
   );
 };
 
