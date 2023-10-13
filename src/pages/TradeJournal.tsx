@@ -22,6 +22,7 @@ const TradeJournal: React.FC = () => {
   // Trades
   const [trades, setTrades] = useState<Trade[]>([]);
   const [initTrade, setInitTrade] = useState<PartialTrade[]>([]);
+  const [triggerFetch, setTriggerFetch] = useState(false);
   // Conversion Rates
   const [conversionRates, setConversionRates] = useState<
     Record<string, number>
@@ -47,7 +48,12 @@ const TradeJournal: React.FC = () => {
       }
     };
     fetchTrades();
-  }, []);
+  }, [triggerFetch]);
+
+  // Function for calling use effect to fetch trades
+  const closeTradeSubmit = () => {
+    setTriggerFetch(!triggerFetch);
+  };
 
   // Add new trade
   const addInitialTrade = async (newTrade: PartialTrade) => {
@@ -102,6 +108,7 @@ const TradeJournal: React.FC = () => {
         isAuthenticated={auth.isAuthenticated}
         firstOpenTrade={firstOpenTrade}
         addInitialTrade={addInitialTrade}
+        completedTrade={closeTradeSubmit}
       />
 
       {/* Closed Trade Table */}

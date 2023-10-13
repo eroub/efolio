@@ -10,6 +10,7 @@ interface TradeManagementProps {
   isAuthenticated: boolean;
   firstOpenTrade: Trade | undefined;
   addInitialTrade: (trade: Partial<Trade>) => void;
+  completedTrade: () => void;
 }
 
 const TradeManagement: React.FC<TradeManagementProps> = ({
@@ -17,6 +18,7 @@ const TradeManagement: React.FC<TradeManagementProps> = ({
   isAuthenticated,
   firstOpenTrade,
   addInitialTrade,
+  completedTrade
 }) => {
   return (
     <Grid container spacing={2}>
@@ -43,6 +45,7 @@ const TradeManagement: React.FC<TradeManagementProps> = ({
           <CompleteTradeForm
             openTrade={firstOpenTrade}
             conversionRates={conversionRates}
+            completedTrade={completedTrade}
           />
         ) : (
           <div></div>

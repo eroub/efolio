@@ -7,8 +7,6 @@ import { FormSection } from "./Form";
 import {
   Container,
   Paper,
-  Card,
-  CardContent,
   Typography,
   Accordion,
   AccordionSummary,
@@ -32,6 +30,7 @@ import { formatCurrency } from "../../../utils/formatters";
 interface CompleteTradeFormProps {
   openTrade: Trade;
   conversionRates: Record<string, number>;
+  completedTrade: () => void;
 }
 
 interface Calculations {
@@ -48,6 +47,7 @@ interface Calculations {
 const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
   openTrade,
   conversionRates,
+  completedTrade
 }) => {
   // Auth
   const { getEncodedCredentials } = useAuth();
@@ -85,14 +85,14 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
       values.mfe = Number(values.mfe);
       values.mae = Number(values.mae);
       values.realPL = Number(values.realPL);
-      const completedTrade = {
+      const completedTradeData = {
         ...openTrade,
         ...values,
         ...calculations,
         status: "Closed",
       };
       try {
-        const response = await http.post("/api/trades/update", completedTrade, {
+        const response = await http.post("/api/trades/update", completedTradeData, {
           headers: { Authorization: `Basic ${encodedCredentials}` },
         });
         console.log(response);
@@ -100,6 +100,7 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
         console.error("Error updating trade", error);
       }
       console.log(completedTrade);
+      completedTrade();
     },
   });
 
