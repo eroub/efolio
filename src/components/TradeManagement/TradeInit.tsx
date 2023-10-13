@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+// Global Style
+import { useCurrentTheme } from "../../hooks/useAppColorScheme";
+import { colorScheme } from "../../assets/themes";
 import { useFormik } from "formik";
 import {
   TextField,
@@ -43,6 +46,8 @@ const preprocessTicker = (ticker: string) => {
 };
 
 const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
+  // Determine current theme color (dark/light)
+  const themeColor = useCurrentTheme();
   // Calculated Values
   const [riskPercent, setRiskPercent] = useState<number>(0);
   const [estimatedGain, setEstimatedGain] = useState<number>(0);
@@ -137,7 +142,7 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
       <Accordion
         elevation={1}
         defaultExpanded
-        style={{ boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)" }}
+        style={{ boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.5)" }}
       >
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="h6">Trade Init.</Typography>
@@ -152,7 +157,7 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
             <div
               style={{
                 fontWeight: riskPercent > 1.91 ? "bold" : "normal",
-                color: riskPercent > 1.91 ? "red" : "black",
+                color: colorScheme[themeColor][riskPercent <= 1.91 ? "green" : "red"]
               }}
             >
               Risk: {riskPercent}%

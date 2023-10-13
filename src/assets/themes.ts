@@ -106,13 +106,13 @@ export const darkTheme: Theme = {
 };
 
 export const lightTheme: Theme = {
-  bodyBackgroundColor: colorScheme.base["100"],
+  bodyBackgroundColor: colorScheme.base["50"],
   textColor: colorScheme.base["900"],
   tableRowColor: colorScheme.base["300"],
   formBackgroundColor: colorScheme.base["200"],
   formTextColor: colorScheme.base["900"],
   accordionBackgroundColor: colorScheme.base["300"],
   accordionTextColor: colorScheme.base["900"],
-  containerBackgroundColor: colorScheme.base["100"],
+  containerBackgroundColor: colorScheme.base["50"],
   containerBorderColor: colorScheme.base["200"],
 };
