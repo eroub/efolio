@@ -1,5 +1,5 @@
 // themes.ts
-type BaseColors = {
+export type BaseColors = {
   black: string;
   "950": string;
   "900": string;
@@ -16,7 +16,7 @@ type BaseColors = {
   paper: string;
 };
 
-type DarkLightColors = {
+export type DarkLightColors = {
   red: string;
   orange: string;
   yellow: string;
@@ -28,6 +28,7 @@ type DarkLightColors = {
   darkyellow: string;
   darkorange: string;
   darkblue: string;
+  textColor?: string;
 };
 
 export type ColorSchemeType = {
@@ -91,6 +92,8 @@ export type Theme = {
   accordionTextColor: string;
   containerBackgroundColor: string;
   containerBorderColor: string;
+  disabledBackgroundColor: string;
+  disabledTextColor: string;
 };
 
 export const darkTheme: Theme = {
@@ -103,6 +106,8 @@ export const darkTheme: Theme = {
   accordionTextColor: colorScheme.base["100"],
   containerBackgroundColor: colorScheme.base["850"],
   containerBorderColor: colorScheme.base["700"],
+  disabledBackgroundColor: colorScheme.dark["yellow"],
+  disabledTextColor: colorScheme.base["100"],
 };
 
 export const lightTheme: Theme = {
@@ -115,4 +120,6 @@ export const lightTheme: Theme = {
   accordionTextColor: colorScheme.base["900"],
   containerBackgroundColor: colorScheme.base["50"],
   containerBorderColor: colorScheme.base["200"],
+  disabledBackgroundColor: colorScheme.light["yellow"],
+  disabledTextColor: colorScheme.base["900"],
 };

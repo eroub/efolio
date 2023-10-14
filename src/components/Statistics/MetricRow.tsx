@@ -1,7 +1,8 @@
 // MetricRow.tsx
+// External Libraries
 import React, { useState } from "react";
 import Grid from "@mui/material/Grid";
-// QuestionMark SVG
+// Internal Utilities / Assets / Themes
 import { QuestionMark } from "../../assets/QuestionMark";
 
 interface StatLineProps {

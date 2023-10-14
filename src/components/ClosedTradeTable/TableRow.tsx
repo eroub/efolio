@@ -1,19 +1,21 @@
+// TableRow.tsx
+// External Libraries
 import React from "react";
 import styled from "styled-components";
-// Global Style
-import { useCurrentTheme } from "../../hooks/useAppColorScheme";
+// Internal Utilities / Assets / Themes
+import { GreenUpArrow, RedDownArrow } from "../../assets/Arrows";
+import { Polaroid } from "../../assets/Polaroid";
+import { breakpoints } from "../../assets/breakpoints";
 import { colorScheme } from "../../assets/themes";
-import { humanReadFormatDate } from "../../utils/dates"; // Import function to convert datetime object
+import { useCurrentTheme } from "../../hooks/useAppColorScheme";
+import { humanReadFormatDate } from "../../utils/dates";
 import {
   formatCurrency,
   formatPercentage,
   formatSizeInK,
 } from "../../utils/formatters";
-import { Trade } from "../../models/TradeTypes"; // Import partial trade interface
-// Assets
-import { GreenUpArrow, RedDownArrow } from "../../assets/Arrows";
-import { Polaroid } from "../../assets/Polaroid";
-import { breakpoints } from "../../assets/breakpoints";
+// Types and Interfaces
+import { Trade } from "../../models/TradeTypes";
 
 interface TableRowProps {
   trade: Trade;

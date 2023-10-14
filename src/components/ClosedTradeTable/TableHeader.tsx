@@ -1,6 +1,8 @@
 // TableHeader.tsx
+// External Libraries
 import React from "react";
 import styled from "styled-components";
+// Internal Utilities / Assets / Themes
 import { DirectionArrows } from "../../assets/Arrows";
 
 interface TableHeaderProps {

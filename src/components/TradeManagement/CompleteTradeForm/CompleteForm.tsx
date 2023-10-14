@@ -1,8 +1,14 @@
+// CompleteForm.tsx
+// External Libraries
 import React from "react";
+import styled from "styled-components";
 import { TextField, Grid, Button, Typography } from "@mui/material";
-import { FormikProps } from "formik";
-// Format currency values
+// Internal Utilities / Assets / Themes
+import { useCurrentTheme } from "../../../hooks/useAppColorScheme";
+import { colorScheme, lightTheme, darkTheme } from "../../../assets/themes";
 import { formatCurrency, formatPercentage } from "../../../utils/formatters";
+// Types and Interfaces
+import { FormikProps } from "formik";
 
 interface Calculations {
   totalHrs: number | null;
@@ -28,8 +34,24 @@ interface FormSectionProps {
   calc: Calculations;
 }
 
+const StyledButton = styled(Button)<{
+  themeColor: "dark" | "light";
+  disabled: boolean;
+}>`
+  background-color: ${({ themeColor, disabled }) =>
+    disabled
+      ? colorScheme[themeColor]["yellow"]
+      : colorScheme[themeColor]["blue"]} !important;
+  color: ${({ themeColor }) =>
+    themeColor === "dark"
+      ? darkTheme.textColor
+      : lightTheme.textColor} !important;
+`;
+
 export const FormSection: React.FC<FormSectionProps> = ({ formik, calc }) => {
   const { values, handleChange, handleSubmit } = formik;
+  // Determine current theme color (dark/light)
+  const themeColor = useCurrentTheme();
   // Button validation
   const allValuesFilled = Object.values(values).every((v) => v !== "");
 
@@ -157,15 +179,15 @@ export const FormSection: React.FC<FormSectionProps> = ({ formik, calc }) => {
                 </Typography>
               </div>
             </div>
-            <Button
+            <StyledButton
               style={{ marginTop: "10px" }}
-              disabled={!allValuesFilled}
               type="submit"
               variant="contained"
-              color="primary"
+              themeColor={themeColor}
+              disabled={!allValuesFilled}
             >
               Close
-            </Button>
+            </StyledButton>
           </div>
         </Grid>
       </Grid>

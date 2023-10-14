@@ -1,12 +1,15 @@
 // TradeTable.tsx
+// External Libraries
 import React, { useState, useMemo } from "react";
 import styled from "styled-components";
+// Components
 import TableHeader from "./TableHeader";
 import TableRow from "./TableRow";
-// Import trade interface
-import { Trade } from "../../models/TradeTypes";
-// Expand/Shrink SVGs
+// Internal Utilities / Assets / Themes
 import { Expand, Shrink } from "../../assets/Arrows";
+// Types and Interfaces
+import { Trade } from "../../models/TradeTypes";
+
 
 interface TradeTableProps {
   trades: Trade[];

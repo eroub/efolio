@@ -1,9 +1,7 @@
+// CompleteTradeForm.tsx
+// External Libraries
 import React, { useState, useEffect } from "react";
-import { useAuth } from "../../../auth/AuthContext"; // Authentication State
-import http from "../../../services/http"; // Import the Axios configuration
 import { useFormik } from "formik";
-import { Trade } from "../../../models/TradeTypes";
-import { FormSection } from "./Form";
 import {
   Container,
   Paper,
@@ -13,6 +11,8 @@ import {
   AccordionDetails,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+// Internal Utilities / Assets / Themes
+import http from "../../../services/http"; 
 import {
   calculateTotalHours,
   calculateProjectedPL,
@@ -23,9 +23,14 @@ import {
   calculateMAERatio,
   calculateMFERatio,
 } from "../../../utils/tradeCalculations";
-import { dateInit } from "../../../utils/dates"; // Date utility
-import { humanReadFormatDate } from "../../../utils/dates";
+import { dateInit, humanReadFormatDate } from "../../../utils/dates";
 import { formatCurrency } from "../../../utils/formatters";
+// Components
+import { FormSection } from "./CompleteForm";
+// Types and Interfaces
+import { Trade } from "../../../models/TradeTypes";
+// Context
+import { useAuth } from "../../../auth/AuthContext";
 
 interface CompleteTradeFormProps {
   openTrade: Trade;

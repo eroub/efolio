@@ -1,7 +1,7 @@
+// SizeCalc.tsx
+// External Libraries
 import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
-import { calculateSize } from "../../utils/tradeCalculations";
-import { calculatePipDifference } from "../../utils/tradeCalculations";
 import {
   TextField,
   Typography,
@@ -12,7 +12,8 @@ import {
   Paper,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-// Format calculated size to be more readable
+// Internal Utilities / Assets / Themes
+import { calculateSize, calculatePipDifference } from "../../utils/tradeCalculations";
 import { formatSizeInK } from "../../utils/formatters";
 
 interface SizeCalculatorProps {

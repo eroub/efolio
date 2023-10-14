@@ -1,10 +1,11 @@
 // WinLossPieChart.tsx
-import React, { useEffect } from "react";
+// External Libraries
 import * as d3 from "d3";
-// Trade Interface
-import { Trade } from "../../models/TradeTypes";
-// Global Style
+import React, { useEffect } from "react";
+// Internal Utilities / Assets / Themes
 import { useAppColorScheme } from "../../hooks/useAppColorScheme";
+// Types and Interfaces
+import { Trade } from "../../models/TradeTypes";
 
 interface PieChartProps {
   trades: Trade[];

@@ -1,50 +1,50 @@
 // Statistics.tsx
+// External Libraries
 import React from "react";
-// Metric Components
-import { StatLine, MetricRow } from "./MetricRow";
-// Types
-import { Trade } from "../../models/TradeTypes";
-// Helper for formatting $ signs
-import { formatCurrency } from "../../utils/formatters";
-// Calculations
+// Internal Utilities / Assets / Themes
 import {
-  calculateTotalGainLoss,
-  calculateAverageProfitability,
-  calculatePLStandardDeviation,
-  calculateWinsLosses,
-  calculateMaxConsecutiveWins,
-  calculateMaxConsecutiveLosses,
   calculateAverageHoldTime,
-  calculateAverageHoldTimeWins,
   calculateAverageHoldTimeLosses,
-  calculateLongShortRatio,
-  calculateLongWinPercentage,
-  calculateShortWinPercentage,
-  calculateMaxDrawdown,
-  calculateAverageProfitabilityPerLong,
-  calculateAverageProfitabilityPerShort,
-  calculatePipGainLoss,
-  calculateMaxFavorableExcursionRatio,
-  calculateMaxAdverseExcursionRatio,
-  calculateSystemQualityNumber,
-  calculateKRatio,
-  calculateProbabilityOfRandomChance,
+  calculateAverageHoldTimeWins,
+  calculateAverageLoss,
   calculateAveragePayoffRatio,
   calculateAveragePercentMove,
   calculateAveragePercentRisked,
+  calculateAverageProfitability,
+  calculateAverageProfitabilityPerLong,
+  calculateAverageProfitabilityPerShort,
   calculateAverageWin,
-  calculateLargestGain,
-  calculateAverageLoss,
-  calculateLargestLoss,
-  calculateKellyPercentage,
-  calculateProfitFactor,
+  calculateCommissionMetrics,
   calculateDrawdownDuration,
+  calculateKRatio,
+  calculateKellyPercentage,
+  calculateLargestGain,
+  calculateLargestLoss,
+  calculateLongShortRatio,
+  calculateLongWinPercentage,
+  calculateMaxAdverseExcursionRatio,
+  calculateMaxConsecutiveLosses,
+  calculateMaxConsecutiveWins,
+  calculateMaxDrawdown,
+  calculateMaxFavorableExcursionRatio,
+  calculateNetDrawdown,
+  calculatePipGainLoss,
+  calculatePLStandardDeviation,
+  calculateProbabilityOfRandomChance,
+  calculateProfitFactor,
+  calculateShortWinPercentage,
   calculateSkewnessAndKurtosis,
+  calculateSystemQualityNumber,
+  calculateTotalGainLoss,
   calculateUlcerIndex,
   calculateVaRandCVaR,
-  calculateNetDrawdown,
-  calculateCommissionMetrics,
+  calculateWinsLosses
 } from "../../utils/statisticCalculations";
+import { formatCurrency } from "../../utils/formatters";
+// Components
+import { StatLine, MetricRow } from "./MetricRow";
+// Types and Interfaces
+import { Trade } from "../../models/TradeTypes";
 
 interface StatisticsProps {
   closedTrades: Trade[];

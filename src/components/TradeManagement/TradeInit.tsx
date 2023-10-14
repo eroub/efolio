@@ -1,40 +1,57 @@
+// TradeInit.tsx
+// External Libraries
 import React, { useEffect, useState } from "react";
-// Global Style
-import { useCurrentTheme } from "../../hooks/useAppColorScheme";
-import { colorScheme } from "../../assets/themes";
-import { useFormik } from "formik";
+import styled from "styled-components";
 import {
-  TextField,
-  Grid,
-  Container,
-  Paper,
-  Typography,
-  Button,
   Accordion,
-  AccordionSummary,
   AccordionDetails,
-  MenuItem,
-  InputLabel,
-  Select,
+  AccordionSummary,
+  Button,
+  Container,
   FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  TextField,
+  Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-// Functions for calculating risk %, estimated gain %, and estimated R:R
+import { useFormik } from "formik";
+
+// Internal Utilities / Assets / Themes
+import { useCurrentTheme } from "../../hooks/useAppColorScheme";
+import { colorScheme, lightTheme, darkTheme } from "../../assets/themes";
 import {
   calculateRiskPercent,
   calculateEstimatedGain,
   calculateEstimatedRR,
 } from "../../utils/tradeCalculations";
 import { dateInit } from "../../utils/dates"; // Date utility
-// Import partial trade interface
+
+// Types and Interfaces
 import { PartialTrade } from "../../models/TradeTypes";
-
 type AddTradeFunction = (trade: PartialTrade) => void;
-
 interface TradeFormProps {
   addTrade: AddTradeFunction;
   conversionRates: Record<string, number>;
 }
+
+// Styled Components
+const StyledButton = styled(Button)<{
+  themeColor: "dark" | "light";
+  disabled: boolean;
+}>`
+  background-color: ${({ themeColor, disabled }) =>
+    disabled
+      ? colorScheme[themeColor]["yellow"]
+      : colorScheme[themeColor]["blue"]} !important;
+  color: ${({ themeColor }) =>
+    themeColor === "dark"
+      ? darkTheme.textColor
+      : lightTheme.textColor} !important;
+`;
 
 const preprocessTicker = (ticker: string) => {
   // If the ticker already contains a '/', no need to preprocess
@@ -176,15 +193,6 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <TextField
-                  name="equity"
-                  label="Equity"
-                  fullWidth
-                  onChange={formik.handleChange}
-                  value={values.equity}
-                  size="small"
-                  margin="dense"
-                />
-                <TextField
                   name="entry"
                   label="Entry"
                   fullWidth
@@ -223,6 +231,15 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
               </Grid>
               <Grid item xs={6}>
                 <TextField
+                  name="equity"
+                  label="Equity"
+                  fullWidth
+                  onChange={formik.handleChange}
+                  value={values.equity}
+                  size="small"
+                  margin="dense"
+                />
+                <TextField
                   name="datetimeIn"
                   label="Datetime In"
                   type="datetime-local"
@@ -232,33 +249,41 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
                   size="small"
                   margin="dense"
                 />
-                <TextField
-                  name="ticker"
-                  label="Ticker"
-                  fullWidth
-                  onChange={formik.handleChange}
-                  value={values.ticker}
-                  size="small"
-                  margin="dense"
-                />
-                <FormControl fullWidth size="small" margin="dense">
-                  <InputLabel>Direction</InputLabel>
-                  <Select
-                    name="direction"
-                    label="Direction"
-                    value={values.direction}
-                    onChange={formik.handleChange}
-                    sx={{
-                      textAlign: "left",
-                      "& .MuiSelect-select": {
-                        textAlign: "left",
-                      },
-                    }}
-                  >
-                    <MenuItem value="Long">Long</MenuItem>
-                    <MenuItem value="Short">Short</MenuItem>
-                  </Select>
-                </FormControl>
+                {/* Ticker and Direction on the same row */}
+                <Grid container spacing={2}>
+                  <Grid item xs={6}>
+                    <TextField
+                      name="ticker"
+                      label="Ticker"
+                      fullWidth
+                      onChange={formik.handleChange}
+                      value={values.ticker}
+                      size="small"
+                      margin="dense"
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <FormControl fullWidth size="small" margin="dense">
+                      <InputLabel>Direction</InputLabel>
+                      <Select
+                        name="direction"
+                        label="Direction"
+                        value={values.direction}
+                        onChange={formik.handleChange}
+                        sx={{
+                          textAlign: "left",
+                          "& .MuiSelect-select": {
+                            textAlign: "left",
+                          },
+                        }}
+                      >
+                        <MenuItem value="Long">Long</MenuItem>
+                        <MenuItem value="Short">Short</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                </Grid>
+
                 <FormControl fullWidth size="small" margin="dense">
                   <InputLabel>Type</InputLabel>
                   <Select
@@ -284,15 +309,15 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
                     <MenuItem value="News Event">News Event</MenuItem>
                   </Select>
                 </FormControl>
-                <Button
+                <StyledButton
                   style={{ marginTop: "10px" }}
                   type="submit"
                   variant="contained"
-                  color="primary"
+                  themeColor={themeColor}
                   disabled={!allValuesFilled}
                 >
                   Open
-                </Button>
+                </StyledButton>
               </Grid>
             </Grid>
           </form>

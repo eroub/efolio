@@ -3,10 +3,10 @@ import Grid from "@mui/material/Grid";
 // Trade Interface
 import { Trade } from "../../models/TradeTypes";
 // Import Charts
-import WinLossPieChart from "./WinLossPieChart";
 import ComparisonChart from "./ComparisonBarChart";
 import CumulativePLChart from "./CumulativePLLineChart";
 import PairPerformanceChart from "./PairPerformanceBarChart";
+import WinLossPieChart from "./WinLossPieChart";
 
 interface ChartsProps {
   closedTrades: Trade[];

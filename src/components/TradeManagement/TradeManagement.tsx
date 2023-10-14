@@ -1,8 +1,12 @@
+// TradeManagement.tsx
+// External Libraries
 import React from "react";
 import { Grid } from "@mui/material";
+// Components
 import SizeCalculator from "./SizeCalc";
 import CompleteTradeForm from "./CompleteTradeForm/CompleteTradeForm";
 import TradeInit from "./TradeInit";
+// Types and Interfaces
 import { Trade } from "../../models/TradeTypes";
 
 interface TradeManagementProps {

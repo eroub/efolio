@@ -1,12 +1,10 @@
+// TradeJournal.tsx
+// External Libraries
 import React, { useState, useEffect } from "react";
-import http from "../services/http"; // Import the Axios configuration
-import { fetchExchangeRates } from "../utils/fetchExchangeRates"; // Import  exchange rates utility function
-import { convertToMST } from "../utils/dates"; // Import date conversion utility function
-import { useAuth } from "../auth/AuthContext"; // Authentication State
-
-// Trade interface
-import { Trade, PartialTrade } from "../models/TradeTypes";
-
+// Internal Utilities / Assets / Themes
+import http from "../services/http";
+import { fetchExchangeRates } from "../utils/fetchExchangeRates";
+import { convertToMST } from "../utils/dates";
 // Components
 import Error from "../components/Error";
 import Loading from "../components/Loading";
@@ -14,6 +12,10 @@ import ClosedTradeTable from "../components/ClosedTradeTable/ClosedTradeTable";
 import TradeStatistics from "../components/Statistics/Statistics";
 import Charts from "../components/Charts/Chart";
 import TradeManagement from "../components/TradeManagement/TradeManagement";
+// Types and Interfaces
+import { Trade, PartialTrade } from "../models/TradeTypes";
+// Context
+import { useAuth } from "../auth/AuthContext";
 
 const TradeJournal: React.FC = () => {
   // Authentication State
