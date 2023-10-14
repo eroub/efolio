@@ -33,7 +33,8 @@ const GlobalStyle = createGlobalStyle<{ theme: Theme }>`
 
   // Apply the common styles for background and border colors
   &&.MuiPaper-root, &&.MuiGrid-root, &&.MuiGrid-item, .MuiAccordion-root, &&.MuiFormControl-root {
-    background-color: ${({ theme }) => theme.containerBackgroundColor} !important;
+    background-color: ${({ theme }) =>
+      theme.containerBackgroundColor} !important;
     border-color: ${({ theme }) => theme.containerBorderColor} !important;
   }
 

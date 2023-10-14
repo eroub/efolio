@@ -157,7 +157,10 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
             <div
               style={{
                 fontWeight: riskPercent > 1.91 ? "bold" : "normal",
-                color: colorScheme[themeColor][riskPercent <= 1.91 ? "green" : "red"]
+                color:
+                  colorScheme[themeColor][
+                    riskPercent <= 1.91 ? "green" : "red"
+                  ],
               }}
             >
               Risk: {riskPercent}%

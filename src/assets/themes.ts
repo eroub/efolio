@@ -94,14 +94,14 @@ export type Theme = {
 };
 
 export const darkTheme: Theme = {
-  bodyBackgroundColor: colorScheme.base["800"],
-  textColor: colorScheme.base["50"],
+  bodyBackgroundColor: colorScheme.base["850"],
+  textColor: colorScheme.base["100"],
   tableRowColor: colorScheme.base["700"],
   formBackgroundColor: colorScheme.base["850"],
-  formTextColor: colorScheme.base["50"],
+  formTextColor: colorScheme.base["100"],
   accordionBackgroundColor: colorScheme.base["700"],
-  accordionTextColor: colorScheme.base["50"],
-  containerBackgroundColor: colorScheme.base["800"],
+  accordionTextColor: colorScheme.base["100"],
+  containerBackgroundColor: colorScheme.base["850"],
   containerBorderColor: colorScheme.base["700"],
 };
 

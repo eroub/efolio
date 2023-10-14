@@ -2,6 +2,8 @@ import React from "react";
 import styled from "styled-components";
 import TradeJournal from "./pages/TradeJournal";
 import AuthButton from "./auth/AuthButton";
+// Global Style
+import { colorScheme } from "./assets/themes";
 
 // Styles
 const AppContainer = styled.div`
@@ -16,7 +18,8 @@ const AppHeader = styled.header`
   align-items: left;
   justify-content: center;
   font-size: calc(10px + 0.5vmin);
-  color: white;
+  color: ${colorScheme.base["50"]};
+  background-color: ${colorScheme.base["900"]} !important;
 `;
 
 const Header = styled.header`
