@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 // Internal Utilities / Assets / Themes
-import http from "../../../services/http"; 
+import http from "../../../services/http";
 import {
   calculateTotalHours,
   calculateProjectedPL,
@@ -54,6 +54,7 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
   conversionRates,
   completedTrade,
 }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false); // Whether the form is currently submitting
   // Auth
   const { getEncodedCredentials } = useAuth();
   const encodedCredentials = getEncodedCredentials();
@@ -85,6 +86,7 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
       comment: "",
     },
     onSubmit: async (values) => {
+      setIsSubmitting(true);
       // Force values to be numbers
       values.exitPrice = Number(values.exitPrice);
       values.mfe = Number(values.mfe);
@@ -109,6 +111,7 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
         console.error("Error updating trade", error);
       }
       console.log(completedTrade);
+      setIsSubmitting(false);
       completedTrade();
     },
   });
@@ -234,7 +237,11 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
           style={{ flexDirection: "column", paddingTop: "0px" }}
         >
           {/* Pass Formik form and calculated fields to form */}
-          <FormSection formik={formik} calc={calculations} />
+          <FormSection
+            formik={formik}
+            calc={calculations}
+            isSubmitting={isSubmitting}
+          />
         </AccordionDetails>
       </Accordion>
     </Container>

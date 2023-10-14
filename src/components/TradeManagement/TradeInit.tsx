@@ -19,7 +19,6 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useFormik } from "formik";
-
 // Internal Utilities / Assets / Themes
 import { useCurrentTheme } from "../../hooks/useAppColorScheme";
 import { colorScheme, lightTheme, darkTheme } from "../../assets/themes";
@@ -29,16 +28,27 @@ import {
   calculateEstimatedRR,
 } from "../../utils/tradeCalculations";
 import { dateInit } from "../../utils/dates"; // Date utility
-
 // Types and Interfaces
 import { PartialTrade } from "../../models/TradeTypes";
 type AddTradeFunction = (trade: PartialTrade) => void;
+
 interface TradeFormProps {
+  // Function to add a new trade
   addTrade: AddTradeFunction;
+  // Conversion rates for currency
   conversionRates: Record<string, number>;
+  // State-related props
+  tradeAdded: boolean;
+  setTradeAdded: React.Dispatch<React.SetStateAction<boolean>>;
+  isSubmitting: boolean;
 }
 
 // Styled Components
+const SubmitButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+`;
+
 const StyledButton = styled(Button)<{
   themeColor: "dark" | "light";
   disabled: boolean;
@@ -62,16 +72,21 @@ const preprocessTicker = (ticker: string) => {
   return ticker.substring(0, mid) + "/" + ticker.substring(mid);
 };
 
-const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
-  // Determine current theme color (dark/light)
-  const themeColor = useCurrentTheme();
-  // Calculated Values
-  const [riskPercent, setRiskPercent] = useState<number>(0);
-  const [estimatedGain, setEstimatedGain] = useState<number>(0);
-  const [estimatedRR, setEstimatedRR] = useState<number>(0);
-
-  // Initialize datetimein
-  const formattedDateTime = dateInit();
+const TradeInit: React.FC<TradeFormProps> = ({
+  addTrade,
+  conversionRates,
+  tradeAdded,
+  setTradeAdded,
+  isSubmitting,
+}) => {
+  // Local states with comments
+  const [calculatedValues, setCalculatedValues] = useState<{
+    riskPercent: number;
+    estimatedGain: number;
+    estimatedRR: number;
+  }>({ riskPercent: 0, estimatedGain: 0, estimatedRR: 0 });
+  const themeColor = useCurrentTheme(); // Current theme color
+  const formattedDateTime = dateInit(); // Initialize datetime
 
   // Form values used in calculations
   const formik = useFormik({
@@ -99,6 +114,7 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
       ) {
         // Update ticker to include "/" delimiter and add calculated fields
         const updatedTicker = preprocessTicker(values.ticker);
+        const { riskPercent, estimatedGain, estimatedRR } = calculatedValues;
         const updatedData: PartialTrade = {
           ...values,
           ticker: updatedTicker,
@@ -113,14 +129,28 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
       }
     },
   });
+
+  // If trade submission successful reset state and form
+  useEffect(() => {
+    if (tradeAdded) {
+      formik.resetForm();
+      setTradeAdded(false); // Reset the tradeAdded flag for next submission
+    }
+  }, [tradeAdded, setTradeAdded, formik]);
+
   const { values } = formik;
   // Button validation
   const allValuesFilled = Object.values(values).every((v) => v !== "");
 
   useEffect(() => {
+    let riskPercentValue = 0;
+    let estimatedGainValue = 0;
+    let estimatedRRValue = 0;
+
     const { equity, entry, stopLoss, target, size, ticker } = values;
+
     if (entry && stopLoss && size && equity && ticker) {
-      const riskPercentValue = calculateRiskPercent(
+      riskPercentValue = calculateRiskPercent(
         entry,
         stopLoss,
         size,
@@ -128,10 +158,10 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
         ticker,
         conversionRates,
       );
-      setRiskPercent(parseFloat(riskPercentValue.toFixed(3)));
     }
+
     if (entry && target && size && equity && ticker) {
-      const estimatedGainValue = calculateEstimatedGain(
+      estimatedGainValue = calculateEstimatedGain(
         entry,
         target,
         size,
@@ -139,13 +169,22 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
         ticker,
         conversionRates,
       );
-      setEstimatedGain(parseFloat(estimatedGainValue.toFixed(3)));
     }
-    if (riskPercent && estimatedGain) {
-      const estimatedRRValue = calculateEstimatedRR(riskPercent, estimatedGain);
-      setEstimatedRR(parseFloat(estimatedRRValue.toFixed(3)));
+
+    if (riskPercentValue && estimatedGainValue) {
+      estimatedRRValue = calculateEstimatedRR(
+        riskPercentValue,
+        estimatedGainValue,
+      );
     }
-  }, [values, conversionRates, estimatedGain, riskPercent, estimatedRR]);
+
+    setCalculatedValues({
+      riskPercent: parseFloat(riskPercentValue.toFixed(3)),
+      estimatedGain: parseFloat(estimatedGainValue.toFixed(3)),
+      estimatedRR: parseFloat(estimatedRRValue.toFixed(3)),
+    });
+  }, [values, conversionRates]);
+  const { riskPercent, estimatedGain, estimatedRR } = calculatedValues;
 
   return (
     <Container
@@ -309,15 +348,17 @@ const TradeInit: React.FC<TradeFormProps> = ({ addTrade, conversionRates }) => {
                     <MenuItem value="News Event">News Event</MenuItem>
                   </Select>
                 </FormControl>
-                <StyledButton
-                  style={{ marginTop: "10px" }}
-                  type="submit"
-                  variant="contained"
-                  themeColor={themeColor}
-                  disabled={!allValuesFilled}
-                >
-                  Open
-                </StyledButton>
+                <SubmitButtonContainer>
+                  <StyledButton
+                    style={{ marginTop: "10px" }}
+                    type="submit"
+                    variant="contained"
+                    themeColor={themeColor}
+                    disabled={!allValuesFilled || isSubmitting} // Button is disabled when not all values are filled or isSubmitting is true
+                  >
+                    Open
+                  </StyledButton>
+                </SubmitButtonContainer>
               </Grid>
             </Grid>
           </form>

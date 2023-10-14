@@ -32,6 +32,7 @@ interface FormSectionProps {
     comment: string;
   }>;
   calc: Calculations;
+  isSubmitting: boolean;
 }
 
 const StyledButton = styled(Button)<{
@@ -48,7 +49,11 @@ const StyledButton = styled(Button)<{
       : lightTheme.textColor} !important;
 `;
 
-export const FormSection: React.FC<FormSectionProps> = ({ formik, calc }) => {
+export const FormSection: React.FC<FormSectionProps> = ({
+  formik,
+  calc,
+  isSubmitting,
+}) => {
   const { values, handleChange, handleSubmit } = formik;
   // Determine current theme color (dark/light)
   const themeColor = useCurrentTheme();
@@ -184,7 +189,7 @@ export const FormSection: React.FC<FormSectionProps> = ({ formik, calc }) => {
               type="submit"
               variant="contained"
               themeColor={themeColor}
-              disabled={!allValuesFilled}
+              disabled={!allValuesFilled || isSubmitting} // Button is disabled when not all values are filled or isSubmitting is true
             >
               Close
             </StyledButton>

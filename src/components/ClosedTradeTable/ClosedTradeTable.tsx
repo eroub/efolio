@@ -10,7 +10,6 @@ import { Expand, Shrink } from "../../assets/Arrows";
 // Types and Interfaces
 import { Trade } from "../../models/TradeTypes";
 
-
 interface TradeTableProps {
   trades: Trade[];
 }

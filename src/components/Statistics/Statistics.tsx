@@ -38,7 +38,7 @@ import {
   calculateTotalGainLoss,
   calculateUlcerIndex,
   calculateVaRandCVaR,
-  calculateWinsLosses
+  calculateWinsLosses,
 } from "../../utils/statisticCalculations";
 import { formatCurrency } from "../../utils/formatters";
 // Components

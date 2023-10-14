@@ -13,7 +13,10 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 // Internal Utilities / Assets / Themes
-import { calculateSize, calculatePipDifference } from "../../utils/tradeCalculations";
+import {
+  calculateSize,
+  calculatePipDifference,
+} from "../../utils/tradeCalculations";
 import { formatSizeInK } from "../../utils/formatters";
 
 interface SizeCalculatorProps {
