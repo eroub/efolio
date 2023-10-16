@@ -12,9 +12,19 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Install Dependencies and Build
+      - name: Check for changes in package files
+        id: check_files
+        run: |
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep 'package.json\|package-lock.json' && echo "found=true" || echo "found=false"
+        continue-on-error: true
+
+      - name: Conditional npm install
+        if: steps.check_files.outputs.found == 'true'
         run: |
           npm install
+
+      - name: Build
+        run: |
           npm run build
 
       - name: SSH and Deploy
