@@ -57,8 +57,15 @@ export const FormSection: React.FC<FormSectionProps> = ({
   const { values, handleChange, handleSubmit } = formik;
   // Determine current theme color (dark/light)
   const themeColor = useCurrentTheme();
-  // Button validation
-  const allValuesFilled = Object.values(values).every((v) => v !== "");
+  // Button validation, all fields mandatory except "comment"
+  const { datetimeOut, exitPrice, realPL, mfe, mae, screenshot } = values;
+  const allValuesFilled =
+    datetimeOut !== "" &&
+    exitPrice !== 0 &&
+    realPL !== 0 &&
+    mfe !== 0 &&
+    mae !== 0 &&
+    screenshot !== "";
 
   return (
     <form onSubmit={handleSubmit}>

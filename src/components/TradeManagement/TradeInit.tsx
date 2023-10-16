@@ -85,6 +85,7 @@ const TradeInit: React.FC<TradeFormProps> = ({
     estimatedGain: number;
     estimatedRR: number;
   }>({ riskPercent: 0, estimatedGain: 0, estimatedRR: 0 });
+
   const themeColor = useCurrentTheme(); // Current theme color
   const formattedDateTime = dateInit(); // Initialize datetime
 

@@ -1,0 +1,27 @@
+name: Deploy Trade Journal to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Install Dependencies and Build
+        run: |
+          npm install
+          npm run build
+
+      - name: SSH and Deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: 24.199.116.19
+          username: root
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            rsync -r --delete --exclude='.git' --exclude='node_modules' ./build/ /var/www/trade-journal/build

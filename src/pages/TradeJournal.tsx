@@ -81,12 +81,18 @@ const TradeJournal: React.FC = () => {
         setError={setIsError}
       />
 
-      {/* Closed Trade Table */}
-      <ClosedTradeTable trades={closedTrades} />
-      {/* Trade Statistics Matrix */}
-      <TradeStatistics closedTrades={closedTrades} />
-      {/* Performance Charts */}
-      <Charts closedTrades={closedTrades} />
+      {closedTrades.length !== 0 ? (
+        <>
+          {/* Closed Trade Table */}
+          <ClosedTradeTable trades={closedTrades} />
+          {/* Trade Statistics Matrix */}
+          <TradeStatistics closedTrades={closedTrades} />
+          {/* Performance Charts */}
+          <Charts closedTrades={closedTrades} />
+        </>
+      ) : (
+        <div></div>
+      )}
     </div>
   );
 };
