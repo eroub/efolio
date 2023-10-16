@@ -33,10 +33,6 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H 24.199.116.19 >> ~/.ssh/known_hosts
 
-      
-      - name: Debug SSH Connection
-        run: ssh -vvv -i ~/.ssh/id_ed25519 root@24.199.116.19
-
       - name: SSH and Deploy
         uses: appleboy/ssh-action@master
         with:
@@ -44,4 +40,4 @@ jobs:
           username: root
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            rsync -r --delete --exclude='.git' --exclude='node_modules' ./build/ /var/www/trade-journal/build
+            rsync -r --delete --exclude='.git' --exclude='node_modules' /home/runner/work/trade-journal/trade-journal/build/ /var/www/trade-journal/build
