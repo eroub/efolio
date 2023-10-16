@@ -26,6 +26,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Create .ssh directory if it doesn't exist
+        run: mkdir -p ~/.ssh
+      
       - name: Add SSH key to known hosts
         run: echo "24.199.116.19 $(ssh-keyscan -H 24.199.116.19 2>/dev/null)" >> ~/.ssh/known_hosts
       
