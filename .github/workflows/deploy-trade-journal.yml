@@ -34,7 +34,7 @@ jobs:
           ssh-keyscan -H 24.199.116.19 >> ~/.ssh/known_hosts
       
       - name: Debug SSH Connection
-        run: ssh -vvv -i /tmp/deploy_key root@24.199.116.19
+        run: ssh -vvv -i ~/.ssh/id_rsa root@24.199.116.19
 
       - name: SSH and Deploy
         uses: appleboy/ssh-action@master
