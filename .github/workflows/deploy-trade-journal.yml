@@ -26,11 +26,11 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Create .ssh directory if it doesn't exist
-        run: mkdir -p ~/.ssh
-      
-      - name: Add SSH key to known hosts
-        run: echo "24.199.116.19 $(ssh-keyscan -H 24.199.116.19 2>/dev/null)" >> ~/.ssh/known_hosts
+      - name: Setup SSH Key
+        run: |
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H 24.199.116.19 >> ~/.ssh/known_hosts
       
       - name: Debug SSH Connection
         run: ssh -vvv -i /tmp/deploy_key root@24.199.116.19
