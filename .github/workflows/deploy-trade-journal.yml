@@ -40,5 +40,5 @@ jobs:
           username: root
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd /home/runner/work/trade-journal/trade-journal
-            rsync -r --delete --exclude='.git' --exclude='node_modules' ./build/ /var/www/trade-journal/build
+            rsync -r --delete --exclude='.git' --exclude='node_modules' /home/runner/work/trade-journal/trade-journal/build/ /var/www/trade-journal/build
+  
