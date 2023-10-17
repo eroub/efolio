@@ -26,6 +26,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: List Directories
+        run: ls -la /home/runner/work/trade-journal/trade-journal/
+
       - name: Setup SSH Directory and Key
         run: |
           mkdir -p ~/.ssh
