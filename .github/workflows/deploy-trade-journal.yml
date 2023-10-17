@@ -33,14 +33,8 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H 24.199.116.19 >> ~/.ssh/known_hosts
     
-      - name: SSH and Deploy
-        uses: appleboy/ssh-action@master
-        with:
-          host: 24.199.116.19
-          username: root
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            ls -la ./
-            cd /home/runner/work/trade-journal/trade-journal/
-            rsync -r --delete --exclude='.git' --exclude='node_modules' ./build/ /var/www/trade-journal/build
-        
+      - name: Rsync files to remote server
+        run: |
+          rsync -r --delete --exclude='.git' --exclude='node_modules' /home/runner/work/trade-journal/trade-journal/build/ root@24.199.116.19:/var/www/trade-journal/build
+        env:
+          RSYNC_PASSWORD: ${{ secrets.SERVER_SSH_KEY }}
