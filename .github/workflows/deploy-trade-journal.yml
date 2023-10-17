@@ -26,9 +26,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: List Directories
-        run: ls -la /home/runner/work/trade-journal/trade-journal/
-
       - name: Setup SSH Directory and Key
         run: |
           mkdir -p ~/.ssh
@@ -43,4 +40,7 @@ jobs:
           username: root
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            rsync -r --delete --exclude='.git' --exclude='node_modules' /home/runner/work/trade-journal/trade-journal/build/ /var/www/trade-journal/build  
+            ls -la ./
+            cd /home/runner/work/trade-journal/trade-journal/
+            rsync -r --delete --exclude='.git' --exclude='node_modules' ./build/ /var/www/trade-journal/build
+        
