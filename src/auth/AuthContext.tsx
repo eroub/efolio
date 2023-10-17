@@ -1,5 +1,7 @@
 // AuthContext.tsx
-import React, { createContext, useState, useContext, ReactNode } from "react";
+import React, { createContext, useState, useContext, useEffect, ReactNode } from "react";
+
+const ONE_DAY = 24 * 60 * 60 * 1000; // in milliseconds
 
 interface AuthContextProps {
   auth: {
@@ -25,17 +27,33 @@ export const useAuth = (): AuthContextProps => {
 };
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [auth, setAuth] = useState<{
-    isAuthenticated: boolean;
-    credentials: { username: string; password: string } | null;
-  }>({ isAuthenticated: false, credentials: null });
+  const [auth, setAuth] = useState<{ isAuthenticated: boolean; credentials: { username: string; password: string } | null; }>(
+    () => {
+      const savedAuth = localStorage.getItem('auth');
+      const expiryTimeString = localStorage.getItem('authExpiry');
+      const expiryTime = expiryTimeString ? new Date(Number(expiryTimeString)) : null;
+
+      if (savedAuth && expiryTime && new Date().getTime() < Number(expiryTime)) {
+        return JSON.parse(savedAuth);
+      }
+      return { isAuthenticated: false, credentials: null };
+    }
+  );
+
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      const expiryTime = new Date().getTime() + ONE_DAY;
+      localStorage.setItem('auth', JSON.stringify(auth));
+      localStorage.setItem('authExpiry', expiryTime.toString());
+    }
+  }, [auth]);
 
   const authenticate = (username: string, password: string) => {
-    // Authenticate user here and set state
-    setAuth({
+    const newAuth = {
       isAuthenticated: true,
       credentials: { username, password },
-    });
+    };
+    setAuth(newAuth);
   };
 
   const getEncodedCredentials = () => {
