@@ -36,6 +36,8 @@ interface CompleteTradeFormProps {
   openTrade: Trade;
   conversionRates: Record<string, number>;
   completedTrade: () => void;
+  setIsLoading: (state: boolean) => void;
+  setError: (state: string | null) => void;
 }
 
 interface Calculations {
@@ -53,6 +55,8 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
   openTrade,
   conversionRates,
   completedTrade,
+  setIsLoading,
+  setError,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false); // Whether the form is currently submitting
   // Auth
@@ -87,6 +91,8 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
     },
     onSubmit: async (values) => {
       setIsSubmitting(true);
+      setIsLoading(true);
+      setError(null);
       // Force values to be numbers
       values.exitPrice = Number(values.exitPrice);
       values.mfe = Number(values.mfe);
@@ -107,10 +113,12 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
           },
         );
         console.log(response);
-      } catch (error) {
-        console.error("Error updating trade", error);
+        setIsLoading(false);
+        setError(null);
+      } catch (error: any) {
+        setIsLoading(false);
+        setError(error.message);
       }
-      console.log(completedTrade);
       setIsSubmitting(false);
       completedTrade();
     },

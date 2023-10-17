@@ -18,48 +18,71 @@ import {
   calculatePipDifference,
 } from "../../utils/tradeCalculations";
 import { formatSizeInK } from "../../utils/formatters";
+// Types and Interfaces
+import { Trade } from "../../models/TradeTypes";
 
 interface SizeCalculatorProps {
   conversionRates: Record<string, number>;
+  lastTrade?: Trade | null;
 }
 
-const SizeCalculator: React.FC<SizeCalculatorProps> = ({ conversionRates }) => {
+const SizeCalculator: React.FC<SizeCalculatorProps> = ({
+  conversionRates,
+  lastTrade,
+}) => {
   const [calculatedSize, setCalculatedSize] = useState(0);
   const [calculatePip, setCalculatedPip] = useState(0);
 
-  const { submitForm, values, handleChange, handleSubmit } = useFormik({
-    initialValues: {
-      equity: "",
-      riskPercent: "1.9",
-      entry: "",
-      stopLoss: "",
-      ticker: "",
-    },
-    onSubmit: (values) => {
-      // Size Calc
-      const { equity, riskPercent, entry, stopLoss, ticker } = values;
-      if (equity && riskPercent && entry && stopLoss && ticker) {
-        const size = calculateSize(
-          Number(equity),
-          Number(riskPercent),
-          Number(entry),
-          Number(stopLoss),
-          ticker,
-          conversionRates,
-        );
-        setCalculatedSize(size);
-      } else {
-        setCalculatedSize(0);
-      }
-      // Pip Calc
-      if (entry && stopLoss) {
-        const pip = calculatePipDifference(Number(entry), Number(stopLoss));
-        setCalculatedPip(pip);
-      } else {
-        setCalculatedPip(0);
-      }
-    },
-  });
+  // Init equity based on last trade
+  const [initEquity, setInitEquity] = useState<string | null>("");
+  useEffect(() => {
+    if (lastTrade) {
+      const realPL = lastTrade.realPL ?? 0;
+      setInitEquity((lastTrade.equity + realPL).toString());
+    }
+  }, [lastTrade]);
+  console.log(lastTrade);
+
+  const { submitForm, values, handleChange, handleSubmit, setFieldValue } =
+    useFormik({
+      initialValues: {
+        equity: initEquity || "",
+        riskPercent: "0.4",
+        entry: "",
+        stopLoss: "",
+        ticker: "",
+      },
+      onSubmit: (values) => {
+        // Size Calc
+        const { equity, riskPercent, entry, stopLoss, ticker } = values;
+        if (equity && riskPercent && entry && stopLoss && ticker) {
+          const size = calculateSize(
+            Number(equity),
+            Number(riskPercent),
+            Number(entry),
+            Number(stopLoss),
+            ticker,
+            conversionRates,
+          );
+          setCalculatedSize(size);
+        } else {
+          setCalculatedSize(0);
+        }
+        // Pip Calc
+        if (entry && stopLoss) {
+          const pip = calculatePipDifference(Number(entry), Number(stopLoss));
+          setCalculatedPip(pip);
+        } else {
+          setCalculatedPip(0);
+        }
+      },
+    });
+
+  useEffect(() => {
+    if (initEquity !== null) {
+      setFieldValue("equity", initEquity);
+    }
+  }, [initEquity, setFieldValue]);
 
   useEffect(() => {
     submitForm(); // Auto-submit form on changes
@@ -79,7 +102,7 @@ const SizeCalculator: React.FC<SizeCalculatorProps> = ({ conversionRates }) => {
       elevation={0}
       style={{
         marginTop: "20px",
-        width: "300px",
+        width: "350px",
       }}
     >
       <Accordion

@@ -29,7 +29,7 @@ import {
 } from "../../utils/tradeCalculations";
 import { dateInit } from "../../utils/dates"; // Date utility
 // Types and Interfaces
-import { PartialTrade } from "../../models/TradeTypes";
+import { Trade, PartialTrade } from "../../models/TradeTypes";
 type AddTradeFunction = (trade: PartialTrade) => void;
 
 interface TradeFormProps {
@@ -38,6 +38,7 @@ interface TradeFormProps {
   // Conversion rates for currency
   conversionRates: Record<string, number>;
   // State-related props
+  lastTrade?: Trade | null;
   tradeAdded: boolean;
   setTradeAdded: React.Dispatch<React.SetStateAction<boolean>>;
   isSubmitting: boolean;
@@ -78,6 +79,7 @@ const TradeInit: React.FC<TradeFormProps> = ({
   tradeAdded,
   setTradeAdded,
   isSubmitting,
+  lastTrade,
 }) => {
   // Local states with comments
   const [calculatedValues, setCalculatedValues] = useState<{
@@ -89,6 +91,15 @@ const TradeInit: React.FC<TradeFormProps> = ({
   const themeColor = useCurrentTheme(); // Current theme color
   const formattedDateTime = dateInit(); // Initialize datetime
 
+  // Init equity based on last trade
+  const [initEquity, setInitEquity] = useState<number>(0);
+  useEffect(() => {
+    if (lastTrade) {
+      const realPL = lastTrade.realPL ?? 0;
+      setInitEquity(lastTrade.equity + realPL);
+    }
+  }, [lastTrade]);
+
   // Form values used in calculations
   const formik = useFormik({
     initialValues: {
@@ -96,7 +107,7 @@ const TradeInit: React.FC<TradeFormProps> = ({
       ticker: "",
       direction: "Long",
       type: "",
-      equity: 0,
+      equity: initEquity || 0,
       entry: 0,
       stopLoss: 0,
       target: 0,
@@ -130,6 +141,14 @@ const TradeInit: React.FC<TradeFormProps> = ({
       }
     },
   });
+
+  // Set equity
+  const { setFieldValue } = formik; // Destructure setFieldValue from formik
+  useEffect(() => {
+    if (initEquity !== null) {
+      setFieldValue("equity", initEquity);
+    }
+  }, [initEquity, setFieldValue]);
 
   // If trade submission successful reset state and form
   useEffect(() => {
@@ -213,10 +232,10 @@ const TradeInit: React.FC<TradeFormProps> = ({
           >
             <div
               style={{
-                fontWeight: riskPercent > 1.91 ? "bold" : "normal",
+                fontWeight: riskPercent > 0.41 ? "bold" : "normal",
                 color:
                   colorScheme[themeColor][
-                    riskPercent <= 1.91 ? "green" : "red"
+                    riskPercent <= 0.41 ? "green" : "red"
                   ],
               }}
             >
@@ -270,25 +289,6 @@ const TradeInit: React.FC<TradeFormProps> = ({
                 />
               </Grid>
               <Grid item xs={6}>
-                <TextField
-                  name="equity"
-                  label="Equity"
-                  fullWidth
-                  onChange={formik.handleChange}
-                  value={values.equity}
-                  size="small"
-                  margin="dense"
-                />
-                <TextField
-                  name="datetimeIn"
-                  label="Datetime In"
-                  type="datetime-local"
-                  fullWidth
-                  onChange={formik.handleChange}
-                  value={values.datetimeIn}
-                  size="small"
-                  margin="dense"
-                />
                 {/* Ticker and Direction on the same row */}
                 <Grid container spacing={2}>
                   <Grid item xs={6}>
@@ -323,6 +323,25 @@ const TradeInit: React.FC<TradeFormProps> = ({
                     </FormControl>
                   </Grid>
                 </Grid>
+                <TextField
+                  name="equity"
+                  label="Equity"
+                  fullWidth
+                  onChange={formik.handleChange}
+                  value={values.equity}
+                  size="small"
+                  margin="dense"
+                />
+                <TextField
+                  name="datetimeIn"
+                  label="Datetime In"
+                  type="datetime-local"
+                  fullWidth
+                  onChange={formik.handleChange}
+                  value={values.datetimeIn}
+                  size="small"
+                  margin="dense"
+                />
 
                 <FormControl fullWidth size="small" margin="dense">
                   <InputLabel>Type</InputLabel>

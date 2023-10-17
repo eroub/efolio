@@ -13,72 +13,68 @@ import Charts from "../components/Charts/Chart";
 import TradeManagement from "../components/TradeManagement/TradeManagement";
 // Types and Interfaces
 import { Trade } from "../models/TradeTypes";
-// Context
-import { useAuth } from "../auth/AuthContext";
 
 const TradeJournal: React.FC = () => {
-  const { auth } = useAuth();
   const [trades, setTrades] = useState<Trade[]>([]);
   const [triggerFetch, setTriggerFetch] = useState(false);
   const [conversionRates, setConversionRates] = useState<
     Record<string, number>
   >({});
+  // Error and loading states
   const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchTrades = async () => {
-    setIsLoading(true);
-    setIsError(false);
-    try {
-      const response = await http.get("/api/trades");
-      setTrades(response.data);
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error fetching trades", error);
-      setIsLoading(false);
-      setIsError(true);
-    }
-  };
-
-  const closeTradeSubmit = () => {
-    setTriggerFetch(!triggerFetch);
-  };
-
+  // UseEffect for getting trades from API
   useEffect(() => {
+    const fetchTrades = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await http.get("/api/trades");
+        setTrades(response.data);
+        setError(null);
+      } catch (error: any) {
+        setIsLoading(false);
+        setError(error.message);
+      }
+    };
     fetchTrades();
   }, [triggerFetch]);
 
+  // UseEffect for getting conversion rates from external API
   useEffect(() => {
     const getRates = async () => {
+      setError(null);
       try {
         const rates = await fetchExchangeRates();
         setConversionRates(rates);
-      } catch (error) {
-        console.error("Error fetching exchange rates", error);
+        setError(null);
+      } catch (error: any) {
+        setError(error.message);
       }
     };
     getRates();
   }, []);
 
-  const firstOpenTrade = trades.find((trade) => trade.status === "Open");
+  //  Get list of closed trades, most recent, and first open trade if any
   const closedTrades = trades
     .filter((trade) => trade.status === "Closed")
-    .sort((a, b) => b.id - a.id);
+    .sort((a, b) => b.id - a.id) as Trade[];
+  const mostRecentTrade: Trade | null =
+    closedTrades.length > 0 ? closedTrades[0] : null;
+  const firstOpenTrade = trades.find((trade) => trade.status === "Open");
 
   return (
     <div>
       {/* Loading and Error Components */}
-      {isLoading ? <Loading /> : null}
-      {isError ? <Error message="An error occurred" /> : null}
+      {isLoading && <Loading />}
+      {error && <Error message={error} />}
 
       <TradeManagement
         conversionRates={conversionRates}
-        isAuthenticated={auth.isAuthenticated}
         firstOpenTrade={firstOpenTrade}
-        completedTrades={closeTradeSubmit}
         triggerTradeFetch={() => setTriggerFetch(!triggerFetch)}
-        setLoading={setIsLoading}
-        setError={setIsError}
+        mostRecentTrade={mostRecentTrade}
       />
 
       {closedTrades.length !== 0 ? (
