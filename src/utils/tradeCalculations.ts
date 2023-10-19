@@ -123,7 +123,7 @@ export const calculateTotalHours = (
   datetimeOut: string,
 ): number => {
   // Extract date and time components
-  const [dateInStr, timeInStr] = datetimeIn.split("T");
+  const [dateInStr, timeInStr] = datetimeIn.split(" ");
   const [yearIn, monthIn, dayIn] = dateInStr.split("-").map(Number);
   const [hourIn, minuteIn, secondIn] = timeInStr
     .split(":")
