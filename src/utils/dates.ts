@@ -13,6 +13,15 @@ export const dateInit = () => {
   return `${year}-${month}-${day}T${hour}:${minute}`;
 };
 
+// Take datetime object and convert it to a different timezone
+export const convertToTimeZone = (input: string, timeZone: string) => {
+  const zonedDate = utcToZonedTime(input, timeZone);
+  const formattedDate = format(zonedDate, "yyyy-MM-dd HH:mm:ss", {
+    timeZone,
+  });
+  return formattedDate;
+};
+
 // Take datetime object and convert it to yyyy-mm-dd hh:mm
 export const simplifyDate = (datetime: string | null) => {
   if (datetime === null) {

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 // Internal Utilities / Assets / Themes
 import http from "../services/http";
 import { fetchExchangeRates } from "../utils/fetchExchangeRates";
+import { convertToTimeZone } from "../utils/dates";
 // Components
 import Error from "../components/Error";
 import Loading from "../components/Loading";
@@ -31,7 +32,18 @@ const TradeJournal: React.FC = () => {
       setError(null);
       try {
         const response = await http.get("/api/trades");
-        setTrades(response.data);
+        // Convert date fields to the desired time zone
+        const timeZone = process.env.TIMEZONE || "UTC";
+        const convertedTrades = response.data.map((trade: Trade) => {
+          if (trade.datetimeIn) {
+            trade.datetimeIn = convertToTimeZone(trade.datetimeIn, timeZone);
+          }
+          if (trade.datetimeOut) {
+            trade.datetimeOut = convertToTimeZone(trade.datetimeOut, timeZone);
+          }
+          return trade;
+        });
+        setTrades(convertedTrades);
         setError(null);
       } catch (error: any) {
         setIsLoading(false);

@@ -2,6 +2,7 @@
 // External Libraries
 import React, { useState, useEffect } from "react";
 import { useFormik } from "formik";
+import { format } from "date-fns";
 import {
   Container,
   Paper,
@@ -16,6 +17,7 @@ import http from "../../../services/http";
 import {
   calculateTotalHours,
   calculateProjectedPL,
+  calculateRealizedPL,
   calculateCommission,
   calculatePercentChange,
   calculateRealRR,
@@ -31,6 +33,7 @@ import { FormSection } from "./CompleteForm";
 import { Trade } from "../../../models/TradeTypes";
 // Context
 import { useAuth } from "../../../auth/AuthContext";
+import { zonedTimeToUtc } from "date-fns-tz";
 
 interface CompleteTradeFormProps {
   openTrade: Trade;
@@ -43,6 +46,7 @@ interface CompleteTradeFormProps {
 interface Calculations {
   totalHrs: number | null;
   projPL: number | null;
+  realPL: number | null;
   commission: number | null;
   percentChange: number | null;
   realRR: number | null;
@@ -63,10 +67,14 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
   const { getEncodedCredentials } = useAuth();
   const encodedCredentials = getEncodedCredentials();
 
+  // Provide a default time zone if the environment variable is not set
+  const timeZone = process.env.TIMEZONE || "UTC";
+
   // Initialize Calculated Values
   const [calculations, setCalculations] = useState<Calculations>({
     totalHrs: null,
     projPL: null,
+    realPL: null,
     commission: null,
     percentChange: null,
     realRR: null,
@@ -83,7 +91,7 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
     initialValues: {
       datetimeOut: formattedDateTime,
       exitPrice: 0,
-      realPL: 0,
+      postEquity: 0,
       mfe: 0,
       mae: 0,
       screenshot: "",
@@ -93,11 +101,14 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
       setIsSubmitting(true);
       setIsLoading(true);
       setError(null);
+      // Convert dateTimeOut to UTC
+      const utcDateTimeOut = zonedTimeToUtc(values.datetimeOut, timeZone);
+      values.datetimeOut = format(utcDateTimeOut, "yyyy-MM-dd HH:mm:ss"); // Convert Date object to string
       // Force values to be numbers
       values.exitPrice = Number(values.exitPrice);
       values.mfe = Number(values.mfe);
       values.mae = Number(values.mae);
-      values.realPL = Number(values.realPL);
+      values.postEquity = Number(values.postEquity);
       const completedTradeData = {
         ...openTrade,
         ...values,
@@ -127,9 +138,6 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
   const { values } = formik;
 
   useEffect(() => {
-    // Force realPL to be a number
-    const realPL = Number(values.realPL);
-
     // Calculate fields
     const totalHrs = calculateTotalHours(
       openTrade.datetimeIn,
@@ -143,6 +151,7 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
       openTrade.ticker,
       conversionRates,
     );
+    const realPL = calculateRealizedPL(values.postEquity, openTrade.equity);
     const commission = calculateCommission(realPL, projPL);
     const percentChange = calculatePercentChange(realPL, openTrade.equity);
     const realRR = calculateRealRR(realPL, openTrade.equity, openTrade.risk);
@@ -166,6 +175,7 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
     setCalculations({
       totalHrs,
       projPL,
+      realPL,
       commission,
       percentChange,
       realRR,

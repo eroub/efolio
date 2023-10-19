@@ -2,9 +2,9 @@
 // External Libraries
 import React, { useState } from "react";
 import { Grid } from "@mui/material";
+import { format } from "date-fns";
 // Interal Utilities / Assets / Themes;
 import http from "../../services/http";
-import { convertToMST } from "../../utils/dates";
 // Components
 import Error from "../Error";
 import Loading from "../Loading";
@@ -15,6 +15,7 @@ import TradeInit from "./TradeInit";
 import { Trade, PartialTrade } from "../../models/TradeTypes";
 // Context
 import { useAuth } from "../../auth/AuthContext";
+import { zonedTimeToUtc } from "date-fns-tz";
 
 interface TradeManagementProps {
   // State-related props
@@ -41,6 +42,9 @@ const TradeManagement: React.FC<TradeManagementProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Provide a default time zone if the environment variable is not set
+  const timeZone = process.env.TIMEZONE || "UTC";
+
   // Function to add a new trade
   const addInitialTrade = async (newTrade: PartialTrade) => {
     setIsSubmitting(true);
@@ -48,18 +52,19 @@ const TradeManagement: React.FC<TradeManagementProps> = ({
     setError(null);
     try {
       if (newTrade.datetimeIn) {
-        newTrade.datetimeIn = convertToMST(newTrade.datetimeIn);
+        const utcDateTimeIn = zonedTimeToUtc(newTrade.datetimeIn, timeZone);
+        newTrade.datetimeIn = format(utcDateTimeIn, "yyyy-MM-dd HH:mm:ss"); // Convert Date object to string
       }
       await http.post("/api/trades", newTrade, {
         headers: { Authorization: `Basic ${encodedCredentials}` },
       });
       triggerTradeFetch();
-      setIsLoading(true);
+      setIsLoading(false);
       setError(null);
       setTradeAdded(true);
       setIsSubmitting(false);
     } catch (error: any) {
-      setIsLoading(true);
+      setIsLoading(false);
       setError(error.message);
       setIsSubmitting(false);
     }

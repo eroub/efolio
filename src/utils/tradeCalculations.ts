@@ -155,7 +155,9 @@ export const calculateCommission = (
   realPL: number,
   projectedPL: number,
 ): number => {
-  return truncateToTwoDecimals(realPL - projectedPL);
+  const commission = truncateToTwoDecimals(realPL - projectedPL);
+  // Commission/slippage can never be positive, so just set it to 0
+  return commission > 0 ? 0 : commission;
 };
 
 /**
@@ -253,4 +255,16 @@ export const calculateProjectedPL = (
   }
 
   return truncateToTwoDecimals(projectedPL);
+};
+
+/**
+ * Calculate Realized P/L based on pre/post equity
+ * Formula: equityPostTrade - equityPreTrade;
+ */
+export const calculateRealizedPL = (
+  equityPostTrade: number,
+  equityPreTrade: number,
+): number => {
+  // Calculate realized P/L
+  return truncateToTwoDecimals(equityPostTrade - equityPreTrade);
 };

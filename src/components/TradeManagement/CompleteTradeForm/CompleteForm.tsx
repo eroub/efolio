@@ -13,6 +13,7 @@ import { FormikProps } from "formik";
 interface Calculations {
   totalHrs: number | null;
   projPL: number | null;
+  realPL: number | null;
   commission: number | null;
   percentChange: number | null;
   realRR: number | null;
@@ -25,7 +26,7 @@ interface FormSectionProps {
   formik: FormikProps<{
     datetimeOut: string;
     exitPrice: number;
-    realPL: number;
+    postEquity: number;
     mfe: number;
     mae: number;
     screenshot: string;
@@ -58,11 +59,11 @@ export const FormSection: React.FC<FormSectionProps> = ({
   // Determine current theme color (dark/light)
   const themeColor = useCurrentTheme();
   // Button validation, all fields mandatory except "comment"
-  const { datetimeOut, exitPrice, realPL, mfe, mae, screenshot } = values;
+  const { datetimeOut, exitPrice, postEquity, mfe, mae, screenshot } = values;
   const allValuesFilled =
     datetimeOut !== "" &&
     exitPrice !== 0 &&
-    realPL !== 0 &&
+    postEquity !== 0 &&
     mfe !== 0 &&
     mae !== 0 &&
     screenshot !== "";
@@ -112,11 +113,11 @@ export const FormSection: React.FC<FormSectionProps> = ({
             </Grid>
             <Grid item xs={6}>
               <TextField
-                name="realPL"
-                label="Real P/L"
+                name="postEquity"
+                label="Post Equity"
                 fullWidth
                 onChange={handleChange}
-                value={values.realPL}
+                value={values.postEquity}
                 size="small"
                 margin="dense"
               />
@@ -184,6 +185,9 @@ export const FormSection: React.FC<FormSectionProps> = ({
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography align="left" style={{ minWidth: "150px" }}>
                   Proj. P/L: {formatCurrency(calc.projPL) ?? "-"}
+                </Typography>
+                <Typography align="left" style={{ minWidth: "150px" }}>
+                  Real. P/L: {formatCurrency(calc.realPL) ?? "-"}
                 </Typography>
                 <Typography align="left" style={{ minWidth: "150px" }}>
                   &nbsp; | &nbsp;Comm/Slip:{" "}
