@@ -68,7 +68,7 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
   const encodedCredentials = getEncodedCredentials();
 
   // Provide a default time zone if the environment variable is not set
-  const timeZone = process.env.TIMEZONE || "UTC";
+  const timeZone = process.env.REACT_APP_TIMEZONE || "UTC";
 
   // Initialize Calculated Values
   const [calculations, setCalculations] = useState<Calculations>({
@@ -116,14 +116,13 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
         status: "Closed",
       };
       try {
-        const response = await http.post(
+        await http.post(
           "/api/trades/update",
           completedTradeData,
           {
             headers: { Authorization: `Basic ${encodedCredentials}` },
           },
         );
-        console.log(response);
         setIsLoading(false);
         setError(null);
       } catch (error: any) {

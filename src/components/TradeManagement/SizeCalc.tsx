@@ -41,7 +41,6 @@ const SizeCalculator: React.FC<SizeCalculatorProps> = ({
       setInitEquity((lastTrade.equity + realPL).toString());
     }
   }, [lastTrade]);
-  console.log(lastTrade);
 
   const { submitForm, values, handleChange, handleSubmit, setFieldValue } =
     useFormik({

@@ -43,7 +43,7 @@ const TradeManagement: React.FC<TradeManagementProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   // Provide a default time zone if the environment variable is not set
-  const timeZone = process.env.TIMEZONE || "UTC";
+  const timeZone = process.env.REACT_APP_TIMEZONE || "UTC";
 
   // Function to add a new trade
   const addInitialTrade = async (newTrade: PartialTrade) => {

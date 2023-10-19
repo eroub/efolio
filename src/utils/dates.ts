@@ -43,7 +43,7 @@ export const humanReadFormatDate = (dateString: string | null) => {
     return null;
   }
   const date = new Date(dateString);
-  const year = date.getUTCFullYear().toString().substr(-2); // get last 2 digits of year
+  const year = date.getFullYear().toString().substr(-2); // get last 2 digits of year
   const monthNames = [
     "Jan",
     "Feb",
@@ -58,14 +58,14 @@ export const humanReadFormatDate = (dateString: string | null) => {
     "Nov",
     "Dec",
   ];
-  const month = monthNames[date.getUTCMonth()]; // get short month name
-  const day = date.getUTCDate();
+  const month = monthNames[date.getMonth()]; // get short month name
+  const day = date.getDate();
   // Add appropriate ordinal suffix to the day
   const ordinal =
     ["st", "nd", "rd"][((((day + 90) % 100) - 10) % 10) - 1] || "th";
-  const hours = date.getUTCHours();
+  const hours = date.getHours();
   // Add an extra 0 in minutes if necessary
-  const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
 
   return `${month} ${day}${ordinal}, '${year} ${hours}:${minutes}`;
 };
