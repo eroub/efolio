@@ -35,9 +35,9 @@ const TradeManagement: React.FC<TradeManagementProps> = ({
   // Local state variables with comments
   const [tradeAdded, setTradeAdded] = useState(false); // Whether a trade has been added
   const [isSubmitting, setIsSubmitting] = useState(false); // Whether the form is currently submitting
-  // Encoded credentials
-  const { auth, getEncodedCredentials } = useAuth();
-  const encodedCredentials = getEncodedCredentials();
+  // Get auth token
+  const { auth } = useAuth();
+
   // Error and Loading states
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,9 +55,7 @@ const TradeManagement: React.FC<TradeManagementProps> = ({
         const utcDateTimeIn = zonedTimeToUtc(newTrade.datetimeIn, timeZone);
         newTrade.datetimeIn = format(utcDateTimeIn, "yyyy-MM-dd HH:mm:ss"); // Convert Date object to string
       }
-      await http.post("/api/trades", newTrade, {
-        headers: { Authorization: `Basic ${encodedCredentials}` },
-      });
+      await http.post("/api/trades", newTrade);
       triggerTradeFetch();
       setIsLoading(false);
       setError(null);

@@ -32,7 +32,6 @@ import { FormSection } from "./CompleteForm";
 // Types and Interfaces
 import { Trade } from "../../../models/TradeTypes";
 // Context
-import { useAuth } from "../../../auth/AuthContext";
 import { zonedTimeToUtc } from "date-fns-tz";
 
 interface CompleteTradeFormProps {
@@ -63,9 +62,6 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
   setError,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false); // Whether the form is currently submitting
-  // Auth
-  const { getEncodedCredentials } = useAuth();
-  const encodedCredentials = getEncodedCredentials();
 
   // Provide a default time zone if the environment variable is not set
   const timeZone = process.env.REACT_APP_TIMEZONE || "UTC";
@@ -116,13 +112,7 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
         status: "Closed",
       };
       try {
-        await http.post(
-          "/api/trades/update",
-          completedTradeData,
-          {
-            headers: { Authorization: `Basic ${encodedCredentials}` },
-          },
-        );
+        await http.post("/api/trades/update", completedTradeData);
         setIsLoading(false);
         setError(null);
       } catch (error: any) {

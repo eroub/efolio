@@ -7,7 +7,6 @@ const AuthButton: React.FC = () => {
   const { auth, authenticate } = useAuth();
 
   const handleAuthenticate = async () => {
-    // Check if already authenticated
     if (auth.isAuthenticated) {
       alert("Already authenticated");
       return;
@@ -21,25 +20,20 @@ const AuthButton: React.FC = () => {
       return;
     }
 
-    const base64Credentials = btoa(username + ":" + password);
-
     try {
-      const response = await http.get("/auth", {
-        headers: { Authorization: `Basic ${base64Credentials}` },
+      const response = await http.post("/auth", {
+        username,
+        password,
       });
 
       if (response.status === 200) {
         alert("Authenticated successfully");
-        authenticate(username, password);
+        const token = response.data.token;
+        authenticate(token); // Store token instead of username and password
       }
-    } catch (error: unknown) {
-      if (typeof error === "object" && error !== null && "response" in error) {
-        const axiosError = error as { response: { status: number } };
-        if (axiosError.response.status === 401) {
-          alert("Authentication failed");
-        } else {
-          alert("A network error occurred during authentication");
-        }
+    } catch (error: any) {
+      if (error.response && error.response.status === 401) {
+        alert("Authentication failed");
       } else {
         alert("A network error occurred during authentication");
       }

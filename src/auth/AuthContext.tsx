@@ -7,15 +7,14 @@ import React, {
   ReactNode,
 } from "react";
 
-const ONE_DAY = 24 * 60 * 60 * 1000; // in milliseconds
+// const ONE_DAY = 24 * 60 * 60 * 1000; // in milliseconds
 
 interface AuthContextProps {
   auth: {
     isAuthenticated: boolean;
-    credentials: { username: string; password: string } | null;
+    token: string | null;
   };
-  authenticate: (username: string, password: string) => void;
-  getEncodedCredentials: () => string | null;
+  authenticate: (token: string) => void;
 }
 
 interface AuthProviderProps {
@@ -35,49 +34,23 @@ export const useAuth = (): AuthContextProps => {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [auth, setAuth] = useState<{
     isAuthenticated: boolean;
-    credentials: { username: string; password: string } | null;
+    token: string | null;
   }>(() => {
-    const savedAuth = localStorage.getItem("auth");
-    const expiryTimeString = localStorage.getItem("authExpiry");
-    const expiryTime = expiryTimeString
-      ? new Date(Number(expiryTimeString))
-      : null;
-
-    if (savedAuth && expiryTime && new Date().getTime() < Number(expiryTime)) {
-      return JSON.parse(savedAuth);
-    }
-    return { isAuthenticated: false, credentials: null };
+    const token = localStorage.getItem("authToken");
+    return { isAuthenticated: !!token, token };
   });
 
   useEffect(() => {
-    if (auth.isAuthenticated) {
-      const expiryTime = new Date().getTime() + ONE_DAY;
-      localStorage.setItem("auth", JSON.stringify(auth));
-      localStorage.setItem("authExpiry", expiryTime.toString());
+    if (auth.isAuthenticated && auth.token) {
+      localStorage.setItem("authToken", auth.token);
     }
   }, [auth]);
 
-  const authenticate = (username: string, password: string) => {
-    const newAuth = {
-      isAuthenticated: true,
-      credentials: { username, password },
-    };
-    setAuth(newAuth);
+  const authenticate = (token: string) => {
+    setAuth({ isAuthenticated: true, token });
   };
 
-  const getEncodedCredentials = () => {
-    if (auth.isAuthenticated && auth.credentials) {
-      const { username, password } = auth.credentials;
-      return btoa(`${username}:${password}`);
-    }
-    return null;
-  };
-
-  const value = {
-    auth,
-    authenticate,
-    getEncodedCredentials,
-  };
+  const value = { auth, authenticate };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
