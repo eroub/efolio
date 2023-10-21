@@ -82,7 +82,15 @@ const WinLossPieChart: React.FC<PieChartProps> = ({ trades }) => {
     arcs
       .append("path")
       .attr("d", path)
-      .attr("fill", (d) => color(d.data.label));
+      .attr("fill", (d) => color(d.data.label))
+      .on("mouseover", function (event, d: d3.PieArcDatum<ChartData>) {
+        d3.select(this)
+          .attr("stroke", d.data.label === "Wins" ? "darkgreen" : "darkred")
+          .attr("stroke-width", 2);
+      })
+      .on("mouseout", function (event, d: d3.PieArcDatum<ChartData>) {
+        d3.select(this).attr("stroke", "none").attr("stroke-width", 0);
+      });
 
     // Center text labels
     arcs

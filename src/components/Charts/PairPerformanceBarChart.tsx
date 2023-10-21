@@ -76,11 +76,15 @@ const PairPerformanceChart: React.FC<PairPerformanceProps> = ({
       .call(d3.axisBottom(x));
 
     // Y-axis
-    const yAxis = d3.axisLeft(y);
-    if (mode === "$") {
-      yAxis.tickFormat((d) => `$${d}`);
-    }
-    svg.append("g").call(yAxis);
+    const yAxis = d3
+      .axisLeft(y)
+      .tickSize(-width) // this extends the ticks across the chart
+      .tickFormat((d) => (mode === "$" ? `$${d}` : d.toString()));
+
+    const yAxisG = svg.append("g").call(yAxis);
+
+    // Modify the lines to be dotted
+    yAxisG.selectAll(".tick line").attr("stroke-dasharray", "2,2"); // the numbers control the dash pattern
 
     // Render the bars
     svg
@@ -93,8 +97,9 @@ const PairPerformanceChart: React.FC<PairPerformanceProps> = ({
       .attr("y", (d) => y(Math.max(0, d.value)))
       .attr("width", x.bandwidth())
       .attr("height", (d) => Math.abs(y(d.value) - y(0)))
-      .attr("fill", (d) => (d.value >= 0 ? "green" : "red"))
-      // Add these lines for the hover effect
+      .attr("fill", (d) =>
+        d.value >= 0 ? "rgba(0, 255, 0, 0.5)" : "rgba(255, 0, 0, 0.5)",
+      )
       .on("mouseover", function (event, d) {
         const xPosition = x(d.ticker) ?? 0; // Provide a default value
         d3.select(this)

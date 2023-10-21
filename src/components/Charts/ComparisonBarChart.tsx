@@ -84,7 +84,8 @@ const ComparisonChart: React.FC<ComparisonChartProps> = ({ trades, mode }) => {
       .text(`Win/Loss Comparison (${mode})`);
 
     // Create bars
-    svg
+    // Create bars
+    const bars = svg
       .selectAll(".bar")
       .data(data)
       .enter()
@@ -98,18 +99,16 @@ const ComparisonChart: React.FC<ComparisonChartProps> = ({ trades, mode }) => {
         d.value >= 0 ? "rgba(0, 255, 0, 0.5)" : "rgba(255, 0, 0, 0.5)",
       );
 
-    // Add Labels
-    svg
-      .selectAll(".label")
-      .data(data)
-      .enter()
-      .append("text")
-      .attr("class", "label")
-      .attr("x", 5)
-      .attr("y", (d) => y(d.label)! + y.bandwidth() / 2)
-      .attr("dy", ".35em")
-      .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
-      .text((d) => (d.value > 0 ? "Gain" : "Loss"));
+    // Highlight bars on hover
+    bars
+      .on("mouseover", function (event, d: ChartData) {
+        d3.select(this)
+          .attr("stroke", d.value >= 0 ? "darkgreen" : "darkred")
+          .attr("stroke-width", 2);
+      })
+      .on("mouseout", function (event, d: ChartData) {
+        d3.select(this).attr("stroke", "none").attr("stroke-width", 0);
+      });
 
     // Add Values at the end of bars
     svg
@@ -118,13 +117,13 @@ const ComparisonChart: React.FC<ComparisonChartProps> = ({ trades, mode }) => {
       .enter()
       .append("text")
       .attr("class", "bar-value")
-      .attr("x", (d) => x(Math.abs(d.value)) - (mode === "$" ? 70 : 40)) // Adjust this value to place the text at the end of the bar
+      .attr("x", (d) => x(Math.abs(d.value)) - (mode === "$" ? 80 : 45)) // Adjust this value to place the text at the end of the bar
       .attr("y", (d) => y(d.label)! + 25) // Adjust this value to place the text on top of the bar
       .attr("dy", ".35em")
       .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
       .text((d) => {
         if (mode === "$") {
-          return formatCurrency(Number(d.value)); // Use formatCurrency for "$" mode
+          return formatCurrency(Number(d.value.toFixed(2))); // Use formatCurrency for "$" mode
         }
         return d.value.toFixed(2); // Keep as-is for "R:R" mode
       });

@@ -103,7 +103,7 @@ const ClosedTradeTable: React.FC<TradeTableProps> = ({ trades }) => {
 
   return (
     <div>
-      <h3 style={{ display: "flex", alignItems: "center", marginLeft: "15px" }}>
+      <h2 style={{ display: "flex", alignItems: "center", marginLeft: "15px" }}>
         Completed Trades
         <ColumnButton
           onClick={toggleColumns}
@@ -115,7 +115,7 @@ const ClosedTradeTable: React.FC<TradeTableProps> = ({ trades }) => {
             <Expand style={{ marginLeft: "10px" }} />
           )}
         </ColumnButton>
-      </h3>
+      </h2>
       <StyledTable>
         <TableHeader isTableExpanded={isTableExpanded} />
         <tbody>

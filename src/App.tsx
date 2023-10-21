@@ -1,4 +1,3 @@
-import React from "react";
 import styled from "styled-components";
 import TradeJournal from "./pages/TradeJournal";
 import AuthButton from "./auth/AuthButton";
@@ -19,7 +18,7 @@ const AppHeader = styled.header`
   justify-content: center;
   font-size: calc(10px + 0.5vmin);
   color: ${colorScheme.base["50"]};
-  background-color: ${colorScheme.base["900"]} !important;
+  background-color: ${colorScheme.base["700"]} !important;
 `;
 
 const Header = styled.header`
@@ -36,18 +35,29 @@ const TitleContainer = styled.div`
 `;
 
 const Title = styled.h1`
+  @font-face {
+    font-family: "DM Serif Display";
+    src: url(${process.env.PUBLIC_URL +
+      "/assets/DM_Serif_Display/DMSerifDisplay-Italic.ttf"})
+      format("truetype");
+    font-weight: bold;
+    font-style: italic;
+  }
+
+  /* Use the imported font */
+  font-family: "DM Serif Display", serif;
+  font-style: italic;
   margin: 0;
   line-height: 1;
 `;
 
-// Component
 function App() {
   return (
     <AppContainer>
       <AppHeader>
         <Header>
           <TitleContainer>
-            <Title>efolio</Title>
+            <Title style={{ fontSize: "3em" }}>efolio.</Title>
           </TitleContainer>
           <AuthButton />
         </Header>
