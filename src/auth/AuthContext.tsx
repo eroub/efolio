@@ -6,8 +6,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-
-// const ONE_DAY = 24 * 60 * 60 * 1000; // in milliseconds
+import jwtDecode from "jwt-decode";
 
 interface AuthContextProps {
   auth: {
@@ -44,6 +43,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (auth.isAuthenticated && auth.token) {
       localStorage.setItem("authToken", auth.token);
     }
+  }, [auth]);
+
+  // Function to check if the token is expired
+  const isTokenExpired = () => {
+    const token = localStorage.getItem("authToken");
+    if (!token) return true;
+    const decoded: any = jwtDecode(token);
+    if (decoded.exp < Date.now() / 1000) return true;
+    return false;
+  };
+
+  useEffect(() => {
+    // Periodic check every 3 minutes
+    const interval = setInterval(() => {
+      if (isTokenExpired() && auth.isAuthenticated) {
+        alert("Your session has expired. Please log in again.");
+        localStorage.removeItem("authToken"); // Remove expired token
+        setAuth({ isAuthenticated: false, token: null }); // Update the state
+      }
+    }, 180000); // 180000 milliseconds = 3 minutes
+    return () => clearInterval(interval); // Clear the interval when the component unmounts
   }, [auth]);
 
   const authenticate = (token: string) => {
