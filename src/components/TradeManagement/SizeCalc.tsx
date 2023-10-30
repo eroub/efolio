@@ -100,7 +100,6 @@ const SizeCalculator: React.FC<SizeCalculatorProps> = ({
       component={Paper}
       elevation={0}
       style={{
-        marginTop: "20px",
         width: "350px",
       }}
     >

@@ -14,13 +14,11 @@ const http = axios.create({
 // Add a request interceptor
 http.interceptors.request.use(
   (config) => {
-    if (config.method && config.method.toLowerCase() !== "get") {
-      // Get the token from local storage (or some other storage)
-      const token = localStorage.getItem("authToken");
-      // If token is present, set it in the Authorization header
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+    // Get the token from local storage (or some other storage)
+    const token = localStorage.getItem("authToken");
+    // If token is present, set it in the Authorization header
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },

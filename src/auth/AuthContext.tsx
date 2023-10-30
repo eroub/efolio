@@ -7,13 +7,16 @@ import React, {
   ReactNode,
 } from "react";
 import jwtDecode from "jwt-decode";
+import http from "../services/http";
 
 interface AuthContextProps {
   auth: {
     isAuthenticated: boolean;
     token: string | null;
+    selectedAccount: number | null;
   };
   authenticate: (token: string) => void;
+  setSelectedAccount: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
 interface AuthProviderProps {
@@ -38,6 +41,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const token = localStorage.getItem("authToken");
     return { isAuthenticated: !!token, token };
   });
+  const [selectedAccount, setSelectedAccount] = useState<number | null>(null);
 
   useEffect(() => {
     if (auth.isAuthenticated && auth.token) {
@@ -70,7 +74,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setAuth({ isAuthenticated: true, token });
   };
 
-  const value = { auth, authenticate };
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      const fetchAccounts = async () => {
+        try {
+          // Make sure to include authentication headers
+          const response = await http.get("/api/users/get-accounts");
+          const accounts = response.data;
+          if (accounts.length > 0) {
+            setSelectedAccount(accounts[0].accountID);
+          }
+        } catch (error: any) {
+          console.error(error);
+        }
+      };
+      fetchAccounts();
+    }
+  }, [auth.isAuthenticated]);
+
+  const value = {
+    auth: { ...auth, selectedAccount },
+    authenticate,
+    setSelectedAccount,
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

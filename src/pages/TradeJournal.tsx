@@ -12,10 +12,17 @@ import ClosedTradeTable from "../components/ClosedTradeTable/ClosedTradeTable";
 import TradeStatistics from "../components/Statistics/Statistics";
 import Charts from "../components/Charts/Chart";
 import TradeManagement from "../components/TradeManagement/TradeManagement";
+import TransactionHistory from "../components/TransactionHistory";
 // Types and Interfaces
 import { Trade } from "../models/TradeTypes";
+// Context
+import { useAuth } from "../auth/AuthContext";
 
-const TradeJournal: React.FC = () => {
+interface TradeJournalProps {
+  selectedAccount: number | null;
+}
+
+const TradeJournal: React.FC<TradeJournalProps> = ({ selectedAccount }) => {
   const [trades, setTrades] = useState<Trade[]>([]);
   const [triggerFetch, setTriggerFetch] = useState(false);
   const [conversionRates, setConversionRates] = useState<
@@ -24,6 +31,8 @@ const TradeJournal: React.FC = () => {
   // Error and loading states
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Get auth token
+  const { auth } = useAuth();
 
   // UseEffect for getting trades from API
   useEffect(() => {
@@ -34,7 +43,6 @@ const TradeJournal: React.FC = () => {
         const response = await http.get("/api/trades");
         // Convert date fields to the desired time zone
         const timeZone = process.env.REACT_APP_TIMEZONE || "UTC";
-        console.log(timeZone);
         const convertedTrades = response.data.map((trade: Trade) => {
           if (trade.datetimeIn) {
             trade.datetimeIn = convertToTimeZone(trade.datetimeIn, timeZone);
@@ -44,7 +52,6 @@ const TradeJournal: React.FC = () => {
           }
           return trade;
         });
-        console.log(convertedTrades);
         setTrades(convertedTrades);
         setError(null);
       } catch (error: any) {
@@ -84,12 +91,19 @@ const TradeJournal: React.FC = () => {
       {isLoading && <Loading />}
       {error && <Error message={error} />}
 
-      <TradeManagement
-        conversionRates={conversionRates}
-        firstOpenTrade={firstOpenTrade}
-        triggerTradeFetch={() => setTriggerFetch(!triggerFetch)}
-        mostRecentTrade={mostRecentTrade}
-      />
+      <div style={{ display: "flex" }}>
+        <div style={{ flex: 4 }}>
+          <TradeManagement
+            conversionRates={conversionRates}
+            firstOpenTrade={firstOpenTrade}
+            triggerTradeFetch={() => setTriggerFetch(!triggerFetch)}
+            mostRecentTrade={mostRecentTrade}
+          />
+        </div>
+        <div style={{ flex: 1 }}>
+          {auth.isAuthenticated ? <TransactionHistory /> : <div></div>}
+        </div>
+      </div>
 
       {closedTrades.length !== 0 ? (
         <>

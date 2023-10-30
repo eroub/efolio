@@ -6,7 +6,7 @@ import { TextField, Grid, Button, Typography } from "@mui/material";
 // Internal Utilities / Assets / Themes
 import { useCurrentTheme } from "../../../hooks/useAppColorScheme";
 import { colorScheme, lightTheme, darkTheme } from "../../../assets/themes";
-import { formatCurrency, formatPercentage } from "../../../utils/formatters";
+import { formatCurrency } from "../../../utils/formatters";
 // Types and Interfaces
 import { FormikProps } from "formik";
 
@@ -176,27 +176,17 @@ export const FormSection: React.FC<FormSectionProps> = ({
             <div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <Typography align="left" style={{ minWidth: "150px" }}>
-                  % Δ: {formatPercentage(calc.percentChange) ?? "-"}
+                  Proj: {formatCurrency(calc.projPL) ?? "-"}
                 </Typography>
                 <Typography align="left" style={{ minWidth: "150px" }}>
-                  &nbsp; | &nbsp;Real R:R: {calc.realRR ?? "-"}
-                </Typography>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography align="left" style={{ minWidth: "150px" }}>
-                  Proj. P/L: {formatCurrency(calc.projPL) ?? "-"}
+                  Real: {formatCurrency(calc.realPL) ?? "-"}
                 </Typography>
                 <Typography align="left" style={{ minWidth: "150px" }}>
-                  Real. P/L: {formatCurrency(calc.realPL) ?? "-"}
-                </Typography>
-                <Typography align="left" style={{ minWidth: "150px" }}>
-                  &nbsp; | &nbsp;Comm/Slip:{" "}
-                  {formatCurrency(calc.commission) ?? "-"}
+                  Comm/Slip: {formatCurrency(calc.commission) ?? "-"}
                 </Typography>
               </div>
             </div>
             <StyledButton
-              style={{ marginTop: "10px" }}
               type="submit"
               variant="contained"
               themeColor={themeColor}

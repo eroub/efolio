@@ -47,7 +47,15 @@ interface TradeFormProps {
 // Styled Components
 const SubmitButtonContainer = styled.div`
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+`;
+
+const MetricsContainer = styled.div`
+  display: flex;
+  flex-grow: 1;
+  gap: 12px;
 `;
 
 const StyledButton = styled(Button)<{
@@ -211,8 +219,7 @@ const TradeInit: React.FC<TradeFormProps> = ({
       component={Paper}
       elevation={0}
       style={{
-        marginTop: "20px",
-        width: "600px",
+        width: "400px",
       }}
     >
       <Accordion
@@ -225,7 +232,6 @@ const TradeInit: React.FC<TradeFormProps> = ({
           <div
             style={{
               display: "flex",
-              gap: "16px",
               marginLeft: "auto",
               alignItems: "center",
             }}
@@ -241,8 +247,6 @@ const TradeInit: React.FC<TradeFormProps> = ({
             >
               Risk: {riskPercent}%
             </div>
-            <div>Est. Gain: {estimatedGain}%</div>
-            <div>Est. R:R: {estimatedRR}</div>
           </div>
         </AccordionSummary>
         <AccordionDetails
@@ -250,7 +254,7 @@ const TradeInit: React.FC<TradeFormProps> = ({
         >
           <form onSubmit={formik.handleSubmit}>
             <Grid container spacing={2}>
-              <Grid item xs={6}>
+              <Grid item xs={4}>
                 <TextField
                   name="entry"
                   label="Entry"
@@ -288,7 +292,7 @@ const TradeInit: React.FC<TradeFormProps> = ({
                   margin="dense"
                 />
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={8}>
                 {/* Ticker and Direction on the same row */}
                 <Grid container spacing={2}>
                   <Grid item xs={6}>
@@ -368,9 +372,14 @@ const TradeInit: React.FC<TradeFormProps> = ({
                     <MenuItem value="News Event">News Event</MenuItem>
                   </Select>
                 </FormControl>
+              </Grid>
+              <Grid item xs={12}>
                 <SubmitButtonContainer>
+                  <MetricsContainer>
+                    <div>Est. Gain: {estimatedGain}%</div>
+                    <div>Est. R:R: {estimatedRR}</div>
+                  </MetricsContainer>
                   <StyledButton
-                    style={{ marginTop: "10px" }}
                     type="submit"
                     variant="contained"
                     themeColor={themeColor}

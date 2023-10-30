@@ -75,7 +75,7 @@ const TradeManagement: React.FC<TradeManagementProps> = ({
       {error && <Error message={error} />}
 
       {/* Size Calculator */}
-      <Grid item xs={2}>
+      <Grid item xs={3}>
         <SizeCalculator
           conversionRates={conversionRates}
           lastTrade={mostRecentTrade}
@@ -83,7 +83,7 @@ const TradeManagement: React.FC<TradeManagementProps> = ({
       </Grid>
 
       {/* Trade Initialization */}
-      <Grid item xs={5}>
+      <Grid item xs={3}>
         {auth.isAuthenticated ? (
           <TradeInit
             addTrade={addInitialTrade}
@@ -99,7 +99,7 @@ const TradeManagement: React.FC<TradeManagementProps> = ({
       </Grid>
 
       {/* Form for completing trades */}
-      <Grid item xs={5}>
+      <Grid item xs={6}>
         {auth.isAuthenticated && firstOpenTrade ? (
           <CompleteTradeForm
             openTrade={firstOpenTrade}

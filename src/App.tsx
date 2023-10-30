@@ -1,8 +1,12 @@
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import TradeJournal from "./pages/TradeJournal";
 import AuthButton from "./auth/AuthButton";
+import AccountSelection from "./components/AccountSelection";
 // Global Style
 import { colorScheme } from "./assets/themes";
+// Context
+import { useAuth } from "./auth/AuthContext";
 
 // Styles
 const AppContainer = styled.div`
@@ -52,6 +56,18 @@ const Title = styled.h1`
 `;
 
 function App() {
+  // Get auth token
+  const { auth } = useAuth();
+  const [selectedAccount, setSelectedAccount] = useState<number | null>(null);
+
+  useEffect(() => {
+    // Fetch the default account for the user when they log in
+    if (auth.isAuthenticated) {
+      // Fetch and set the default account
+      setSelectedAccount(auth.selectedAccount);
+    }
+  }, [auth]);
+
   return (
     <AppContainer>
       <AppHeader>
@@ -59,10 +75,17 @@ function App() {
           <TitleContainer>
             <Title style={{ fontSize: "3em" }}>efolio.</Title>
           </TitleContainer>
-          <AuthButton />
+          {auth.isAuthenticated ? (
+            <>
+              <AccountSelection onSelectAccount={setSelectedAccount} />
+            </>
+          ) : (
+            <AuthButton />
+          )}
         </Header>
       </AppHeader>
-      <TradeJournal />
+      {/* Remove this if you don't want a default TradeJournal rendering */}
+      <TradeJournal selectedAccount={selectedAccount} />
     </AppContainer>
   );
 }

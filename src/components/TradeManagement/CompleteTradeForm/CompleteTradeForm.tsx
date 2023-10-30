@@ -190,7 +190,6 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
       component={Paper}
       elevation={0}
       style={{
-        marginTop: "20px",
         width: "600px",
       }}
     >
