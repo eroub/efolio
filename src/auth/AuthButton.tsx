@@ -21,7 +21,7 @@ const AuthButton: React.FC = () => {
     }
 
     try {
-      const response = await http.post("/auth", {
+      const response = await http.post("/api/auth", {
         username,
         password,
       });
