@@ -9,22 +9,26 @@ const AccountSelection: React.FC<{ onSelectAccount: (id: number) => void }> = ({
   const [accounts, setAccounts] = useState<Account[]>([]); // Replace 'any' with your account type
   const { auth, setSelectedAccount } = useAuth();
 
+  // Only fetch accounts when auth changes and there's no selected account.
   useEffect(() => {
-    const fetchAccounts = async () => {
-      try {
-        const response = await http.get("/api/users/get-accounts"); // Replace with your API endpoint
-        setAccounts(response.data);
-        if (response.data[0]?.accountID !== auth.selectedAccount) {
-          setSelectedAccount(response.data[0]?.accountID); // Default to the first account
-          onSelectAccount(response.data[0]?.accountID);
+    if (auth.isAuthenticated && auth.selectedAccount === null) {
+      const fetchAccounts = async () => {
+        try {
+          const response = await http.get("/api/users/get-accounts");
+          setAccounts(response.data);
+          // Only set the selected account if it hasn't been set already
+          if (response.data.length > 0) {
+            setSelectedAccount(response.data[0].accountID);
+            onSelectAccount(response.data[0].accountID);
+          }
+        } catch (error: any) {
+          console.error(error);
         }
-      } catch (error: any) {
-        console.error(error);
-      }
-    };
+      };
 
-    fetchAccounts();
-  }, [onSelectAccount, setSelectedAccount, auth.selectedAccount]);
+      fetchAccounts();
+    }
+  }, [auth, onSelectAccount, setSelectedAccount]);
 
   return (
     <select

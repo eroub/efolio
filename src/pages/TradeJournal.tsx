@@ -24,6 +24,7 @@ interface TradeJournalProps {
 
 const TradeJournal: React.FC<TradeJournalProps> = ({ selectedAccount }) => {
   const [trades, setTrades] = useState<Trade[]>([]);
+  const [accountFilteredTrades, setFilteredTrades] = useState<Trade[]>([]);
   const [triggerFetch, setTriggerFetch] = useState(false);
   const [conversionRates, setConversionRates] = useState<
     Record<string, number>
@@ -33,6 +34,21 @@ const TradeJournal: React.FC<TradeJournalProps> = ({ selectedAccount }) => {
   const [error, setError] = useState<string | null>(null);
   // Get auth token
   const { auth } = useAuth();
+
+  // UseEffect for getting conversion rates from external API
+  useEffect(() => {
+    const getRates = async () => {
+      setError(null);
+      try {
+        const rates = await fetchExchangeRates();
+        setConversionRates(rates);
+        setError(null);
+      } catch (error: any) {
+        setError(error.message);
+      }
+    };
+    getRates();
+  }, []);
 
   // UseEffect for getting trades from API
   useEffect(() => {
@@ -62,28 +78,32 @@ const TradeJournal: React.FC<TradeJournalProps> = ({ selectedAccount }) => {
     fetchTrades();
   }, [triggerFetch]);
 
-  // UseEffect for getting conversion rates from external API
+  // UseEffect for filtering trades based on the selected account
   useEffect(() => {
-    const getRates = async () => {
-      setError(null);
-      try {
-        const rates = await fetchExchangeRates();
-        setConversionRates(rates);
-        setError(null);
-      } catch (error: any) {
-        setError(error.message);
+    const filterTradesByAccount = () => {
+      if (selectedAccount) {
+        const filtered = trades.filter(
+          (trade) => trade.accountID === selectedAccount,
+        );
+        setFilteredTrades(filtered);
+      } else {
+        setFilteredTrades(trades);
       }
     };
-    getRates();
-  }, []);
+
+    filterTradesByAccount();
+  }, [trades, selectedAccount]); // This effect runs when 'trades' or 'selectedAccount' changes
 
   //  Get list of closed trades, most recent, and first open trade if any
-  const closedTrades = trades
+  const closedTrades = accountFilteredTrades
     .filter((trade) => trade.status === "Closed")
     .sort((a, b) => b.id - a.id) as Trade[];
+
   const mostRecentTrade: Trade | null =
     closedTrades.length > 0 ? closedTrades[0] : null;
-  const firstOpenTrade = trades.find((trade) => trade.status === "Open");
+  const firstOpenTrade = accountFilteredTrades.find(
+    (trade) => trade.status === "Open",
+  );
 
   return (
     <div>

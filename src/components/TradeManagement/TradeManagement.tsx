@@ -37,6 +37,8 @@ const TradeManagement: React.FC<TradeManagementProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false); // Whether the form is currently submitting
   // Get auth token
   const { auth } = useAuth();
+  // Get selected account from auth context
+  const selectedAccount = auth.selectedAccount;
 
   // Error and Loading states
   const [isLoading, setIsLoading] = useState(false);
@@ -55,7 +57,13 @@ const TradeManagement: React.FC<TradeManagementProps> = ({
         const utcDateTimeIn = zonedTimeToUtc(newTrade.datetimeIn, timeZone);
         newTrade.datetimeIn = format(utcDateTimeIn, "yyyy-MM-dd HH:mm:ss"); // Convert Date object to string
       }
-      await http.post("/api/trades", newTrade);
+      // Include the selectedAccount in the newTrade object
+      const tradeWithAccount = {
+        ...newTrade,
+        accountID: selectedAccount, // This line adds the selected account ID to the trade data
+      };
+
+      await http.post("/api/trades", tradeWithAccount);
       triggerTradeFetch();
       setIsLoading(false);
       setError(null);

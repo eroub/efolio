@@ -62,7 +62,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Periodic check every 3 minutes
     const interval = setInterval(() => {
       if (isTokenExpired() && auth.isAuthenticated) {
-        alert("Your session has expired. Please log in again.");
+        // alert("Your session has expired. Please log in again.");
         localStorage.removeItem("authToken"); // Remove expired token
         setAuth({ isAuthenticated: false, token: null }); // Update the state
       }
@@ -74,23 +74,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setAuth({ isAuthenticated: true, token });
   };
 
+  // This effect only runs once on component mount
   useEffect(() => {
-    if (auth.isAuthenticated) {
-      const fetchAccounts = async () => {
-        try {
-          // Make sure to include authentication headers
+    const fetchAccountsAndSetInitial = async () => {
+      try {
+        // Only fetch accounts if authenticated
+        if (auth.isAuthenticated) {
           const response = await http.get("/api/users/get-accounts");
           const accounts = response.data;
-          if (accounts.length > 0) {
-            setSelectedAccount(accounts[0].accountID);
+          if (accounts.length > 0 && selectedAccount === null) {
+            setSelectedAccount(accounts[0].accountID); // Set to the first account only if no account is selected
           }
-        } catch (error: any) {
-          console.error(error);
         }
-      };
-      fetchAccounts();
-    }
-  }, [auth.isAuthenticated]);
+      } catch (error: any) {
+        console.error(error);
+      }
+    };
+
+    fetchAccountsAndSetInitial();
+  }); // Empty dependency array to only run it once on mount
 
   const value = {
     auth: { ...auth, selectedAccount },

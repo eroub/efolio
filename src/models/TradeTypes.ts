@@ -1,6 +1,7 @@
 // TradeTypes.ts
 export interface Trade {
   id: number;
+  accountID: number;
   datetimeIn: string;
   datetimeOut: string | null;
   totalHrs: number | null;
