@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { ThemeProvider } from "styled-components";
+import { BrowserRouter as Router } from "react-router-dom";
 import App from "./App";
 import { AuthProvider } from "./auth/AuthContext";
 import GlobalStyle from "./assets/GlobalStyle";
@@ -12,14 +13,16 @@ const root = ReactDOM.createRoot(
 );
 
 const RootComponent = () => {
-  const colorScheme = useAppColorScheme(); // Use your custom hook
+  const colorScheme = useAppColorScheme();
 
   return (
     <React.StrictMode>
       <ThemeProvider theme={colorScheme === "light" ? lightTheme : darkTheme}>
         <GlobalStyle theme={colorScheme === "light" ? lightTheme : darkTheme} />
         <AuthProvider>
-          <App />
+          <Router>
+            <App />
+          </Router>
         </AuthProvider>
       </ThemeProvider>
     </React.StrictMode>

@@ -1,8 +1,14 @@
 import { useEffect, useState } from "react";
+import { Link, Routes, Route } from "react-router-dom";
 import styled from "styled-components";
+// Pages
 import TradeJournal from "./pages/TradeJournal";
+import Sizing from "./pages/Sizing";
+// Auth and Account Select
 import AuthButton from "./auth/AuthButton";
 import AccountSelection from "./components/AccountSelection";
+// Utility for fetching exchange rates
+import { fetchExchangeRates } from "./utils/fetchExchangeRates";
 // Global Style
 import { colorScheme } from "./assets/themes";
 // Context
@@ -55,10 +61,50 @@ const Title = styled.h1`
   line-height: 1;
 `;
 
+const Nav = styled.nav`
+  margin-left: 20px;
+`;
+
+const StyledLink = styled(Link)`
+  margin-right: 20px; // Creates space between nav items
+  color: ${colorScheme.base["50"]}; // Use a variable for color consistency
+  text-decoration: none; // Removes underline
+  font-size: 1em; // Match font size with the title
+  font-weight: bold; // Make it bold to stand out
+
+  &:hover {
+    text-decoration: underline; // Adds underline on hover for interactivity
+    cursor: pointer; // Changes cursor to pointer on hover
+  }
+`;
+
+const NavItem = styled.div`
+  display: inline-block; // Allows items to be inline
+  vertical-align: middle; // Vertically aligns items with the title
+  line-height: normal; // Adjusts line height for proper spacing
+`;
+
 function App() {
   // Get auth token
   const { auth } = useAuth();
   const [selectedAccount, setSelectedAccount] = useState<number | null>(null);
+  // Conversion Rates State
+  const [conversionRates, setConversionRates] = useState<
+    Record<string, number>
+  >({});
+
+  // UseEffect for getting conversion rates from external API
+  useEffect(() => {
+    const getRates = async () => {
+      try {
+        const rates = await fetchExchangeRates();
+        setConversionRates(rates);
+      } catch (error: any) {
+        console.log(error.message);
+      }
+    };
+    getRates();
+  }, []);
 
   useEffect(() => {
     // Fetch the default account for the user when they log in
@@ -73,7 +119,17 @@ function App() {
       <AppHeader>
         <Header>
           <TitleContainer>
-            <Title style={{ fontSize: "3em" }}>efolio.</Title>
+            <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+              <Title style={{ fontSize: "3em" }}>efolio.</Title>
+            </Link>
+            {auth.isAuthenticated && (
+              <Nav>
+                <NavItem>
+                  <StyledLink to="/sizing">Sizing</StyledLink>
+                </NavItem>
+                {/* Add more NavItems as needed */}
+              </Nav>
+            )}
           </TitleContainer>
           {auth.isAuthenticated ? (
             <>
@@ -84,8 +140,18 @@ function App() {
           )}
         </Header>
       </AppHeader>
-      {/* Remove this if you don't want a default TradeJournal rendering */}
-      <TradeJournal selectedAccount={selectedAccount} />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <TradeJournal
+              selectedAccount={selectedAccount}
+              conversionRates={conversionRates}
+            />
+          }
+        />
+        {auth.isAuthenticated && <Route path="/sizing" element={<Sizing />} />}
+      </Routes>
     </AppContainer>
   );
 }

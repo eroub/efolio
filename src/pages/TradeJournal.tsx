@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 // Internal Utilities / Assets / Themes
 import http from "../services/http";
-import { fetchExchangeRates } from "../utils/fetchExchangeRates";
 import { convertToTimeZone } from "../utils/dates";
 // Components
 import Error from "../components/Error";
@@ -20,35 +19,22 @@ import { useAuth } from "../auth/AuthContext";
 
 interface TradeJournalProps {
   selectedAccount: number | null;
+  conversionRates: Record<string, number>;
 }
 
-const TradeJournal: React.FC<TradeJournalProps> = ({ selectedAccount }) => {
+const TradeJournal: React.FC<TradeJournalProps> = ({
+  selectedAccount,
+  conversionRates,
+}) => {
   const [trades, setTrades] = useState<Trade[]>([]);
   const [accountFilteredTrades, setFilteredTrades] = useState<Trade[]>([]);
   const [triggerFetch, setTriggerFetch] = useState(false);
-  const [conversionRates, setConversionRates] = useState<
-    Record<string, number>
-  >({});
+
   // Error and loading states
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Get auth token
   const { auth } = useAuth();
-
-  // UseEffect for getting conversion rates from external API
-  useEffect(() => {
-    const getRates = async () => {
-      setError(null);
-      try {
-        const rates = await fetchExchangeRates();
-        setConversionRates(rates);
-        setError(null);
-      } catch (error: any) {
-        setError(error.message);
-      }
-    };
-    getRates();
-  }, []);
 
   // UseEffect for getting trades from API
   useEffect(() => {
