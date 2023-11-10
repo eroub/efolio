@@ -105,7 +105,6 @@ const SizeCalculator: React.FC<SizeCalculatorProps> = ({
     >
       <Accordion
         elevation={1}
-        defaultExpanded
         style={{ boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.5)" }}
       >
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>

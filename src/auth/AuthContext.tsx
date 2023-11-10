@@ -1,4 +1,3 @@
-// AuthContext.tsx
 import React, {
   createContext,
   useState,
@@ -33,57 +32,65 @@ export const useAuth = (): AuthContextProps => {
   return context;
 };
 
+// Function to check if the token is expired
+function isTokenExpired(token: string) {
+  const decoded: any = jwtDecode(token);
+  return decoded.exp < Date.now() / 1000;
+}
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [auth, setAuth] = useState<{
     isAuthenticated: boolean;
     token: string | null;
   }>(() => {
     const token = localStorage.getItem("authToken");
-    return { isAuthenticated: !!token, token };
+    const isAuthenticated = token ? !isTokenExpired(token) : false;
+    return { isAuthenticated, token };
   });
   const [selectedAccount, setSelectedAccount] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (auth.isAuthenticated && auth.token) {
-      localStorage.setItem("authToken", auth.token);
-    }
-  }, [auth]);
-
-  // Function to check if the token is expired
-  const isTokenExpired = () => {
-    const token = localStorage.getItem("authToken");
-    if (!token) return true;
-    const decoded: any = jwtDecode(token);
-    if (decoded.exp < Date.now() / 1000) return true;
-    return false;
+  // Logout user function
+  const logoutUser = () => {
+    localStorage.removeItem("authToken");
+    setAuth({ isAuthenticated: false, token: null });
   };
 
+  // Check for token expiration immediately on mount and set an interval
   useEffect(() => {
-    // Periodic check every 3 minutes
-    const interval = setInterval(() => {
-      if (isTokenExpired() && auth.isAuthenticated) {
-        // alert("Your session has expired. Please log in again.");
-        localStorage.removeItem("authToken"); // Remove expired token
-        setAuth({ isAuthenticated: false, token: null }); // Update the state
+    const checkAuthStatus = () => {
+      const token = localStorage.getItem("authToken");
+      if (token && isTokenExpired(token)) {
+        logoutUser();
       }
-    }, 180000); // 180000 milliseconds = 3 minutes
-    return () => clearInterval(interval); // Clear the interval when the component unmounts
-  }, [auth]);
+    };
+
+    // Check immediately
+    checkAuthStatus();
+
+    // Set interval to check periodically
+    const interval = setInterval(checkAuthStatus, 180000);
+
+    // Clear the interval on component unmount
+    return () => clearInterval(interval);
+  }, []);
 
   const authenticate = (token: string) => {
-    setAuth({ isAuthenticated: true, token });
+    if (!isTokenExpired(token)) {
+      localStorage.setItem("authToken", token);
+      setAuth({ isAuthenticated: true, token });
+    } else {
+      logoutUser();
+    }
   };
 
-  // This effect only runs once on component mount
   useEffect(() => {
     const fetchAccountsAndSetInitial = async () => {
       try {
-        // Only fetch accounts if authenticated
         if (auth.isAuthenticated) {
           const response = await http.get("/api/users/get-accounts");
           const accounts = response.data;
           if (accounts.length > 0 && selectedAccount === null) {
-            setSelectedAccount(accounts[0].accountID); // Set to the first account only if no account is selected
+            setSelectedAccount(accounts[0].accountID);
           }
         }
       } catch (error: any) {
@@ -92,7 +99,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     fetchAccountsAndSetInitial();
-  }); // Empty dependency array to only run it once on mount
+    // eslint-disable-next-line
+  }, [auth.isAuthenticated]); // Only re-run the effect if auth.isAuthenticated changes
 
   const value = {
     auth: { ...auth, selectedAccount },

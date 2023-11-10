@@ -42,8 +42,8 @@ const WinLossPieChart: React.FC<PieChartProps> = ({ trades }) => {
       "rgba(255, 0, 0, 0.5)",
     ]);
 
-    const width = 150;
-    const height = 200;
+    const width = 300;
+    const height = 300;
     const radius = Math.min(width, height) / 2;
 
     const svg = d3
@@ -51,16 +51,6 @@ const WinLossPieChart: React.FC<PieChartProps> = ({ trades }) => {
       .append("svg")
       .attr("width", width)
       .attr("height", height);
-
-    // Add Title above the pie chart
-    svg
-      .append("text")
-      .attr("x", width / 2)
-      .attr("y", 20)
-      .attr("text-anchor", "middle")
-      .style("font-size", "16px")
-      .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
-      .text("Win/Loss %");
 
     const g = svg
       .append("g")
@@ -98,6 +88,7 @@ const WinLossPieChart: React.FC<PieChartProps> = ({ trades }) => {
       .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
       .attr("transform", (d) => `translate(${path.centroid(d)})`)
       .attr("text-anchor", "middle")
+      .attr("font-weight", "bold")
       .attr("font-size", "12px")
       .attr("dy", "0.35em")
       .text(

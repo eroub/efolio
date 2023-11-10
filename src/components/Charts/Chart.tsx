@@ -1,42 +1,54 @@
-import React from "react";
-import Grid from "@mui/material/Grid";
+import React, { useState } from "react";
+import { Grid, SelectChangeEvent } from "@mui/material";
 // Trade Interface
 import { Trade } from "../../models/TradeTypes";
 // Import Charts
-import ComparisonChart from "./ComparisonBarChart";
 import CumulativePLChart from "./CumulativePLLineChart";
 import PairPerformanceChart from "./PairPerformanceBarChart";
-import WinLossPieChart from "./WinLossPieChart";
+// Import Custom Selection
+import ModeSelection from "../ModeSelection";
 
 interface ChartsProps {
   closedTrades: Trade[];
 }
 
 const Charts: React.FC<ChartsProps> = ({ closedTrades }) => {
+  // Performance Mode State
+
+  const [cumulativeMode, setCumulativeMode] = useState<string>("$");
+  const handleCumulativeModeChange = (event: SelectChangeEvent<string>) => {
+    setCumulativeMode(event.target.value as string);
+  };
+  // Pair Mode State
+  const [performanceMode, setPerformanceMode] = useState<string>("$");
+  const handlePerformanceModeChange = (event: SelectChangeEvent<string>) => {
+    setPerformanceMode(event.target.value as string);
+  };
+
   return (
     <div>
-      <h2>Performance Charts</h2>
       <Grid container>
-        <Grid item xs={5}>
-          <CumulativePLChart trades={closedTrades} mode="$" />
-          <CumulativePLChart trades={closedTrades} mode="R:R" />
+        <Grid item xs={6}>
+          <h3>
+            Net Cumulative P/L (
+            <ModeSelection
+              comparisonMode={cumulativeMode}
+              handleComparisonModeChange={handleCumulativeModeChange}
+            />
+            )
+          </h3>
+          <CumulativePLChart trades={closedTrades} mode={cumulativeMode} />
         </Grid>
-        <Grid
-          item
-          xs={2}
-          container
-          direction="column"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <WinLossPieChart trades={closedTrades} />
-          <ComparisonChart trades={closedTrades} mode="$" />
-          <ComparisonChart trades={closedTrades} mode="R:R" />
-        </Grid>
-
-        <Grid item xs={5}>
-          <PairPerformanceChart trades={closedTrades} mode="$" />
-          <PairPerformanceChart trades={closedTrades} mode="R:R" />
+        <Grid item xs={6}>
+          <h3>
+            Pair Performance (
+            <ModeSelection
+              comparisonMode={performanceMode}
+              handleComparisonModeChange={handlePerformanceModeChange}
+            />
+            )
+          </h3>
+          <PairPerformanceChart trades={closedTrades} mode={performanceMode} />
         </Grid>
       </Grid>
     </div>

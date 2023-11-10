@@ -94,16 +94,24 @@ interface MetricRowProps {
 
 const MetricRow: React.FC<MetricRowProps> = ({ groupingTitle, statLines }) => {
   const gridSize = 12 / (statLines.length + 1); // +1 for the grouping title
+  const [hover, setHover] = useState(false);
+
+  const metricRowStyle: React.CSSProperties = {
+    border: `1px solid ${hover ? "#999" : "#ccc"}`, // Change border color on hover
+    borderRadius: "4px",
+    marginBottom: "8px",
+    transform: hover ? "scale(1.01)" : "scale(1)", // Slight scale up effect on hover
+    boxShadow: hover ? "0 4px 12px rgba(0,0,0,0.2)" : "none", // Deeper shadow on hover for more "pop"
+    backgroundColor: hover ? "#f5f5f5" : "#fff", // Subtle background color change on hover
+  };
 
   return (
     <Grid
       container
       spacing={1}
-      style={{
-        border: "1px solid #ccc",
-        borderRadius: "4px",
-        marginBottom: "8px",
-      }}
+      style={metricRowStyle}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
     >
       <Grid item xs={gridSize}>
         <div style={{ textAlign: "left" }}>

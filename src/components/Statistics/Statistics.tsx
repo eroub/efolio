@@ -116,8 +116,10 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
   const { VaR, CVaR } = calculateVaRandCVaR(closedTrades);
 
   return (
-    <div style={{ margin: "auto", width: "85%" }}>
-      <h2>Trade Statistics</h2>
+    <div style={{ marginLeft: "40px", width: "100%" }}>
+      <h2 style={{ display: "flex", alignItems: "center" }}>
+        Trade Statistics
+      </h2>
       {/* Profitability Metrics */}
       <MetricRow
         groupingTitle="Profitability Metrics"

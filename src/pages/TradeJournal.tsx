@@ -1,6 +1,13 @@
 // TradeJournal.tsx
 // External Libraries
 import React, { useState, useEffect } from "react";
+import {
+  Grid,
+  Select,
+  MenuItem,
+  FormControl,
+  SelectChangeEvent,
+} from "@mui/material";
 // Internal Utilities / Assets / Themes
 import http from "../services/http";
 import { convertToTimeZone } from "../utils/dates";
@@ -12,6 +19,9 @@ import TradeStatistics from "../components/Statistics/Statistics";
 import Charts from "../components/Charts/Chart";
 import TradeManagement from "../components/TradeManagement/TradeManagement";
 import TransactionHistory from "../components/TransactionHistory";
+import ModeSelection from "../components/ModeSelection";
+import WinLossPieChart from "../components/Charts/WinLossPieChart";
+import ComparisonChart from "../components/Charts/ComparisonBarChart";
 // Types and Interfaces
 import { Trade } from "../models/TradeTypes";
 // Context
@@ -29,6 +39,12 @@ const TradeJournal: React.FC<TradeJournalProps> = ({
   const [trades, setTrades] = useState<Trade[]>([]);
   const [accountFilteredTrades, setFilteredTrades] = useState<Trade[]>([]);
   const [triggerFetch, setTriggerFetch] = useState(false);
+
+  // Comparison Mode State
+  const [comparisonMode, setComparisonMode] = useState<string>("$");
+  const handleComparisonModeChange = (event: SelectChangeEvent<string>) => {
+    setComparisonMode(event.target.value);
+  };
 
   // Error and loading states
   const [isLoading, setIsLoading] = useState(false);
@@ -113,12 +129,39 @@ const TradeJournal: React.FC<TradeJournalProps> = ({
 
       {closedTrades.length !== 0 ? (
         <>
-          {/* Closed Trade Table */}
-          <ClosedTradeTable trades={closedTrades} />
-          {/* Trade Statistics Matrix */}
-          <TradeStatistics closedTrades={closedTrades} />
+          <Grid container>
+            {/* Trade Statistics Matrix */}
+            <Grid item xs={9} style={{ display: "flex", alignItems: "center" }}>
+              <TradeStatistics closedTrades={closedTrades} />
+            </Grid>
+            <Grid
+              item
+              xs={3}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+              }}
+            >
+              {/* Win Loss Pie and Comparison Charts */}
+              <h3>Win Loss %</h3>
+              <WinLossPieChart trades={closedTrades} />
+              <h3>
+                Win/Loss Comparison (
+                <ModeSelection
+                  comparisonMode={comparisonMode}
+                  handleComparisonModeChange={handleComparisonModeChange}
+                />
+                )
+              </h3>
+              <ComparisonChart trades={closedTrades} mode={comparisonMode} />
+            </Grid>
+          </Grid>
+
           {/* Performance Charts */}
           <Charts closedTrades={closedTrades} />
+          {/* Closed Trade Table */}
+          <ClosedTradeTable trades={closedTrades} />
         </>
       ) : (
         <div></div>

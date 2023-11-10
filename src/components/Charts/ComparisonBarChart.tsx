@@ -10,7 +10,7 @@ import { Trade } from "../../models/TradeTypes";
 
 interface ComparisonChartProps {
   trades: Trade[];
-  mode: "$" | "R:R";
+  mode: string;
 }
 
 interface ChartData {
@@ -73,17 +73,6 @@ const ComparisonChart: React.FC<ComparisonChartProps> = ({ trades, mode }) => {
       .range([0, height])
       .padding(0.4);
 
-    // Add Title
-    svg
-      .append("text")
-      .attr("x", width / 2)
-      .attr("y", 20)
-      .attr("text-anchor", "middle")
-      .style("font-size", "16px")
-      .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
-      .text(`Win/Loss Comparison (${mode})`);
-
-    // Create bars
     // Create bars
     const bars = svg
       .selectAll(".bar")

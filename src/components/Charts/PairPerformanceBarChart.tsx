@@ -10,7 +10,7 @@ import { Trade } from "../../models/TradeTypes";
 
 interface PairPerformanceProps {
   trades: Trade[];
-  mode: "$" | "R:R";
+  mode: string;
 }
 
 interface ChartData {
@@ -47,8 +47,8 @@ const PairPerformanceChart: React.FC<PairPerformanceProps> = ({
 
     // Initialize SVG and Dimensions
     const margin = { top: 50, right: 30, bottom: 50, left: 60 },
-      width = 700 - margin.left - margin.right,
-      height = 400 - margin.top - margin.bottom;
+      width = 850 - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom;
 
     const svg = d3
       .select(`#${id}`)
@@ -124,15 +124,6 @@ const PairPerformanceChart: React.FC<PairPerformanceProps> = ({
         svg.select("#hoverText").remove();
       });
 
-    // Add Title
-    svg
-      .append("text")
-      .attr("x", width / 2)
-      .attr("y", -20)
-      .attr("text-anchor", "middle")
-      .style("font-size", "16px")
-      .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
-      .text(`Pair Performance (${mode})`);
   }, [trades, mode, sanitizedMode, colorScheme]);
 
   return <div id={`pairPerformance${sanitizedMode}`}></div>;

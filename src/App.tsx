@@ -150,7 +150,12 @@ function App() {
             />
           }
         />
-        {auth.isAuthenticated && <Route path="/sizing" element={<Sizing />} />}
+        {auth.isAuthenticated && (
+          <Route
+            path="/sizing"
+            element={<Sizing conversionRates={conversionRates} />}
+          />
+        )}
       </Routes>
     </AppContainer>
   );

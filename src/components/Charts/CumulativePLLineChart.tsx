@@ -10,7 +10,7 @@ import { Trade } from "../../models/TradeTypes";
 
 interface CumulativePLChartProps {
   trades: Trade[];
-  mode: "$" | "R:R";
+  mode: string;
 }
 
 interface ChartData {
@@ -32,13 +32,11 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
 
     // Calculate cumulative P/L
     let cumulativePL = 0;
-    const data: ChartData[] = sortedTrades.map((trade) => {
-      if (mode === "$") {
-        cumulativePL += trade.realPL ?? 0; // Replace with your USD field
-      } else {
-        cumulativePL += trade.realRR ?? 0;
-      }
-      return { id: trade.id, value: parseFloat(cumulativePL.toFixed(2)) };
+    // Map trades to sequential indices for the x-axis
+    const data: ChartData[] = sortedTrades.map((trade, index) => {
+      cumulativePL += mode === "$" ? trade.realPL ?? 0 : trade.realRR ?? 0;
+      // Use index + 1 to ensure the x-axis starts at 1
+      return { id: index + 1, value: parseFloat(cumulativePL.toFixed(2)) };
     });
 
     // Remove existing SVG if present
@@ -48,8 +46,8 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
       .remove();
 
     // Initialize SVG
-    const width = 700,
-      height = 400;
+    const width = 850,
+      height = 500;
     const svg = d3
       .select(`#cumulativePL${sanitizedMode}`)
       .append("svg")
@@ -59,7 +57,7 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
     // Create scales
     const x = d3
       .scaleLinear()
-      .domain([1, d3.max(data, (d) => d.id)!])
+      .domain([1, data.length]) // Use the length of the data array
       .range([50, width - 50]);
 
     const y = d3
@@ -97,39 +95,12 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
       .selectAll("line")
       .attr("stroke-dasharray", "2,2");
 
-    // Axis labels
-    svg
-      .append("text")
-      .attr("transform", `translate(${width / 2}, ${height - 10})`)
-      .attr("text-anchor", "middle")
-      .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
-      .text("Trade ID");
-
-    svg
-      .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 15)
-      .attr("x", -height / 2)
-      .attr("text-anchor", "middle")
-      .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
-      .text("Cumulative P/L");
-
-    // Add Title
-    svg
-      .append("text")
-      .attr("x", width / 2)
-      .attr("y", 30)
-      .attr("text-anchor", "middle")
-      .style("font-size", "16px")
-      .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
-      .text(`Net Cumulative P/L (${mode})`);
-
     // Create line generator
     const line = d3
-      .line<{ id: number; value: number }>()
-      .x((d) => x(d.id))
+      .line<ChartData>()
+      .x((d) => x(d.id)) // Access the sequential index
       .y((d) => y(d.value))
-      .curve(d3.curveMonotoneX); // Curve the line
+      .curve(d3.curveMonotoneX);
 
     // Draw the line
     svg
@@ -161,7 +132,7 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
           .attr("font-size", "12px")
           .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
           .text(
-            `ID: ${d.id}, Value: ${
+            `Trade #: ${d.id}, Value: ${
               mode === "$" ? formatCurrency(Number(d.value)) : d.value
             }`,
           );
