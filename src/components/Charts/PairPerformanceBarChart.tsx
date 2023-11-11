@@ -123,7 +123,6 @@ const PairPerformanceChart: React.FC<PairPerformanceProps> = ({
         // Remove the y-axis value
         svg.select("#hoverText").remove();
       });
-
   }, [trades, mode, sanitizedMode, colorScheme]);
 
   return <div id={`pairPerformance${sanitizedMode}`}></div>;

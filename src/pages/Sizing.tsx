@@ -1,7 +1,8 @@
 // Libraries
 import React, { useState, useEffect } from "react";
 import { useFormik } from "formik";
-import { TextField, Grid, Card, CardContent, Typography } from "@mui/material";
+import styled from "styled-components";
+import { TextField, Typography } from "@mui/material";
 // API service
 import http from "../services/http";
 // Internal Utilities / Assets / Themes
@@ -12,6 +13,44 @@ import {
 import { formatSizeInK, formatCurrency } from "../utils/formatters";
 // Types and Intefaces
 import { Account } from "../models/AccountTypes";
+
+// Styled components
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20px;
+`;
+
+const Header = styled.h1`
+  margin-bottom: 20px;
+`;
+
+const FormRow = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 600px; /* Adjust the width as needed */
+  margin-bottom: 10px;
+`;
+
+const FormField = styled.div`
+  width: calc(33.3% - 10px);
+`;
+
+const AccountsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 600px; /* Adjust the width as needed */
+`;
+
+const AccountCard = styled.div`
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin: 5px;
+  flex-basis: calc(50% - 10px);
+`;
 
 interface SizingProps {
   conversionRates: Record<string, number>;
@@ -39,7 +78,7 @@ const Sizing: React.FC<SizingProps> = ({ conversionRates }) => {
   }, []);
 
   // Formik setup
-  const { values, handleChange, handleSubmit } = useFormik({
+  const { values, handleChange } = useFormik({
     initialValues: {
       ticker: "",
       entry: "",
@@ -93,78 +132,70 @@ const Sizing: React.FC<SizingProps> = ({ conversionRates }) => {
   };
 
   return (
-    <div>
-      <Grid container spacing={2} style={{ padding: "20px" }}>
-        <Grid item xs={12}>
-          <Typography variant="h4" gutterBottom>
-            Sizing
-          </Typography>
-        </Grid>
-
-        <Grid item xs={12} md={6}>
-          <form onSubmit={handleSubmit}>
-            <TextField
-              name="ticker"
-              label="Ticker"
-              type="text"
-              variant="outlined"
-              fullWidth
-              margin="dense"
-              onChange={handleChange}
-              value={values.ticker}
-              size="small"
-              style={{ width: "48%" }}
-            />
-            <TextField
-              name="entry"
-              label="Entry"
-              type="number"
-              variant="outlined"
-              fullWidth
-              margin="dense"
-              onChange={handleChange}
-              value={values.entry}
-              size="small"
-              style={{ width: "48%" }}
-              inputProps={{ step: getStepValue(values.ticker) }}
-            />
-            <TextField
-              name="stopLoss"
-              label="Stop Loss"
-              type="number"
-              variant="outlined"
-              fullWidth
-              margin="dense"
-              onChange={handleChange}
-              value={values.stopLoss}
-              size="small"
-              style={{ width: "48%" }}
-              inputProps={{ step: getStepValue(values.ticker) }}
-            />
-          </form>
-          <Typography variant="subtitle1">
-            Pips: {pipDifference !== null ? pipDifference : "N/A"}
-          </Typography>
-        </Grid>
-
+    <Container>
+      <Header>Size Calculator</Header>
+      <FormRow>
+        <FormField>
+          <TextField
+            name="ticker"
+            label="Ticker"
+            type="text"
+            variant="outlined"
+            fullWidth
+            margin="dense"
+            onChange={handleChange}
+            value={values.ticker}
+            size="small"
+            style={{ width: "48%" }}
+          />
+        </FormField>
+        <FormField>
+          <TextField
+            name="entry"
+            label="Entry"
+            type="number"
+            variant="outlined"
+            fullWidth
+            margin="dense"
+            onChange={handleChange}
+            value={values.entry}
+            size="small"
+            style={{ width: "48%" }}
+            inputProps={{ step: getStepValue(values.ticker) }}
+          />
+        </FormField>
+        <FormField>
+          <TextField
+            name="stopLoss"
+            label="Stop Loss"
+            type="number"
+            variant="outlined"
+            fullWidth
+            margin="dense"
+            onChange={handleChange}
+            value={values.stopLoss}
+            size="small"
+            style={{ width: "48%" }}
+            inputProps={{ step: getStepValue(values.ticker) }}
+          />
+        </FormField>
+      </FormRow>
+      <FormRow>
+        <Typography variant="subtitle1">
+          Pips: {pipDifference !== null ? pipDifference : "N/A"}
+        </Typography>{" "}
+      </FormRow>
+      <AccountsContainer>
         {accounts.map((account) => (
-          <Grid item xs={12} md={6} key={account.accountID}>
-            <Card variant="outlined">
-              <CardContent>
-                <Typography variant="h6">{account.accountName}</Typography>
-                <Typography>
-                  Equity: {formatCurrency(account.equity)}
-                </Typography>
-                <Typography>Risk %: {account.defaultRiskPercent}%</Typography>
-                <Typography>
-                  Size: {formatSizeInK(calculatedSizes[account.accountID])}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+          <AccountCard key={account.accountID}>
+            <div>{account.accountName}</div>
+            <div>Equity: {formatCurrency(account.equity)}</div>
+            <div>Risk %: {account.defaultRiskPercent}</div>
+            <div>Size: {formatSizeInK(calculatedSizes[account.accountID])}</div>
+          </AccountCard>
         ))}
-      </Grid>
-    </div>
+      </AccountsContainer>
+    </Container>
   );
 };
 

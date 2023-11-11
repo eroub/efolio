@@ -89,7 +89,7 @@ const WinLossPieChart: React.FC<PieChartProps> = ({ trades }) => {
       .attr("transform", (d) => `translate(${path.centroid(d)})`)
       .attr("text-anchor", "middle")
       .attr("font-weight", "bold")
-      .attr("font-size", "12px")
+      .attr("font-size", "16px")
       .attr("dy", "0.35em")
       .text(
         (d) =>

@@ -17,12 +17,12 @@ const Charts: React.FC<ChartsProps> = ({ closedTrades }) => {
 
   const [cumulativeMode, setCumulativeMode] = useState<string>("$");
   const handleCumulativeModeChange = (event: SelectChangeEvent<string>) => {
-    setCumulativeMode(event.target.value as string);
+    setCumulativeMode(event.target.value);
   };
   // Pair Mode State
   const [performanceMode, setPerformanceMode] = useState<string>("$");
   const handlePerformanceModeChange = (event: SelectChangeEvent<string>) => {
-    setPerformanceMode(event.target.value as string);
+    setPerformanceMode(event.target.value);
   };
 
   return (

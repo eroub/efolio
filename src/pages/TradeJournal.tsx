@@ -1,13 +1,7 @@
 // TradeJournal.tsx
 // External Libraries
 import React, { useState, useEffect } from "react";
-import {
-  Grid,
-  Select,
-  MenuItem,
-  FormControl,
-  SelectChangeEvent,
-} from "@mui/material";
+import { Grid, SelectChangeEvent } from "@mui/material";
 // Internal Utilities / Assets / Themes
 import http from "../services/http";
 import { convertToTimeZone } from "../utils/dates";

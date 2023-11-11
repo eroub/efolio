@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import {
   InputBase,
   styled,
@@ -36,6 +36,10 @@ const ModeSelectionInput = styled(InputBase)(({ theme }) => ({
       borderColor: theme.palette.primary.main,
       boxShadow: `0 0 0 2px ${theme.palette.primary.light}`,
     },
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    textAlign: "center", // Ensures text is centered
     fontWeight: "bold",
   },
   "& .MuiSvgIcon-root": {
@@ -52,23 +56,13 @@ const ModeSelection: React.FC<ModeSelectionProps> = ({
   comparisonMode,
   handleComparisonModeChange,
 }) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [inputWidth, setInputWidth] = useState("2em");
-
-  useEffect(() => {
-    if (inputRef.current) {
-      setInputWidth(`${inputRef.current.scrollWidth}px`);
-    }
-  }, [comparisonMode]);
-
+  // You can also remove inputWidth state and useEffect if you're not using dynamic width
   return (
-    <FormControl variant="standard">
+    <FormControl variant="standard" style={{ width: "fit-content" }}>
       <Select
         value={comparisonMode}
         onChange={handleComparisonModeChange}
-        input={
-          <ModeSelectionInput ref={inputRef} style={{ width: inputWidth }} />
-        }
+        input={<ModeSelectionInput />}
         displayEmpty
         inputProps={{ "aria-label": "Without label" }}
         IconComponent={() => null} // Hides the dropdown arrow
