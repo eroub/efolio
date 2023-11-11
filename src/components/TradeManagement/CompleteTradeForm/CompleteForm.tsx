@@ -187,6 +187,7 @@ export const FormSection: React.FC<FormSectionProps> = ({
               </div>
             </div>
             <StyledButton
+              aria-label="Button for completing trades"
               type="submit"
               variant="contained"
               themeColor={themeColor}

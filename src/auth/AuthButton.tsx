@@ -41,7 +41,7 @@ const AuthButton: React.FC = () => {
   };
 
   return !auth.isAuthenticated ? (
-    <button onClick={handleAuthenticate}>Authenticate</button>
+    <button aria-label="Authenticate User Button" onClick={handleAuthenticate}>Authenticate</button>
   ) : null;
 };
 

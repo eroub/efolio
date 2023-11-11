@@ -1,7 +1,16 @@
 // Libraries
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import styled from "styled-components";
-import { TextField, Typography } from "@mui/material";
+import {
+  TextField,
+  Typography,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Container,
+  Paper,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 // API service
 import http from "../services/http";
 // Internal Utilities / Assets / Themes
@@ -14,16 +23,17 @@ import { formatSizeInK } from "../utils/formatters";
 import { Account } from "../models/AccountTypes";
 
 // Styled components
-const GridContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); // Adjust to three columns
-  grid-template-areas:
-    "header header header"
-    "form form pips"
-    "accounts accounts accounts"; // Define areas for easy placement
-  gap: 10px;
-  margin: 20px auto;
-  width: 400px;
+const CustomContainer = styled(Container)`
+  width: 475px !important;
+  // max-width: 'none'; // Override the max-width if necessary
+  padding: 0; // Remove padding if needed
+`;
+
+// Adjust the AccordionDetails to give more room on the right
+const CustomAccordionDetails = styled(AccordionDetails)`
+  padding: 8px 16px 16px; // Adjust padding to give more space
+  display: flex;
+  flex-direction: column;
 `;
 
 const InputContainer = styled.div`
@@ -37,17 +47,14 @@ const PipsDisplay = styled(Typography)`
   padding: 18px 0; 
 `;
 
-const Header = styled.h1`
-  grid-area: header;
-  text-align: center;
-`;
-
 const AccountsGrid = styled.div`
   grid-area: accounts;
   width: 100%;
 `;
 
 const AccountCard = styled.div`
+  margin: 8px 0; // Add margin around each card if necessary
+  box-sizing: border-box; // Ensure padding is included in the width calculation
   border: 1px solid #ccc;
   padding: 10px;
   // padding-top: 18px;
@@ -183,8 +190,15 @@ const Sizing: React.FC<SizingProps> = ({ conversionRates }) => {
   };
 
   return (
-    <GridContainer>
-      <Header>Size Calculator</Header>
+    <CustomContainer component={Paper} elevation={0}>
+    <Accordion
+      elevation={1}
+      style={{ boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.5)" }}
+    >
+      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <Typography variant="h6">Size Calculator</Typography>
+      </AccordionSummary>
+      <CustomAccordionDetails>
       <InputContainer>
         <TextField
           name="ticker"
@@ -276,15 +290,16 @@ const Sizing: React.FC<SizingProps> = ({ conversionRates }) => {
                   marginRight: "8px",
                 }}
               />
-
               <Typography variant="body2">
-                Size: <b>{formatSizeInK(calculatedSizes[account.accountID])} ({(calculatedSizes[account.accountID]/100000).toFixed(2)})</b>
+                <b>{formatSizeInK(calculatedSizes[account.accountID])} ({(calculatedSizes[account.accountID]/100000).toFixed(2)})</b>
               </Typography>
             </AccountInfo>
           </AccountCard>
         ))}
       </AccountsGrid>
-    </GridContainer>
+      </CustomAccordionDetails>
+      </Accordion>
+    </CustomContainer>
   );
 };
 

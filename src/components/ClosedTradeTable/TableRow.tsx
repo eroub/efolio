@@ -144,7 +144,7 @@ const TableRow: React.FC<TableRowProps> = ({ trade, isTableExpanded }) => {
       </Td>
       <Td>
         {trade.screenshot ? (
-          <a href={trade.screenshot} target="_blank" rel="noopener noreferrer">
+          <a href={trade.screenshot} target="_blank" rel="noopener noreferrer" aria-label="Link for opening completed trade picture">
             <Polaroid />
           </a>
         ) : null}

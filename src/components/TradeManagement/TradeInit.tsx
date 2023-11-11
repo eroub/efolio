@@ -379,6 +379,7 @@ const TradeInit: React.FC<TradeFormProps> = ({
                     <div>Est. R:R: {estimatedRR}</div>
                   </MetricsContainer>
                   <StyledButton
+                    aria-label="Button for submitting trade init"
                     type="submit"
                     variant="contained"
                     themeColor={themeColor}

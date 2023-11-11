@@ -106,6 +106,7 @@ const ClosedTradeTable: React.FC<TradeTableProps> = ({ trades }) => {
       <h2 style={{ display: "flex", alignItems: "center", marginLeft: "15px" }}>
         Completed Trades
         <ColumnButton
+          aria-label="Button to hide or show all trades"
           onClick={toggleColumns}
           data-tooltip={isTableExpanded ? "Hide Details" : "Show Details"}
         >
@@ -132,6 +133,7 @@ const ClosedTradeTable: React.FC<TradeTableProps> = ({ trades }) => {
       </StyledTable>
       {memoizedTrades.length > 5 && (
         <RowButton onClick={toggleRows}>
+          aria-label="Expand or Shrink Table Button"
           {showAllRows ? "Hide" : "Show All"}
         </RowButton>
       )}
