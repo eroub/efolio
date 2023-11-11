@@ -165,7 +165,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
       />
       {/* Trade Characteristics */}
       <MetricRow
-        groupingTitle="Trade Characteristics"
+        groupingTitle="Characteristics"
         statLines={[
           <StatLine
             title="Wins:Losses"
@@ -211,7 +211,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
       />
       {/* Trade Timing */}
       <MetricRow
-        groupingTitle="Trade Timing"
+        groupingTitle="Timing"
         statLines={[
           <StatLine
             title="Avg. Hold Time"
@@ -257,7 +257,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
       />
       {/* Trade Direction Metrics */}
       <MetricRow
-        groupingTitle="Trade Direction Metrics"
+        groupingTitle="Direction Metrics"
         statLines={[
           <StatLine
             title="Long Short Ratio"
@@ -270,7 +270,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Long Win Percentage"
+            title="Long Win %"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -279,7 +279,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Short Win Percentage"
+            title="Short Win %"
             style={{ flexBasis: "25%" }}
             stats={
               <>
@@ -300,7 +300,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
       />
       {/* Trade Behavior */}
       <MetricRow
-        groupingTitle="Trade Behavior"
+        groupingTitle="Behavior"
         statLines={[
           <StatLine
             title="Avg. Payoff Ratio"
@@ -369,7 +369,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           <StatLine
-            title="Conditional Value at Risk"
+            title="Conditional VaR"
             tooltip="Unlike VaR, which considers losses up to a certain confidence level, CVaR estimates the expected loss beyond that level, providing a more comprehensive risk assessment."
             style={{ flexBasis: "25%" }}
             stats={

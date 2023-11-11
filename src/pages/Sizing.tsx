@@ -1,6 +1,5 @@
 // Libraries
-import React, { useState, useEffect } from "react";
-import { useFormik } from "formik";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { TextField, Typography } from "@mui/material";
 // API service
@@ -10,65 +9,123 @@ import {
   calculateSize,
   calculatePipDifference,
 } from "../utils/tradeCalculations";
-import { formatSizeInK, formatCurrency } from "../utils/formatters";
+import { formatSizeInK } from "../utils/formatters";
 // Types and Intefaces
 import { Account } from "../models/AccountTypes";
 
 // Styled components
-const Container = styled.div`
+const GridContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); // Adjust to three columns
+  grid-template-areas:
+    "header header header"
+    "form form pips"
+    "accounts accounts accounts"; // Define areas for easy placement
+  gap: 10px;
+  margin: 20px auto;
+  width: 400px;
+`;
+
+const InputContainer = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 20px;
+  justify-content: space-between; // Spread out the fields evenly
+  align-items: center; // Center align the items vertically
+  grid-column: 1 / -1; // Span across all columns
+`;
+
+const PipsDisplay = styled(Typography)`
+  padding: 18px 0; 
 `;
 
 const Header = styled.h1`
-  margin-bottom: 20px;
+  grid-area: header;
+  text-align: center;
 `;
 
-const FormRow = styled.div`
-  display: flex;
-  flex-direction: column;
+const AccountsGrid = styled.div`
+  grid-area: accounts;
   width: 100%;
-  max-width: 600px; /* Adjust the width as needed */
-  margin-bottom: 10px;
-`;
-
-const FormField = styled.div`
-  width: calc(33.3% - 10px);
-`;
-
-const AccountsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  max-width: 600px; /* Adjust the width as needed */
 `;
 
 const AccountCard = styled.div`
   border: 1px solid #ccc;
   padding: 10px;
-  margin: 5px;
-  flex-basis: calc(50% - 10px);
+  // padding-top: 18px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  grid-column: 1;
+  width: 100%;
+  justify-content: space-between;
+  background-color: ${({ theme }) => theme.containerBackgroundColor};
+`;
+
+const AccountLabel = styled.label`
+  position: absolute;
+  top: -9px; // Half of the font-size to center it vertically on the border line
+  left: 10px;
+  background-color: ${({ theme }) => theme.containerBackgroundColor};
+  color: ${({ theme }) => theme.textColor};
+  padding: 0 5px;
+  font-weight: bold;
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.54);
+`;
+
+const AccountInfo = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 interface SizingProps {
   conversionRates: Record<string, number>;
 }
 
+// Modified Account type to allow for editable fields
+type EditableAccount = Account & {
+  editableEquity: string;
+  editableRiskPercent: string;
+};
+
+// Define the type for the calculatedSizes object
+type CalculatedSizesType = {
+  [key: number]: number;
+};
+
 const Sizing: React.FC<SizingProps> = ({ conversionRates }) => {
-  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [ticker, setTicker] = useState("");
+  const [entry, setEntry] = useState("");
+  const [stopLoss, setStopLoss] = useState("");
+  const [accounts, setAccounts] = useState<EditableAccount[]>([]);
   const [pipDifference, setPipDifference] = useState<number | null>(null);
-  const [calculatedSizes, setCalculatedSizes] = useState<
-    Record<number, number>
-  >({});
+
+  const handleTickerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTicker(event.target.value);
+  };
+
+  const handleEntryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEntry(event.target.value);
+  };
+
+  const handleStopLossChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setStopLoss(event.target.value);
+  };
 
   // Fetch accounts data on component mount
   useEffect(() => {
     const fetchAccountsData = async () => {
       try {
         const response = await http.get("/api/accounts/equityAmounts");
-        setAccounts(response.data);
+        // Initialize the state with strings to ensure the fields are always controlled
+        const enrichedAccounts = response.data.map(
+          (account: EditableAccount) => ({
+            ...account,
+            editableEquity: account.equity?.toString() || "", // Ensure a string is always provided
+            editableRiskPercent: account.defaultRiskPercent?.toString() || "", // Ensure a string is always provided
+          }),
+        );
+        setAccounts(enrichedAccounts);
       } catch (error) {
         console.error("Error fetching accounts data", error);
       }
@@ -77,51 +134,45 @@ const Sizing: React.FC<SizingProps> = ({ conversionRates }) => {
     fetchAccountsData();
   }, []);
 
-  // Formik setup
-  const { values, handleChange } = useFormik({
-    initialValues: {
-      ticker: "",
-      entry: "",
-      stopLoss: "",
-      riskPercent: "",
-    },
-    onSubmit: (values) => {
-      // Triggered when the form is submitted
-      // You can place your calculation logic here if needed
-    },
-  });
-
-  // Function to calculate sizes for all accounts
-  useEffect(() => {
-    if (!values.entry || !values.stopLoss || !values.ticker) {
-      return;
-    }
-
-    const newSizes = accounts.reduce((sizes, account) => {
-      const size = calculateSize(
-        account.equity,
-        account.defaultRiskPercent,
-        Number(values.entry),
-        Number(values.stopLoss),
-        values.ticker,
-        conversionRates,
-      );
-      return { ...sizes, [account.accountID]: size };
-    }, {});
-
-    setCalculatedSizes(newSizes);
-  }, [values, accounts, conversionRates]);
-
   // Calculate pip difference whenever entry or stopLoss changes
   useEffect(() => {
-    if (values.entry && values.stopLoss) {
-      const pip = calculatePipDifference(
-        Number(values.entry),
-        Number(values.stopLoss),
-      );
+    if (entry && stopLoss) {
+      const pip = calculatePipDifference(Number(entry), Number(stopLoss));
       setPipDifference(pip);
     }
-  }, [values.entry, values.stopLoss]);
+  }, [entry, stopLoss]);
+
+  const handleFieldChange = useCallback(
+    (
+      accountID: number,
+      field: "editableEquity" | "editableRiskPercent",
+      value: string,
+    ) => {
+      setAccounts((prevAccounts) =>
+        prevAccounts.map((acc) =>
+          acc.accountID === accountID ? { ...acc, [field]: value } : acc,
+        ),
+      );
+    },
+    [],
+  );
+
+  // Use the useMemo hook with the defined type for the calculatedSizes object
+  const calculatedSizes = useMemo(() => {
+    const sizes: CalculatedSizesType = {}; // Use the type here
+    accounts.forEach((account) => {
+      const size = calculateSize(
+        parseFloat(account.editableEquity),
+        parseFloat(account.editableRiskPercent),
+        parseFloat(entry),
+        parseFloat(stopLoss),
+        ticker,
+        conversionRates,
+      );
+      sizes[account.accountID] = size;
+    });
+    return sizes;
+  }, [accounts, entry, stopLoss, ticker, conversionRates]);
 
   // Step value to determine how much to increase/decrease entry/SL when pressing "up"
   const getStepValue = (ticker: string) => {
@@ -132,70 +183,108 @@ const Sizing: React.FC<SizingProps> = ({ conversionRates }) => {
   };
 
   return (
-    <Container>
+    <GridContainer>
       <Header>Size Calculator</Header>
-      <FormRow>
-        <FormField>
-          <TextField
-            name="ticker"
-            label="Ticker"
-            type="text"
-            variant="outlined"
-            fullWidth
-            margin="dense"
-            onChange={handleChange}
-            value={values.ticker}
-            size="small"
-            style={{ width: "48%" }}
-          />
-        </FormField>
-        <FormField>
-          <TextField
-            name="entry"
-            label="Entry"
-            type="number"
-            variant="outlined"
-            fullWidth
-            margin="dense"
-            onChange={handleChange}
-            value={values.entry}
-            size="small"
-            style={{ width: "48%" }}
-            inputProps={{ step: getStepValue(values.ticker) }}
-          />
-        </FormField>
-        <FormField>
-          <TextField
-            name="stopLoss"
-            label="Stop Loss"
-            type="number"
-            variant="outlined"
-            fullWidth
-            margin="dense"
-            onChange={handleChange}
-            value={values.stopLoss}
-            size="small"
-            style={{ width: "48%" }}
-            inputProps={{ step: getStepValue(values.ticker) }}
-          />
-        </FormField>
-      </FormRow>
-      <FormRow>
-        <Typography variant="subtitle1">
+      <InputContainer>
+        <TextField
+          name="ticker"
+          label="Ticker"
+          type="text"
+          variant="outlined"
+          fullWidth
+          margin="dense"
+          onChange={handleTickerChange}
+          value={ticker}
+          size="small"
+        />
+        <TextField
+          name="entry"
+          label="Entry"
+          type="number"
+          variant="outlined"
+          fullWidth
+          margin="dense"
+          onChange={handleEntryChange}
+          value={entry}
+          size="small"
+          inputProps={{ step: getStepValue(ticker) }}
+          style={{marginLeft: "8px"}}
+        />
+        <TextField
+          name="stopLoss"
+          label="Stop Loss"
+          type="number"
+          variant="outlined"
+          fullWidth
+          margin="dense"
+          onChange={handleStopLossChange}
+          value={stopLoss}
+          size="small"
+          inputProps={{ step: getStepValue(ticker) }}
+          style={{marginLeft: "8px", marginRight: "8px"}}
+        />
+        <PipsDisplay variant="subtitle1">
           Pips: {pipDifference !== null ? pipDifference : "N/A"}
-        </Typography>{" "}
-      </FormRow>
-      <AccountsContainer>
+        </PipsDisplay>{" "}
+      </InputContainer>
+      <AccountsGrid>
         {accounts.map((account) => (
           <AccountCard key={account.accountID}>
-            <div>{account.accountName}</div>
-            <div>Equity: {formatCurrency(account.equity)}</div>
-            <div>Risk %: {account.defaultRiskPercent}</div>
-            <div>Size: {formatSizeInK(calculatedSizes[account.accountID])}</div>
+            <AccountLabel>{account.accountName}</AccountLabel>
+            <AccountInfo>
+              <TextField
+                label="Equity"
+                type="number"
+                variant="outlined"
+                value={account.editableEquity}
+                onChange={(e) =>
+                  handleFieldChange(
+                    account.accountID,
+                    "editableEquity",
+                    e.target.value,
+                  )
+                }
+                size="small"
+                margin="dense"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                style={{ width: "30%", flex: 1 }}
+              />
+              <TextField
+                label="Risk %"
+                type="number"
+                variant="outlined"
+                value={account.editableRiskPercent}
+                onChange={(e) =>
+                  handleFieldChange(
+                    account.accountID,
+                    "editableRiskPercent",
+                    e.target.value,
+                  )
+                }
+                size="small"
+                margin="dense"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                inputProps={{ step: 0.01 }}
+                style={{
+                  width: "20%",
+                  flex: 1,
+                  marginLeft: "8px",
+                  marginRight: "8px",
+                }}
+              />
+
+              <Typography variant="body2">
+                Size: <b>{formatSizeInK(calculatedSizes[account.accountID])} ({(calculatedSizes[account.accountID]/100000).toFixed(2)})</b>
+              </Typography>
+            </AccountInfo>
           </AccountCard>
         ))}
-      </AccountsContainer>
-    </Container>
+      </AccountsGrid>
+    </GridContainer>
   );
 };
 
