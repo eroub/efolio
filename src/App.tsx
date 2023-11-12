@@ -13,6 +13,10 @@ import { fetchExchangeRates } from "./utils/fetchExchangeRates";
 import { colorScheme } from "./assets/themes";
 // Context
 import { useAuth } from "./auth/AuthContext";
+// Import Font
+import DMSerifDisplayItalicTTF from './assets/DM_Serif_Display/DMSerifDisplay-Italic.ttf';
+import DMSerifDisplayItalicWOFF from './assets/DM_Serif_Display/DMSerifDisplay-Italic.woff'
+import DMSerifDisplayItalicWOFF2 from './assets/DM_Serif_Display/DMSerifDisplay-Italic.woff2'
 
 // Styles
 const AppContainer = styled.div`
@@ -47,15 +51,17 @@ const TitleContainer = styled.div`
 const Title = styled.h1`
   @font-face {
     font-family: "DM Serif Display";
-    src: url(${process.env.PUBLIC_URL +
-      "/assets/DM_Serif_Display/DMSerifDisplay-Italic.ttf"})
-      format("truetype");
-    font-weight: bold;
+    src: url(${DMSerifDisplayItalicWOFF2}) format("woff2"),
+         url(${DMSerifDisplayItalicWOFF}) format("woff"),
+         url(${DMSerifDisplayItalicTTF}) format("truetype"),
     font-style: italic;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   /* Use the imported font */
   font-family: "DM Serif Display", serif;
+  font-weight: 400;
   font-style: italic;
   margin: 0;
   line-height: 1;

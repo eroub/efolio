@@ -40,6 +40,18 @@ module.exports = (env, argv) => {
           test: /\.css$/,
           use: ['style-loader', 'css-loader'],
         },
+        {
+          test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/, // Add support for .svg if you need it
+          use: [
+            {
+              loader: 'file-loader',
+              options: {
+                name: '[name].[ext]',
+                outputPath: 'fonts/', // The directory where fonts will be placed in the build folder
+              },
+            },
+          ],
+        },
       ],
     },
     resolve: {
