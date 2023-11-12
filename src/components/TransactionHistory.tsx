@@ -13,6 +13,7 @@ const TransactionHistory: React.FC = () => {
       setIsLoading(true);
       setError(null);
       try {
+        console.log(auth.selectedAccount)
         const response = await http.get(
           `/api/transactions/${auth.selectedAccount}`,
         );
