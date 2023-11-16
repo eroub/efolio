@@ -57,6 +57,7 @@ const Title = styled.h1`
     font-style: italic;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-display: swap;
   }
 
   /* Use the imported font */

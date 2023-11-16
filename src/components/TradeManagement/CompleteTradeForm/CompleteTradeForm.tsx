@@ -2,7 +2,9 @@
 // External Libraries
 import React, { useState, useEffect } from "react";
 import { useFormik } from "formik";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
+import { zonedTimeToUtc } from "date-fns-tz";
+import moment from 'moment-timezone';
 import {
   Container,
   Paper,
@@ -31,8 +33,6 @@ import { formatCurrency } from "../../../utils/formatters";
 import { FormSection } from "./CompleteForm";
 // Types and Interfaces
 import { Trade } from "../../../models/TradeTypes";
-// Context
-import { zonedTimeToUtc } from "date-fns-tz";
 
 interface CompleteTradeFormProps {
   openTrade: Trade;
@@ -98,19 +98,20 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
       setIsLoading(true);
       setError(null);
       // Convert dateTimeOut to UTC
-      const utcDateTimeOut = zonedTimeToUtc(values.datetimeOut, timeZone);
-      values.datetimeOut = format(utcDateTimeOut, "yyyy-MM-dd HH:mm:ss"); // Convert Date object to string
+      const utcDateTimeOut = moment.tz(values.datetimeOut, timeZone).utc().format("YYYY-MM-DDTHH:mm:ss");
+      values.datetimeOut = utcDateTimeOut
       // Force values to be numbers
       values.exitPrice = Number(values.exitPrice);
       values.mfe = Number(values.mfe);
       values.mae = Number(values.mae);
       values.postEquity = Number(values.postEquity);
-      const completedTradeData = {
+      // Destructure all values into completedTradeData except for datetimeIn (which in in the wrong timezone)
+      const { datetimeIn, ...completedTradeData } = {
         ...openTrade,
         ...values,
         ...calculations,
         status: "Closed",
-      };
+      };    
       try {
         await http.post("/api/trades/update", completedTradeData);
         setIsLoading(false);
@@ -132,6 +133,7 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
       openTrade.datetimeIn,
       values.datetimeOut,
     );
+
     const projPL = calculateProjectedPL(
       openTrade.direction,
       openTrade.entry,

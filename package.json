@@ -33,6 +33,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jwt-decode": "^3.1.2",
     "mini-css-extract-plugin": "^2.4.5",
+    "moment-timezone": "^0.5.43",
     "postcss": "^8.4.4",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-loader": "^6.2.1",
@@ -89,6 +90,7 @@
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.8.1",
+    "dotenv-webpack": "^8.0.1",
     "html-webpack-plugin": "^5.5.3",
     "prettier": "^3.0.3",
     "react-refresh": "^0.14.0",
@@ -118,10 +120,24 @@
       "@babel/preset-typescript"
     ],
     "plugins": [
-      ["@babel/plugin-transform-class-properties", { "loose": true }],
-      ["@babel/plugin-transform-private-methods", { "loose": true }],
-      ["@babel/plugin-transform-private-property-in-object", { "loose": true }]
+      [
+        "@babel/plugin-transform-class-properties",
+        {
+          "loose": true
+        }
+      ],
+      [
+        "@babel/plugin-transform-private-methods",
+        {
+          "loose": true
+        }
+      ],
+      [
+        "@babel/plugin-transform-private-property-in-object",
+        {
+          "loose": true
+        }
+      ]
     ]
   }
-  
 }

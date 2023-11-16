@@ -67,6 +67,7 @@ const TradeJournal: React.FC<TradeJournalProps> = ({
         setTrades(convertedTrades);
         setError(null);
       } catch (error: any) {
+        console.log(error);
         setIsLoading(false);
         setError(error.message);
       }
