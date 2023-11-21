@@ -133,7 +133,6 @@ const ClosedTradeTable: React.FC<TradeTableProps> = ({ trades }) => {
       </StyledTable>
       {memoizedTrades.length > 5 && (
         <RowButton onClick={toggleRows}>
-          aria-label="Expand or Shrink Table Button"
           {showAllRows ? "Hide" : "Show All"}
         </RowButton>
       )}

@@ -84,7 +84,11 @@ const TradeJournal: React.FC<TradeJournalProps> = ({
         );
         setFilteredTrades(filtered);
       } else {
-        setFilteredTrades(trades);
+        // Otherwise just filter by the filter account
+        const filtered = trades.filter(
+          (trade) => trade.accountID === 1,
+        );
+        setFilteredTrades(filtered);
       }
     };
 
