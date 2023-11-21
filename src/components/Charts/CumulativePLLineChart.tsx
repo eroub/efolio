@@ -60,14 +60,19 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
       .domain([1, data.length]) // Use the length of the data array
       .range([50, width - 50]);
 
+    // Calculate the buffer for y-axis
+    const maxValue = d3.max(data, (d) => d.value);
+    const minValue = d3.min(data, (d) => d.value);
+    const buffer = 0.05 * (maxValue! - minValue!); // 5% buffer
+
     const y = d3
       .scaleLinear()
-      .domain([d3.min(data, (d) => d.value)!, d3.max(data, (d) => d.value)!])
+      .domain([(minValue ?? 0) - buffer, (maxValue ?? 0) + buffer])
       .range([height - 50, 50]);
 
     // Create axis
-    const xAxis = d3.axisBottom(x).ticks(5);
-    const yAxis = d3.axisLeft(y).ticks(5);
+    const xAxis = d3.axisBottom(x).ticks(10);
+    const yAxis = d3.axisLeft(y).ticks(10);
 
     if (mode === "$") {
       yAxis.tickFormat((d: any) => formatCurrency(Number(d)) as any);

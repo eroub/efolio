@@ -65,9 +65,17 @@ const PairPerformanceChart: React.FC<PairPerformanceProps> = ({
       .range([0, width])
       .padding(0.2);
     // Create scales
-    const yMax = d3.max(data, (d) => Math.abs(d.value))!;
-    const yMin = -yMax;
-    const y = d3.scaleLinear().domain([yMin, yMax]).range([height, 0]);
+    // Calculate Max and Min for y-axis with buffer
+    const maxValue = d3.max(data, (d) => d.value);
+    const minValue = d3.min(data, (d) => d.value);
+
+    // Determine buffer value (5% of the data range)
+    const buffer = 0.05 * (maxValue! - minValue!);
+
+    // Set y-axis domain with buffer
+    const y = d3.scaleLinear()
+                .domain([(minValue ?? 0) - buffer, (maxValue ?? 0) + buffer])
+                .range([height, 0]);
 
     // X-axis
     svg
