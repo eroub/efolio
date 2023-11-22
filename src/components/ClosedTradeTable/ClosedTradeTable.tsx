@@ -122,13 +122,18 @@ const ClosedTradeTable: React.FC<TradeTableProps> = ({ trades }) => {
         <tbody>
           {memoizedTrades
             .slice(0, showAllRows ? memoizedTrades.length : 5)
-            .map((trade, index) => (
-              <TableRow
-                key={index}
-                trade={trade}
-                isTableExpanded={isTableExpanded}
-              />
-            ))}
+            .map((trade, index) => {
+              // Calculate trade number (reverse order)
+              const tradeNumber = memoizedTrades.length - index;
+              return (
+                <TableRow
+                  key={trade.id} // It's better to use trade.id for the key
+                  trade={trade}
+                  isTableExpanded={isTableExpanded}
+                  tradeNumber={tradeNumber}
+                />
+              );
+            })}
         </tbody>
       </StyledTable>
       {memoizedTrades.length > 5 && (

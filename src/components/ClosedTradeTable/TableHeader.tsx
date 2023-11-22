@@ -22,7 +22,7 @@ const Th = styled.th`
 `;
 
 const headers = [
-  "ID",
+  "#",
   "Ticker",
   "Direction",
   "In Time",
@@ -54,7 +54,7 @@ const headers = [
 
 const TableHeader: React.FC<TableHeaderProps> = ({ isTableExpanded }) => {
   const columnsToHide = [
-    "ID",
+    "#",
     "In Time",
     "Out Time",
     "Equity",

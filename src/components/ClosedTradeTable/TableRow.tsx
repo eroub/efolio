@@ -20,6 +20,7 @@ import { Trade } from "../../models/TradeTypes";
 interface TableRowProps {
   trade: Trade;
   isTableExpanded: boolean;
+  tradeNumber: number;
 }
 
 interface TdProps {
@@ -53,7 +54,7 @@ const ConditionalTd: React.FC<{ show: boolean; children: React.ReactNode }> = ({
   return show ? <Td>{children}</Td> : null;
 };
 
-const TableRow: React.FC<TableRowProps> = ({ trade, isTableExpanded }) => {
+const TableRow: React.FC<TableRowProps> = ({ trade, isTableExpanded, tradeNumber }) => {
   // Determine current theme color (dark/light)
   const themeColor = useCurrentTheme();
 
@@ -100,7 +101,7 @@ const TableRow: React.FC<TableRowProps> = ({ trade, isTableExpanded }) => {
 
   return (
     <StyledTr $highlight={highlightColor}>
-      <ConditionalTd show={isTableExpanded}>{trade.id}</ConditionalTd>
+      <ConditionalTd show={isTableExpanded}>{tradeNumber}</ConditionalTd>
       <Td>{trade.ticker}</Td>
       <Td>
         {trade.direction === "Long" ? (
