@@ -2,7 +2,7 @@
 // External Libraries
 import React, { useState } from "react";
 import { Grid } from "@mui/material";
-import { format } from "date-fns";
+import moment from "moment-timezone";
 // Interal Utilities / Assets / Themes;
 import http from "../../services/http";
 // Components
@@ -15,7 +15,6 @@ import TradeInit from "./TradeInit";
 import { Trade, PartialTrade } from "../../models/TradeTypes";
 // Context
 import { useAuth } from "../../auth/AuthContext";
-import { zonedTimeToUtc } from "date-fns-tz";
 
 interface TradeManagementProps {
   // State-related props
@@ -53,9 +52,10 @@ const TradeManagement: React.FC<TradeManagementProps> = ({
     setIsLoading(true);
     setError(null);
     try {
-      if (newTrade.datetimeIn) {
-        const utcDateTimeIn = zonedTimeToUtc(newTrade.datetimeIn, timeZone);
-        newTrade.datetimeIn = format(utcDateTimeIn, "yyyy-MM-dd HH:mm:ss"); // Convert Date object to string
+      // Convert datetimeIn if in production
+      if (newTrade.datetimeIn && process.env.REACT_APP_VERSION === "production") { 
+        const utcDateTimeIn = moment.tz(newTrade.datetimeIn, timeZone).utc().format("YYYY-MM-DDTHH:mm:ss"); // Convert Date object to string
+        newTrade.datetimeIn = utcDateTimeIn;
       }
       // Include the selectedAccount in the newTrade object
       const tradeWithAccount = {
