@@ -98,8 +98,8 @@ const CompleteTradeForm: React.FC<CompleteTradeFormProps> = ({
       setIsLoading(true);
       setError(null);
       // Convert dateTimeOut to UTC
-      const utcDateTimeOut = moment.tz(values.datetimeOut, timeZone).utc().format("YYYY-MM-DDTHH:mm:ss");
-      values.datetimeOut = utcDateTimeOut
+      // const utcDateTimeOut = moment.tz(values.datetimeOut, timeZone).utc().format("YYYY-MM-DDTHH:mm:ss");
+      // values.datetimeOut = utcDateTimeOut
       // Force values to be numbers
       values.exitPrice = Number(values.exitPrice);
       values.mfe = Number(values.mfe);
