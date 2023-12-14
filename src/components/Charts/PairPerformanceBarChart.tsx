@@ -81,7 +81,12 @@ const PairPerformanceChart: React.FC<PairPerformanceProps> = ({
     svg
       .append("g")
       .attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x));
+      .call(d3.axisBottom(x))
+      .selectAll("text") // select all the text elements for the x-axis
+        .style("text-anchor", "end") // anchor the text at the end
+        .attr("dx", "-.8em") // adjust the x distance
+        .attr("dy", ".15em") // adjust the y distance
+        .attr("transform", "rotate(-40)"); // rotate the text
 
     // Y-axis
     const yAxis = d3
