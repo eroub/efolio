@@ -46,7 +46,7 @@ export const calculateSize = (
 
   // Calculate Position Size
   const positionSize = (equity * (riskPercent / 100)) / (pipRisk * pipValue);
-  return Math.round(positionSize);
+  return positionSize.toFixed(3);
 };
 
 /**
@@ -189,18 +189,30 @@ export const calculateRealRR = (
 
 /**
  * Calculate Pips (gain/loss)
+ * If ticker is denominated with USD but is not one of the following
+ * AUD/USD, EUR/USD, GBP/USD, NZD/USD then it is a crypto, return PIPs as null
  */
 export const calculatePips = (
   direction: string,
   ticker: string,
   entry: number,
   exit: number,
-): number => {
+): number | null => {
+  // Define the forex pairs with USD
+  const forexPairs = ["AUD/USD", "EUR/USD", "GBP/USD", "NZD/USD"];
+  // Check if the ticker is denominated in USD and is not a forex pair
+  if (ticker.endsWith("USD") && !forexPairs.includes(ticker)) {
+    // Return null for crypto pairs
+    return null;
+  }
+  // Calculate the factor based on whether the pair is with JPY
   const factor = ticker.split("/")[1] === "JPY" ? 100 : 10000;
+  // Calculate and return pips
   return direction === "Short"
     ? truncateToTwoDecimals((entry - exit) * factor)
     : truncateToTwoDecimals((exit - entry) * factor);
 };
+
 
 /**
  * Calculate MFE Ratio

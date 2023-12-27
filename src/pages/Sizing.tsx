@@ -291,7 +291,7 @@ const Sizing: React.FC<SizingProps> = ({ conversionRates }) => {
                 }}
               />
               <Typography variant="body2">
-                <b>{formatSizeInK(calculatedSizes[account.accountID])} ({(calculatedSizes[account.accountID]/100000).toFixed(2)})</b>
+                <b>({formatSizeInK(calculatedSizes[account.accountID])}/{(calculatedSizes[account.accountID]/100000).toFixed(2)}) {calculatedSizes[account.accountID]}</b>
               </Typography>
             </AccountInfo>
           </AccountCard>
