@@ -15,12 +15,12 @@ interface ChartsProps {
 const Charts: React.FC<ChartsProps> = ({ closedTrades }) => {
   // Performance Mode State
 
-  const [cumulativeMode, setCumulativeMode] = useState<string>("$");
+  const [cumulativeMode, setCumulativeMode] = useState<string>("R:R");
   const handleCumulativeModeChange = (event: SelectChangeEvent<string>) => {
     setCumulativeMode(event.target.value);
   };
   // Pair Mode State
-  const [performanceMode, setPerformanceMode] = useState<string>("$");
+  const [performanceMode, setPerformanceMode] = useState<string>("R:R");
   const handlePerformanceModeChange = (event: SelectChangeEvent<string>) => {
     setPerformanceMode(event.target.value);
   };

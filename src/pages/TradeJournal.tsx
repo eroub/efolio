@@ -85,8 +85,9 @@ const TradeJournal: React.FC<TradeJournalProps> = ({
         setFilteredTrades(filtered);
       } else {
         // Otherwise just filter by the filter account
+        // *** DEFAULT ACCOUNT WHEN NOT LOGGED IN
         const filtered = trades.filter(
-          (trade) => trade.accountID === 1,
+          (trade) => trade.accountID === 3,
         );
         setFilteredTrades(filtered);
       }

@@ -5,4 +5,5 @@ export interface Account {
   userID: number;
   equity: number;
   defaultRiskPercent: number;
+  visible: boolean | number;
 }
