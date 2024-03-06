@@ -5,6 +5,7 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
+import { Account } from "../models/AccountTypes";
 import jwtDecode from "jwt-decode";
 import http from "../services/http";
 
@@ -89,7 +90,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (auth.isAuthenticated) {
           const response = await http.get("/api/users/get-accounts");
           const accounts = response.data;
-          if (accounts.length > 0 && selectedAccount === null) {
+          const visibleAccounts = response.data.filter((account: Account) => account.visible === 1 || account.visible === true);
+          console.log(visibleAccounts);
+          if (visibleAccounts.length > 0 && selectedAccount === null) {
             setSelectedAccount(accounts[0].accountID);
           }
         }

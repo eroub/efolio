@@ -104,7 +104,7 @@ const TradeInit: React.FC<TradeFormProps> = ({
   useEffect(() => {
     if (lastTrade) {
       const realPL = lastTrade.realPL ?? 0;
-      setInitEquity(lastTrade.equity + realPL);
+      setInitEquity(parseFloat((lastTrade.equity + realPL).toFixed(2)));
     }
   }, [lastTrade]);
 

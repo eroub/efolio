@@ -35,7 +35,7 @@ const TradeJournal: React.FC<TradeJournalProps> = ({
   const [triggerFetch, setTriggerFetch] = useState(false);
 
   // Comparison Mode State
-  const [comparisonMode, setComparisonMode] = useState<string>("$");
+  const [comparisonMode, setComparisonMode] = useState<string>("R:R");
   const handleComparisonModeChange = (event: SelectChangeEvent<string>) => {
     setComparisonMode(event.target.value);
   };

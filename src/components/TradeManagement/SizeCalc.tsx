@@ -38,7 +38,7 @@ const SizeCalculator: React.FC<SizeCalculatorProps> = ({
   useEffect(() => {
     if (lastTrade) {
       const realPL = lastTrade.realPL ?? 0;
-      setInitEquity((lastTrade.equity + realPL).toString());
+      setInitEquity((lastTrade.equity + realPL).toFixed(2).toString());
     }
   }, [lastTrade]);
 
@@ -46,7 +46,7 @@ const SizeCalculator: React.FC<SizeCalculatorProps> = ({
     useFormik({
       initialValues: {
         equity: initEquity || "",
-        riskPercent: "0.4",
+        riskPercent: "1.9",
         entry: "",
         stopLoss: "",
         ticker: "",

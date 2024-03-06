@@ -17,7 +17,6 @@ const AccountSelection: React.FC<{ onSelectAccount: (id: number) => void }> = ({
           const response = await http.get("/api/users/get-accounts");
           // Filter accounts where visible is true (assuming visible is returned as a boolean or 1/0)
           const visibleAccounts = response.data.filter((account: Account) => account.visible === 1 || account.visible === true);
-          console.log(visibleAccounts);
           setAccounts(visibleAccounts);
           // Only set the selected account if it hasn't been set already and there are visible accounts
           if (visibleAccounts.length > 0) {
