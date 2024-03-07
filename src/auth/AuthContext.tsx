@@ -89,11 +89,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         if (auth.isAuthenticated) {
           const response = await http.get("/api/users/get-accounts");
-          const accounts = response.data;
           const visibleAccounts = response.data.filter((account: Account) => account.visible === 1 || account.visible === true);
           console.log(visibleAccounts);
           if (visibleAccounts.length > 0 && selectedAccount === null) {
-            setSelectedAccount(accounts[0].accountID);
+            setSelectedAccount(visibleAccounts[0].accountID);
           }
         }
       } catch (error: any) {
