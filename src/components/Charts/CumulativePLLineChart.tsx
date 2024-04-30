@@ -1,7 +1,7 @@
 // CumulativePLLineChart.tsx
 // External Libraries
 import * as d3 from "d3";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 // Internal Utilities / Assets / Themes
 import { formatCurrency } from "../../utils/formatters";
 import { useAppColorScheme } from "../../hooks/useAppColorScheme";
@@ -24,8 +24,30 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
 }) => {
   // Styling
   const colorScheme = useAppColorScheme();
-
   const sanitizedMode = mode.replace(":", "").replace("$", "dollar");
+
+  // Initialize state for SVG dimensions
+  const [svgDimensions, setSvgDimensions] = useState({
+    width: window.innerWidth * 0.9,
+    height: 400  // Keeping height fixed, but you can make it dynamic as needed
+  });
+
+  useEffect(() => {
+    // Function to handle resizing
+    const handleResize = () => {
+      setSvgDimensions({
+        width: window.innerWidth * 0.9,
+        height: 500  // Adjust as necessary
+      });
+    };
+
+    // Add event listener
+    window.addEventListener("resize", handleResize);
+
+    // Remove event listener on cleanup
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);  // Empty dependency array ensures this runs once on mount and unmount
+
   useEffect(() => {
     // Sort trades by ID
     const sortedTrades = [...trades].sort((a, b) => a.id - b.id);
@@ -46,8 +68,7 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
       .remove();
 
     // Initialize SVG
-    const width = 850,
-      height = 500;
+    const { width, height } = svgDimensions;
     const svg = d3
       .select(`#cumulativePL${sanitizedMode}`)
       .append("svg")
@@ -68,7 +89,7 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
     const y = d3
       .scaleLinear()
       .domain([(minValue ?? 0) - buffer, (maxValue ?? 0) + buffer])
-      .range([height - 50, 50]);
+      .range([height - 50, 0]);
 
     // Create axis
     const xAxis = d3.axisBottom(x).ticks(10);
@@ -127,26 +148,41 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
       .attr("r", 5)
       .attr("fill", "steelblue")
       .on("mouseover", function (event, d) {
-        d3.select(this).attr("r", 8).attr("fill", "orange");
+        const circleRadius = 8;
+        d3.select(this).attr("r", circleRadius).attr("fill", "orange");
+      
+        // Calculate the position for the tooltip
+        const tooltipX = x(d.id);
+        const tooltipY = y(d.value) - 10;
+        const tooltipWidth = 100; // Approximate width of the tooltip
+        const tooltipHeight = 20; // Approximate height of the tooltip
+      
+        // Adjust tooltip position to prevent overflow
+        const adjustedX = tooltipX + tooltipWidth > width
+          ? tooltipX - tooltipWidth - 10 // Shift left if overflowing right
+          : tooltipX;
+      
+        const adjustedY = tooltipY - tooltipHeight < 0
+          ? tooltipY + tooltipHeight + 20 // Shift down if overflowing top
+          : tooltipY;
+      
         svg
           .append("text")
           .attr("id", "tooltip")
-          .attr("x", x(d.id))
-          .attr("y", y(d.value) - 10)
+          .attr("x", adjustedX)
+          .attr("y", adjustedY)
           .attr("text-anchor", "middle")
           .attr("font-size", "12px")
           .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
-          .text(
-            `Trade #: ${d.id}, Value: ${
-              mode === "$" ? formatCurrency(Number(d.value)) : d.value
-            }`,
-          );
-      })
+          .text(`Trade #: ${d.id}, Value: ${
+            mode === "$" ? formatCurrency(Number(d.value)) : d.value
+          }`);
+      })      
       .on("mouseout", function () {
         d3.select(this).attr("r", 5).attr("fill", "steelblue");
         d3.select("#tooltip").remove();
-      });
-  }, [trades, mode, sanitizedMode, colorScheme]);
+      });      
+  }, [trades, mode, sanitizedMode, colorScheme, svgDimensions]);
 
   return <div id={`cumulativePL${sanitizedMode}`}></div>;
 };

@@ -1,4 +1,5 @@
 // statisticCalculations.ts
+import { nelderMead } from 'fmin';
 import { Trade } from "../models/TradeTypes";
 
 // Helper for validating that no number are NaN or undefined
@@ -635,29 +636,43 @@ export const calculateDrawdownDuration = (closedTrades: Trade[]) => {
  * Skewness Formula: [Σ(xᵢ - μ)³ / N] / σ³
  * Kurtosis Formula: [Σ(xᵢ - μ)⁴ / N] / σ⁴
  */
-export const calculateSkewnessAndKurtosis = (closedTrades: Trade[]) => {
-  const averagePL = average(closedTrades.map((trade) => trade.realPL ?? 0));
-  const stdDev = standardDeviation(
-    closedTrades.map((trade) => trade.realPL ?? 0),
-  );
+// Helper function to check if the input is an array of Trade
+function isTradeArray(data: any[]): data is Trade[] {
+  return data.every(item => item.hasOwnProperty('realRR'));
+}
+
+// Calculate Skewness and Kurtosis accepting both number[] and Trade[]
+export const calculateSkewnessAndKurtosis = (data: number[] | Trade[]) => {
+  let values: number[];
+
+  if (isTradeArray(data)) {
+      // Extract realRR values, filtering out undefined for safety
+      values = data.map(trade => trade.realRR ?? 0);
+  } else {
+      // Assume it's number[] if not Trade[]
+      values = data;
+  }
+
+  const n = values.length;
+  const mean = values.reduce((acc, val) => acc + val, 0) / n;
+  const deviations = values.map(value => value - mean);
+  const stdDev = Math.sqrt(deviations.reduce((acc, val) => acc + val * val, 0) / n);
 
   let skewness = 0;
   let kurtosis = 0;
 
-  for (const trade of closedTrades) {
-    const x = (trade.realPL ?? 0) - averagePL;
-    skewness += Math.pow(x, 3);
-    kurtosis += Math.pow(x, 4);
+  for (const deviation of deviations) {
+      skewness += Math.pow(deviation, 3);
+      kurtosis += Math.pow(deviation, 4);
   }
 
-  skewness = truncateToTwoDecimals(
-    skewness / closedTrades.length / Math.pow(stdDev, 3),
-  );
-  kurtosis = truncateToTwoDecimals(
-    kurtosis / closedTrades.length / Math.pow(stdDev, 4),
-  );
+  skewness = skewness / n / Math.pow(stdDev, 3);
+  kurtosis = kurtosis / n / Math.pow(stdDev, 4) - 3; // Excess kurtosis
 
-  return { skewness, kurtosis };
+  return {
+      skewness: truncateToTwoDecimals(skewness),
+      kurtosis: truncateToTwoDecimals(kurtosis)
+  };
 };
 
 /**
@@ -737,3 +752,150 @@ export const calculateCommissionMetrics = (closedTrades: Trade[]) => {
     avgAdditionalRiskPercent: truncateToTwoDecimals(avgAdditionalRiskPercent),
   };
 };
+
+/**
+ * Selects an optimal threshold for calculating GPD based on skewness and kurtosis.
+ * Iterates over specified percentiles to determine the best threshold that minimizes skewness
+ * while retaining a sufficient number of exceedances.
+ * Returns the best result including the threshold, skewness, kurtosis, count of exceedances, and the exceedances themselves.
+ */
+interface DynamicThresholdResult {
+  threshold: number;
+  skewness: number;
+  kurtosis: number;
+  count: number;
+  excesses: number[];  // Include this to ensure excesses are returned for further processing
+}
+
+function dynamicThresholdSelection(trades: Trade[], percentileStart: number, percentileEnd: number, percentileStep: number): DynamicThresholdResult | null {
+  const realRRs = trades.map(trade => trade.realRR ?? 0).filter(rr => rr !== 0);
+  realRRs.sort((a, b) => a - b);
+  
+  const results: DynamicThresholdResult[] = [];
+  for (let p = percentileStart; p <= percentileEnd; p += percentileStep) {
+      const thresholdIndex = Math.floor((p / 100) * realRRs.length);
+      const threshold = realRRs[thresholdIndex];
+      const excesses = realRRs.filter(rr => rr > threshold);
+
+      const { skewness, kurtosis } = calculateSkewnessAndKurtosis(excesses);
+      results.push({ threshold, skewness, kurtosis, count: excesses.length, excesses });
+  }
+
+  const bestResult = results.filter(r => r.count > 5);
+  if (bestResult.length === 0) {
+      throw new Error('No valid threshold found with enough data.');
+  }
+
+  const selectedResult = bestResult.reduce((prev, curr) => (prev.skewness < curr.skewness ? prev : curr));
+  return selectedResult;
+}
+
+/**
+ * Fits a Generalized Pareto Distribution (GPD) to excesses over a threshold.
+ * Uses Maximum Likelihood Estimation (MLE) to find the scale (sigma) and shape (xi) parameters.
+ * Likelihood Function: L(ξ, σ) = -n * log(σ) - (1 + 1/ξ) * Σ(log(1 + ξ(x - u)/σ))
+ * where x are the excesses, and u is the threshold.
+ */
+interface GPDParameters {
+  xi: number;
+  sigma: number;
+}
+
+interface Bounds {
+  [key: string]: [number, number]; // General form, or more specifically:
+  xi: [number, number];
+  sigma: [number, number];
+}
+
+
+function constrainedOptimization(likelihood: Function, initialParams: number[], bounds: Bounds) {
+  function boundedLikelihood(params: number[]) {
+      const xi = params[0];
+      const sigma = params[1];
+
+      // Check constraints: return a large number if out of bounds
+      if (sigma <= bounds.sigma[0] || sigma >= bounds.sigma[1] || xi <= bounds.xi[0] || xi >= bounds.xi[1]) {
+          return Number.MAX_VALUE;
+      }
+      return likelihood(params);
+  }
+
+  // Run the optimization with Nelder-Mead, using the bounded likelihood function
+  const result = nelderMead(boundedLikelihood, initialParams);
+  return {
+      x: result.x,  // Parameters: xi, sigma
+      fval: result.fx  // Minimum found
+  };
+}
+
+function fitGPD(excesses: number[]): GPDParameters {
+  const likelihood = (params: number[]) => {
+      const xi = params[0];
+      const sigma = params[1];
+      if (sigma <= 0 || xi <= 0) return Infinity;  // Avoid non-positive values for stability
+      return -excesses.length * Math.log(sigma) - (1 + 1 / xi) * excesses.reduce((acc, x) => acc + Math.log(1 + xi * (x / sigma)), 0);
+  };
+
+  const initialParams = [0.1, standardDeviation(excesses)];
+  const bounds = {xi: [0.001, 5], sigma: [0.1, 50]};  // Example bounds
+
+  const result = constrainedOptimization(likelihood, initialParams, bounds);
+  return { xi: result.x[0], sigma: result.x[1] };
+}
+
+/**
+ * Generates data points for the Probability Density Function (PDF) of a fitted GPD.
+ * Formula: f(x; ξ, σ) = (1/σ) * (1 + ξ(x/σ))^(-1/ξ - 1)
+ * Computes the PDF across a specified range from min to max with a defined number of points.
+ */
+function generateGPDData(xi: number, sigma: number, min: number, max: number, numPoints: number = 1000): Array<{ xValue: number; yValue: number }> {
+  const step = (max - min) / numPoints;
+  const data = [];
+
+  for (let i = 0; i <= numPoints; i++) {
+    const x = min + i * step;
+    const base = 1 + xi * (x / sigma);
+    if (xi !== 0 && base <= 0) {
+        continue; // Skip invalid computation
+      }
+    let pdfValue = (1 / sigma) * Math.pow(base, -1 / xi - 1);
+    data.push({ xValue: x, yValue: pdfValue });
+  }
+
+  return data;
+}
+
+/**
+ * Integrates the process of threshold selection, GPD fitting, and PDF data generation.
+ * Begins by dynamically selecting a threshold for `realRR` values from trades,
+ * then fits a GPD to the exceedances over this threshold, and finally generates
+ * the PDF data points for visualization purposes.
+ */
+export const analyzeAndGenerateGPD = (
+  trades: Trade[],
+  percentileStart: number = 80,
+  percentileEnd: number = 100,
+  percentileStep: number = 0.5,
+  numPoints: number = 1000
+): Array<{ xValue: number; yValue: number }> => {
+  // Step 1: Dynamic Threshold Selection
+  const selectedResult = dynamicThresholdSelection(trades, percentileStart, percentileEnd, percentileStep);
+  if (!selectedResult) {
+      throw new Error('No valid threshold found with enough data.');
+  }
+
+  // Display selected threshold results
+  console.log(`Selected Threshold: ${selectedResult.threshold}`);
+  console.log(`Skewness at Threshold: ${selectedResult.skewness}`);
+  console.log(`Kurtosis at Threshold: ${selectedResult.kurtosis}`);
+
+  // Step 2: Fit GPD to the excesses over the selected threshold
+  const { xi, sigma } = fitGPD(selectedResult.excesses);
+
+  // Step 3: Generate GPD data for visualization
+  const min = 0;  // Start from 0 or adjust based on your specific needs
+  const max = selectedResult.excesses.length > 0 ? Math.max(...selectedResult.excesses) : 0;  // Max of excesses or a suitable upper limit
+  const gpdData = generateGPDData(xi, sigma, min, max, numPoints);
+
+  return gpdData;
+}

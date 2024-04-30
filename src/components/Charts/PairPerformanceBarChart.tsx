@@ -1,7 +1,7 @@
 // PairPerformanceBarChart.tsx
 // External Libraries
 import * as d3 from "d3";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 // Internal Utilities / Assets / Themes
 import { formatCurrency } from "../../utils/formatters";
 import { useAppColorScheme } from "../../hooks/useAppColorScheme";
@@ -25,6 +25,29 @@ const PairPerformanceChart: React.FC<PairPerformanceProps> = ({
   // Styling
   const colorScheme = useAppColorScheme();
   const sanitizedMode = mode.replace(":", "").replace("$", "S"); // Replacing $ with S for clarity
+
+  // Initialize state for SVG dimensions
+  const [svgDimensions, setSvgDimensions] = useState({
+    width: window.innerWidth * 0.9,
+    height: 500  // Keeping height fixed, but you can make it dynamic as needed
+  });
+
+  useEffect(() => {
+    // Function to handle resizing
+    const handleResize = () => {
+      setSvgDimensions({
+        width: window.innerWidth * 0.9,
+        height: 400  // Adjust as necessary
+      });
+    };
+
+    // Add event listener
+    window.addEventListener("resize", handleResize);
+
+    // Remove event listener on cleanup
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);  // Empty dependency array ensures this runs once on mount and unmount
+
   useEffect(() => {
     // Data Aggregation
     const pairData: { [key: string]: number } = {};
@@ -46,9 +69,10 @@ const PairPerformanceChart: React.FC<PairPerformanceProps> = ({
     d3.select(`#${id} svg`).remove();
 
     // Initialize SVG and Dimensions
-    const margin = { top: 50, right: 30, bottom: 50, left: 60 },
-      width = 850 - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
+    const margin = { top: 0, right: 30, bottom: 50, left: 60 };
+    let { width, height } = svgDimensions;
+    width = width - margin.left - margin.right;
+    height = height - margin.top - margin.bottom;
 
     const svg = d3
       .select(`#${id}`)
@@ -136,7 +160,7 @@ const PairPerformanceChart: React.FC<PairPerformanceProps> = ({
         // Remove the y-axis value
         svg.select("#hoverText").remove();
       });
-  }, [trades, mode, sanitizedMode, colorScheme]);
+  }, [trades, mode, sanitizedMode, colorScheme, svgDimensions]);
 
   return <div id={`pairPerformance${sanitizedMode}`}></div>;
 };

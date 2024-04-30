@@ -5,6 +5,7 @@ import { Trade } from "../../models/TradeTypes";
 // Import Charts
 import CumulativePLChart from "./CumulativePLLineChart";
 import PairPerformanceChart from "./PairPerformanceBarChart";
+import ProbabilityCurveChart from "./ProbabilityCurveChart";
 // Import Custom Selection
 import ModeSelection from "../ModeSelection";
 
@@ -27,30 +28,31 @@ const Charts: React.FC<ChartsProps> = ({ closedTrades }) => {
 
   return (
     <div>
-      <Grid container>
-        <Grid item xs={6}>
-          <h3>
-            Net Cumulative P/L (
-            <ModeSelection
-              comparisonMode={cumulativeMode}
-              handleComparisonModeChange={handleCumulativeModeChange}
-            />
-            )
-          </h3>
-          <CumulativePLChart trades={closedTrades} mode={cumulativeMode} />
-        </Grid>
-        <Grid item xs={6}>
-          <h3>
-            Pair Performance (
-            <ModeSelection
-              comparisonMode={performanceMode}
-              handleComparisonModeChange={handlePerformanceModeChange}
-            />
-            )
-          </h3>
-          <PairPerformanceChart trades={closedTrades} mode={performanceMode} />
-        </Grid>
-      </Grid>
+      {/* Cumulative P/L Chart */}
+      <h3>
+        Net Cumulative P/L (
+        <ModeSelection
+          comparisonMode={cumulativeMode}
+          handleComparisonModeChange={handleCumulativeModeChange}
+        />
+        )
+      </h3>
+      <CumulativePLChart trades={closedTrades} mode={cumulativeMode} />
+      {/* Pair Performance Chart */}
+      <h3>
+        Pair Performance (
+        <ModeSelection
+          comparisonMode={performanceMode}
+          handleComparisonModeChange={handlePerformanceModeChange}
+        />
+        )
+      </h3>
+      <PairPerformanceChart trades={closedTrades} mode={performanceMode} />
+      {/* Probability Curve */}
+      {/* <h3>
+        Return Probability Profile
+      </h3>
+      <ProbabilityCurveChart trades={closedTrades}/> */}
     </div>
   );
 };

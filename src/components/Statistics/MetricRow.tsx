@@ -100,8 +100,8 @@ const MetricRow: React.FC<MetricRowProps> = ({ groupingTitle, statLines }) => {
     border: `1px solid ${hover ? "#999" : "#ccc"}`, // Change border color on hover
     borderRadius: "4px",
     marginBottom: "8px",
-    transform: hover ? "scale(1.01)" : "scale(1)", // Slight scale up effect on hover
-    boxShadow: hover ? "0 4px 12px rgba(0,0,0,0.2)" : "none", // Deeper shadow on hover for more "pop"
+    // transform: hover ? "scale(1.01)" : "scale(1)", // Slight scale up effect on hover
+    boxShadow: hover ? "0 4px 12px rgba(0,0,0,0.4)" : "none", // Deeper shadow on hover for more "pop"
     backgroundColor: hover ? "#f5f5f5" : "#fff", // Subtle background color change on hover
   };
 
