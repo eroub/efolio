@@ -53,6 +53,8 @@ const TradeJournal: React.FC<TradeJournalProps> = ({
       setError(null);
       try {
         const response = await http.get("/api/trades");
+        const future_specs = await http.get("/api/futures-contract-specs");
+        console.log(future_specs);
         // Convert date fields to the desired time zone
         const timeZone = process.env.REACT_APP_TIMEZONE || "UTC";
         const convertedTrades = response.data.map((trade: Trade) => {

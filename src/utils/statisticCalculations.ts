@@ -70,14 +70,12 @@ export const calculateTotalGainLoss = (trades: Trade[]) => {
  * Formula: (Total Gain or Loss) / (Total Number of Trades)
  */
 export const calculateAverageProfitability = (trades: Trade[]) => {
-  const realPL = trades.map((trade) => trade.realPL ?? 0);
-  const realRR = trades.map((trade) => trade.realRR ?? 0);
-  return {
-    averageProfitabilityDollar: truncateToTwoDecimals(
-      sum(realPL) / trades.length,
-    ),
-    averageProfitabilityRR: truncateToTwoDecimals(sum(realRR) / trades.length),
-  };
+  const totalProfitabilityDollar = trades.reduce((acc, trade) => acc + (trade.realPL ?? 0), 0);
+  const totalProfitabilityRR = trades.reduce((acc, trade) => acc + (trade.realRR ?? 0), 0);
+  const averageProfitabilityDollar = truncateToTwoDecimals(totalProfitabilityDollar / trades.length);
+  const averageProfitabilityRR = truncateToTwoDecimals(totalProfitabilityRR / trades.length);
+
+  return { averageProfitabilityDollar, averageProfitabilityRR };
 };
 
 /**
@@ -85,12 +83,22 @@ export const calculateAverageProfitability = (trades: Trade[]) => {
  * Formula: sqrt((Summation(X - Mean)^2) / N)
  */
 export const calculatePLStandardDeviation = (trades: Trade[]) => {
-  const realPL = trades.map((trade) => trade.realPL ?? 0);
-  const realRR = trades.map((trade) => trade.realRR ?? 0);
-  return {
-    standardDeviationDollar: truncateToTwoDecimals(standardDeviation(realPL)),
-    standardDeviationRR: truncateToTwoDecimals(standardDeviation(realRR)),
-  };
+  const { averageProfitabilityDollar, averageProfitabilityRR } = calculateAverageProfitability(trades);
+
+  const varianceDollar = trades.reduce((acc, trade) => {
+    const diff = (trade.realPL ?? 0) - averageProfitabilityDollar;
+    return acc + diff * diff;
+  }, 0) / trades.length;
+
+  const varianceRR = trades.reduce((acc, trade) => {
+    const diff = (trade.realRR ?? 0) - averageProfitabilityRR;
+    return acc + diff * diff;
+  }, 0) / trades.length;
+
+  const standardDeviationDollar = truncateToTwoDecimals(Math.sqrt(varianceDollar));
+  const standardDeviationRR = truncateToTwoDecimals(Math.sqrt(varianceRR));
+
+  return { standardDeviationDollar, standardDeviationRR };
 };
 
 /**
@@ -112,19 +120,19 @@ export const calculateWinsLosses = (trades: Trade[]) => {
  * Formula: (Total Gains) / (Total Losses)
  */
 export const calculateProfitFactor = (trades: Trade[]): number => {
-  const totalGains = trades.reduce(
-    (acc, trade) => acc + (trade.realPL ?? 0),
-    0,
-  );
-  const totalLosses = trades.reduce(
-    (acc, trade) =>
-      acc + ((trade.realPL ?? 0) < 0 ? Math.abs(trade.realPL ?? 0) : 0),
-    0,
-  );
-
-  return truncateToTwoDecimals(totalGains / totalLosses);
-};
-
+    const totalGains = trades.reduce(
+      (acc, trade) => acc + ((trade.realRR ?? 0) > 0 ? (trade.realRR ?? 0) : 0),
+      0,
+    );
+    const totalLosses = trades.reduce(
+      (acc, trade) =>
+        acc + ((trade.realRR ?? 0) < 0 ? Math.abs(trade.realRR ?? 0) : 0),
+      0,
+    );
+  
+    return truncateToTwoDecimals(totalGains / totalLosses);
+  };
+  
 export const calculateAveragePayoffRatio = (trades: Trade[]): number => {
   const totalWin = trades
     .filter((trade) => trade.realPL !== null && trade.realPL > 0)
@@ -177,17 +185,13 @@ export const calculateAveragePercentRisked = (trades: Trade[]): number => {
  * Formula: (Average Profitability / Standard Deviation) * sqrt(Number of Trades)
  */
 export const calculateSystemQualityNumber = (closedTrades: Trade[]) => {
-  const { averageProfitabilityDollar, averageProfitabilityRR } =
-    calculateAverageProfitability(closedTrades);
-  const { standardDeviationDollar, standardDeviationRR } =
-    calculatePLStandardDeviation(closedTrades);
+  const { averageProfitabilityDollar, averageProfitabilityRR } = calculateAverageProfitability(closedTrades);
+  const { standardDeviationDollar, standardDeviationRR } = calculatePLStandardDeviation(closedTrades);
   const sqnDollar = truncateToTwoDecimals(
-    (averageProfitabilityDollar / standardDeviationDollar) *
-      Math.sqrt(closedTrades.length),
+    (averageProfitabilityDollar / standardDeviationDollar) * Math.sqrt(closedTrades.length),
   );
   const sqnRR = truncateToTwoDecimals(
-    (averageProfitabilityRR / standardDeviationRR) *
-      Math.sqrt(closedTrades.length),
+    (averageProfitabilityRR / standardDeviationRR) * Math.sqrt(closedTrades.length),
   );
   return { sqnDollar, sqnRR };
 };
@@ -688,13 +692,13 @@ export const calculateVaRandCVaR = (
     .map((trade) => trade.realPL ?? 0)
     .filter((pl) => pl < 0)
     .sort((a, b) => a - b);
-  let VaR = -losses[Math.floor(alpha * losses.length)];
+  let VaR = -truncateToTwoDecimals(losses[Math.floor(alpha * losses.length)]);
   let numLosses = Math.floor(alpha * losses.length);
   let CVaR: number;
   if (numLosses === 0 || isNaN(alpha)) {
     CVaR = Infinity; // or some other default value
   } else {
-    CVaR = -(
+    CVaR = -truncateToTwoDecimals(
       losses.slice(0, numLosses).reduce((acc, val) => acc + val, 0) / numLosses
     );
   }
