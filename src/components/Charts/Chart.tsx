@@ -10,6 +10,7 @@ import EquityCurve from "./EquityCurve";
 import MovingAverageTradePerformance from "./MovingAverageTradePerformance";
 import PairPerformanceChart from "./PairPerformanceBarChart";
 import ProbabilityCurveChart from "./ProbabilityCurveChart";
+import RealizedRRHistogram from "./RRHistogram";
 import RiskRewardScatterPlot from "./RiskRewardScatterPlot";
 import TradePerformanceHeatmap from "./TradePerformanceHeatmap";
 import DurationHistogram from "./DurationHistogram";
@@ -39,7 +40,7 @@ const Charts: React.FC<ChartsProps> = ({ closedTrades }) => {
 
   return (
     <div>
-      {/* Cumulative P/L Chart */}
+      {/* Net Cumulative P/L Chart */}
       <h3>
         Net Cumulative P/L (
         <ModeSelection
@@ -49,6 +50,11 @@ const Charts: React.FC<ChartsProps> = ({ closedTrades }) => {
         )
       </h3>
       <CumulativePLChart trades={closedTrades} mode={cumulativeMode} />
+
+      {/* Equity Curve */}
+      <h3>Equity Curve</h3>
+      <EquityCurve trades={closedTrades} />
+
       {/* Pair Performance Chart */}
       <h3>
         Pair Performance (
@@ -59,39 +65,46 @@ const Charts: React.FC<ChartsProps> = ({ closedTrades }) => {
         )
       </h3>
       <PairPerformanceChart trades={closedTrades} mode={performanceMode} />
+
+      {/* Moving Average Trade Performance */}
+      <h3>
+        Moving Average Trade Performance (
+        <ModeSelection
+          comparisonMode={movingAvgMode}
+          handleComparisonModeChange={handlemovingAvgModeChange}
+        />
+        )
+      </h3>
+      <MovingAverageTradePerformance trades={closedTrades} mode={movingAvgMode} />
+
+      {/* Risk : Reward Histogram */}
+      <h3>Risk : Reward Histogram</h3>
+      <RealizedRRHistogram trades={closedTrades} />
+
+      {/* Risk-Reward Scatter Plot */}
+      <h3>Risk-Reward Scatter Plot</h3>
+      <RiskRewardScatterPlot trades={closedTrades} />
+
+      {/* Duration Histogram */}
+      <h3>Trade Duration Histogram</h3>
+      <DurationHistogram trades={closedTrades} />
+
+      {/* Average Trade Performance By Day */}
+      <h3>Average Trade Performance By Day</h3>
+      <AverageTradePerformanceByDay trades={closedTrades} />
+
+      {/* Trade Performance Heatmap */}
+      <h3>Trade Performance Heatmap</h3>
+      <TradePerformanceHeatmap trades={closedTrades} />
+
+      {/* Correlation Matrix */}
+      <h3>Correlation Matrix</h3>
+      <CorrelationMatrix trades={closedTrades} />
       {/* Probability Curve */}
       {/* <h3>
         Return Probability Profile
       </h3>
       <ProbabilityCurveChart trades={closedTrades}/> */}
-      {/* Duration Historgram */}
-      <h3>Trade Duration Histogram</h3>
-      <DurationHistogram trades={closedTrades} />
-      {/* RiskReward Scatter Plot */}
-      <h3>Risk-Reward Scatter Plot</h3>
-      <RiskRewardScatterPlot trades={closedTrades} />
-      {/* Average Trade Performance By Day */}
-      <h3>Average Trade Performance By Day</h3>
-      <AverageTradePerformanceByDay trades={closedTrades} />
-      {/* Trade Performance Heatmap */}
-      <h3>Trade Performance Heatmap</h3>
-      <TradePerformanceHeatmap trades={closedTrades} />
-      {/* Correlation Matrix */}
-      <h3>Correlation Matrix</h3>
-      <CorrelationMatrix trades={closedTrades} />
-      {/* Equity Curve */}
-      <h3>Equity Curve</h3>
-      <EquityCurve trades={closedTrades} />
-      {/* Moving Average Trade Performance */}
-      <h3>
-        Moving Average Trade Performance (
-          <ModeSelection
-          comparisonMode={movingAvgMode}
-          handleComparisonModeChange={handlemovingAvgModeChange}
-        />
-        )
-        </h3>
-        <MovingAverageTradePerformance trades={closedTrades} mode={movingAvgMode} />
     </div>
   );
 };
