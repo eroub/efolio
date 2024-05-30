@@ -81,7 +81,7 @@ const Charts: React.FC<ChartsProps> = ({ closedTrades }) => {
       <RealizedRRHistogram trades={closedTrades} />
 
       {/* Risk-Reward Scatter Plot */}
-      <h3>Risk-Reward Scatter Plot</h3>
+      <h3>Risk : Reward Scatter Plot</h3>
       <RiskRewardScatterPlot trades={closedTrades} />
 
       {/* Duration Histogram */}

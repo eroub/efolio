@@ -73,7 +73,7 @@ const RiskRewardScatterPlot: React.FC<RiskRewardScatterPlotProps> = ({
       .range([height - 50, 0]);
 
     // Create axis
-    const xAxis = d3.axisBottom(x).ticks(10);
+    const xAxis = d3.axisBottom(x).ticks(10, d3.format(".1f"));
     const yAxis = d3.axisLeft(y).ticks(10);
 
     // Append X-axis
@@ -86,6 +86,7 @@ const RiskRewardScatterPlot: React.FC<RiskRewardScatterPlotProps> = ({
       .attr("y", 40)
       .attr("fill", "black")
       .attr("text-anchor", "middle")
+      .style("font-size", "14px")
       .text("Risk");
 
     // Append Y-axis
@@ -100,6 +101,7 @@ const RiskRewardScatterPlot: React.FC<RiskRewardScatterPlotProps> = ({
       .attr("y", -40)
       .attr("fill", "black")
       .attr("text-anchor", "middle")
+      .style("font-size", "14px")
       .text("Reward (R:R)");
 
     // Add grid lines
@@ -125,6 +127,8 @@ const RiskRewardScatterPlot: React.FC<RiskRewardScatterPlotProps> = ({
       .attr("cy", (d) => y(d.realRR))
       .attr("r", 5)
       .attr("fill", (d) => color(d.direction))
+      .attr("stroke", "black")
+      .attr("stroke-width", 0.5)
       .on("mouseover", function (event, d) {
         d3.select(this).attr("r", 8).attr("fill", "orange");
 
@@ -158,9 +162,35 @@ const RiskRewardScatterPlot: React.FC<RiskRewardScatterPlotProps> = ({
         d3.select("#tooltip").remove();
       });
 
+    // Add a legend
+    const legend = svg.append("g")
+      .attr("transform", `translate(${width - 150}, 50)`);
+
+    legend.append("circle")
+      .attr("cx", 10)
+      .attr("cy", 10)
+      .attr("r", 5)
+      .attr("fill", "green");
+    legend.append("text")
+      .attr("x", 20)
+      .attr("y", 15)
+      .text("Long Trades")
+      .style("font-size", "12px");
+
+    legend.append("circle")
+      .attr("cx", 10)
+      .attr("cy", 30)
+      .attr("r", 5)
+      .attr("fill", "red");
+    legend.append("text")
+      .attr("x", 20)
+      .attr("y", 35)
+      .text("Short Trades")
+      .style("font-size", "12px");
+
     // Calculate linear regression line
-    const xValues = validTrades.map(d => x(d.risk));
-    const yValues = validTrades.map(d => y(d.realRR));
+    const xValues = validTrades.map(d => d.risk);
+    const yValues = validTrades.map(d => d.realRR);
     const regression = linearRegression(xValues, yValues);
 
     // Append regression line

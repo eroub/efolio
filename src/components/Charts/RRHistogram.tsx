@@ -212,9 +212,45 @@ const RealizedRRHistogram: React.FC<RealizedRRHistogramProps> = ({ trades }) => 
       .attr("y2", y(d3.max(bins, d => d.length)!))
       .attr("stroke", "black")
       .attr("stroke-width", 2);
-  }, [trades, svgDimensions, colorScheme, avgMAERatio, avgMFERatio]);
+    
+    // Create the density curve
+    const kde = kernelDensityEstimator(kernelEpanechnikov(0.3), x.ticks(100));
+    const density = kde(rrValues);
+    
+    // Scale the density to fit the histogram
+    const densityScale = d3.scaleLinear()
+      .domain([0, d3.max(density, d => d[1])!])
+      .range([height - 50, 0]);
+
+    // Append the density curve
+    svg.append("path")
+      .datum(density)
+      .attr("fill", "none")
+      .attr("stroke", "blue")
+      .attr("stroke-width", 1.5)
+      .attr("stroke-linejoin", "round")
+      .attr("d", d3.line()
+        .curve(d3.curveBasis)
+        .x((d: any) => x(d[0]))
+        .y((d: any) => densityScale(d[1]))
+      );
   
+  }, [trades, svgDimensions, colorScheme, avgMAERatio, avgMFERatio]);
+
   return <div id={`realizedRRHistogram`}></div>;
 };
+
+// Kernel Density Estimator function
+function kernelDensityEstimator(kernel, X) {
+  return function (V) {
+    return X.map(x => [x, d3.mean(V, v => kernel(x - v))]);
+  };
+}
+
+function kernelEpanechnikov(k) {
+  return function (v) {
+    return Math.abs(v / k) <= 1 ? 0.75 * (1 - (v / k) ** 2) / k : 0;
+  };
+}
 
 export default RealizedRRHistogram;

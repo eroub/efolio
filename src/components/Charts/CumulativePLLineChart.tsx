@@ -1,5 +1,3 @@
-// CumulativePLLineChart.tsx
-// External Libraries
 import * as d3 from "d3";
 import React, { useEffect, useState } from "react";
 // Internal Utilities / Assets / Themes
@@ -181,10 +179,63 @@ const CumulativePLChart: React.FC<CumulativePLChartProps> = ({
       .on("mouseout", function () {
         d3.select(this).attr("r", 5).attr("fill", "steelblue");
         d3.select("#tooltip").remove();
-      });      
+      });
+
+    // Calculate linear regression
+    const xValues = data.map(d => d.id);
+    const yValues = data.map(d => d.value);
+    const regression = linearRegression(xValues, yValues);
+
+    // Determine the color based on the slope
+    const trendLineColor = regression.slope > 0 ? "green" : "red";
+
+    // Append regression line
+    const trendLine = svg.append("line")
+      .attr("x1", x(d3.min(xValues)!))
+      .attr("y1", y(regression.predict(d3.min(xValues)!)))
+      .attr("x2", x(d3.max(xValues)!))
+      .attr("y2", y(regression.predict(d3.max(xValues)!)))
+      .attr("stroke", trendLineColor)
+      .attr("stroke-width", 2)
+      .attr("stroke-dasharray", "4")
+      .on("mouseover", function (event) {
+        const tooltipX = (x(d3.min(xValues)!) + x(d3.max(xValues)!)) / 2;
+        const tooltipY = (y(regression.predict(d3.min(xValues)!)) + y(regression.predict(d3.max(xValues)!))) / 2 - 10;
+      
+        svg.append("text")
+          .attr("id", "trendline-tooltip")
+          .attr("x", tooltipX)
+          .attr("y", tooltipY)
+          .attr("text-anchor", "middle")
+          .attr("font-size", "12px")
+          .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
+          .text(`Slope: ${regression.slope.toFixed(2)}`);
+      })
+      .on("mouseout", function () {
+        d3.select("#trendline-tooltip").remove();
+      });
+
   }, [trades, mode, sanitizedMode, colorScheme, svgDimensions]);
 
   return <div id={`cumulativePL${sanitizedMode}`}></div>;
 };
+
+// Helper function for linear regression
+function linearRegression(x, y) {
+  const n = x.length;
+  const sumX = d3.sum(x);
+  const sumY = d3.sum(y);
+  const sumXY = d3.sum(x.map((d, i) => d * y[i]));
+  const sumXX = d3.sum(x.map(d => d * d));
+
+  const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+  const intercept = (sumY - slope * sumX) / n;
+
+  return {
+    slope,
+    intercept,
+    predict: x => slope * x + intercept
+  };
+}
 
 export default CumulativePLChart;
