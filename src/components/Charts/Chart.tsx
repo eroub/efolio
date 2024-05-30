@@ -3,7 +3,6 @@ import { Grid, SelectChangeEvent } from "@mui/material";
 // Trade Interface
 import { Trade } from "../../models/TradeTypes";
 // Import Charts
-import AverageTradePerformanceByDay from "./AverageTradePerformanceByDay";
 import CorrelationMatrix from "./CorrelationMatrix";
 import CumulativePLChart from "./CumulativePLLineChart";
 import EquityCurve from "./EquityCurve";
@@ -88,10 +87,6 @@ const Charts: React.FC<ChartsProps> = ({ closedTrades }) => {
       {/* Duration Histogram */}
       <h3>Trade Duration Histogram</h3>
       <DurationHistogram trades={closedTrades} />
-
-      {/* Average Trade Performance By Day */}
-      <h3>Average Trade Performance By Day</h3>
-      <AverageTradePerformanceByDay trades={closedTrades} />
 
       {/* Trade Performance Heatmap */}
       <h3>Trade Performance Heatmap</h3>

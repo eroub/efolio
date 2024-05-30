@@ -20,7 +20,7 @@ const TradePerformanceHeatmap: React.FC<TradePerformanceHeatmapProps> = ({
   // Initialize state for SVG dimensions
   const [svgDimensions, setSvgDimensions] = useState({
     width: window.innerWidth * 0.9,
-    height: 400  // Keeping height fixed, but you can make it dynamic as needed
+    height: 500,  // Adjust height as necessary
   });
 
   useEffect(() => {
@@ -28,7 +28,7 @@ const TradePerformanceHeatmap: React.FC<TradePerformanceHeatmapProps> = ({
     const handleResize = () => {
       setSvgDimensions({
         width: window.innerWidth * 0.9,
-        height: 500  // Adjust as necessary
+        height: 500,  // Adjust as necessary
       });
     };
 
@@ -40,19 +40,25 @@ const TradePerformanceHeatmap: React.FC<TradePerformanceHeatmapProps> = ({
   }, []);  // Empty dependency array ensures this runs once on mount and unmount
 
   useEffect(() => {
-    // Initialize the data with all hours from 6am to 11pm
-    const hours = Array.from({ length: 18 }, (_, i) => i + 6);
-    const data = hours.map(hour => {
-      const tradesAtHour = trades.filter(trade => new Date(trade.datetimeIn).getHours() === hour);
-      const totalPL = d3.sum(tradesAtHour, (d) => d.realPL ?? 0);
-      const totalRR = d3.sum(tradesAtHour, (d) => d.realRR ?? 0);
-      const avgPL = tradesAtHour.length ? totalPL / tradesAtHour.length : 0;
-      const avgRR = tradesAtHour.length ? totalRR / tradesAtHour.length : 0;
-      return { hour, avgPL, avgRR };
-    });
+    // Initialize the data with all days and hours
+    const days = Array.from({ length: 5 }, (_, i) => i + 1); // Monday to Friday
+    const hours = Array.from({ length: 18 }, (_, i) => i + 6); // 6am to 11pm
+
+    const data = [];
+    for (const day of days) {
+      for (const hour of hours) {
+        const tradesAtTime = trades.filter(trade => {
+          const tradeDate = new Date(trade.datetimeIn);
+          return tradeDate.getDay() === day && tradeDate.getHours() === hour;
+        });
+        const totalRR = d3.sum(tradesAtTime, (d) => d.realRR ?? 0);
+        const avgRR = tradesAtTime.length ? totalRR / tradesAtTime.length : 0;
+        data.push({ day, hour, avgRR });
+      }
+    }
 
     // Remove existing SVG if present
-    const id = `tradePerformanceHeatmap`;
+    const id = `combinedTradePerformanceHeatmap`;
     d3.select("#" + id)
       .select("svg")
       .remove();
@@ -65,35 +71,26 @@ const TradePerformanceHeatmap: React.FC<TradePerformanceHeatmapProps> = ({
       .attr("width", width)
       .attr("height", height);
 
-    // Calculate the shared domain for the y-axes
-    const minPL = d3.min(data, d => d.avgPL) ?? 0;
-    const maxPL = d3.max(data, d => d.avgPL) ?? 0;
-    const minRR = d3.min(data, d => d.avgRR) ?? 0;
-    const maxRR = d3.max(data, d => d.avgRR) ?? 0;
-
-    const minY = Math.min(minPL, minRR);
-    const maxY = Math.max(maxPL, maxRR);
-
+    // Create scales
     const x = d3
       .scaleBand()
-      .domain(data.map(d => d.hour.toString()))
+      .domain(hours.map(String))
       .range([50, width - 50])
-      .padding(0.2);
+      .padding(0.05);
 
-    const yPL = d3
-      .scaleLinear()
-      .domain([minY, maxY])
-      .range([height - 50, 0]);
+    const y = d3
+      .scaleBand()
+      .domain(days.map(String))
+      .range([50, height - 50])
+      .padding(0.05);
 
-    const yRR = d3
-      .scaleLinear()
-      .domain([minY, maxY])
-      .range([height - 50, 0]);
+    const color = d3.scaleSequential()
+      .interpolator(d3.interpolateRdYlGn)
+      .domain([d3.min(data, d => d.avgRR) ?? 0, d3.max(data, d => d.avgRR) ?? 0]);
 
     // Create axes
     const xAxis = d3.axisBottom(x).tickFormat(d => `${d}:00`);
-    const yAxisPL = d3.axisLeft(yPL).ticks(10).tickFormat(d3.format(".2f"));
-    const yAxisRR = d3.axisRight(yRR).ticks(10).tickFormat(d3.format(".2f"));
+    const yAxis = d3.axisLeft(y).tickFormat(d => ["Mon", "Tue", "Wed", "Thu", "Fri"][+d - 1]);
 
     // Append X-axis
     svg
@@ -101,76 +98,29 @@ const TradePerformanceHeatmap: React.FC<TradePerformanceHeatmapProps> = ({
       .attr("transform", `translate(0, ${height - 50})`)
       .call(xAxis);
 
-    // Append Y-axis for P/L
+    // Append Y-axis
     svg
       .append("g")
-      .attr("class", "grid") // Add a class for easier selection
       .attr("transform", `translate(50, 0)`)
-      .call(yAxisPL);
+      .call(yAxis);
 
-    // Append Y-axis for R:R
-    svg
-      .append("g")
-      .attr("class", "grid") // Add a class for easier selection
-      .attr("transform", `translate(${width - 50}, 0)`)
-      .call(yAxisRR);
-
-    // Add grid lines for P/L
-    svg
-      .append("g")
-      .attr("class", "grid")
-      .attr("transform", `translate(50,0)`)
-      .call(yAxisPL.tickSize(-width + 100).tickFormat(() => ""))
-      .selectAll("line")
-      .attr("stroke-dasharray", "2,2");
-
-    // Append zero line for P/L
-    svg
-      .append("line")
-      .attr("x1", 50)
-      .attr("x2", width - 50)
-      .attr("y1", yPL(0))
-      .attr("y2", yPL(0))
-      .attr("stroke", "black")
-      .attr("stroke-width", 2);
-
-    // Append Y-axis label for P/L
-    svg.append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 20)
-      .attr("x", -height / 2)
-      .attr("dy", "-5.1em")
-      .style("text-anchor", "middle")
-      .text("Average P/L")
-      .attr("fill", "black");
-
-    // Append Y-axis label for R:R
-    svg.append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", -width + 60)
-      .attr("x", -height / 2)
-      .attr("dy", "5.1em")
-      .style("text-anchor", "middle")
-      .text("Average R:R")
-      .attr("fill", "black");
-
-    // Append bars for Average P/L
-    svg.selectAll(".barPL")
+    // Append cells for heatmap
+    svg.selectAll(".cell")
       .data(data)
       .enter()
       .append("rect")
-      .attr("class", "barPL")
+      .attr("class", "cell")
       .attr("x", (d) => x(d.hour.toString())!)
-      .attr("y", (d) => yPL(d.avgPL))
-      .attr("width", x.bandwidth() / 2)
-      .attr("height", (d) => height - 50 - yPL(d.avgPL))
-      .attr("fill", "steelblue")
+      .attr("y", (d) => y(d.day.toString())!)
+      .attr("width", x.bandwidth())
+      .attr("height", y.bandwidth())
+      .attr("fill", (d) => color(d.avgRR))
       .on("mouseover", function (event, d) {
-        d3.select(this).attr("fill", "orange");
+        d3.select(this).attr("stroke", "black").attr("stroke-width", 2);
 
         // Calculate the position for the tooltip
-        const tooltipX = x(d.hour.toString())! + x.bandwidth() / 4;
-        const tooltipY = yPL(d.avgPL) - 10;
+        const tooltipX = x(d.hour.toString())! + x.bandwidth() / 2;
+        const tooltipY = y(d.day.toString())! - 10;
         const tooltipWidth = 100; // Approximate width of the tooltip
         const tooltipHeight = 20; // Approximate height of the tooltip
 
@@ -191,60 +141,16 @@ const TradePerformanceHeatmap: React.FC<TradePerformanceHeatmapProps> = ({
           .attr("text-anchor", "middle")
           .attr("font-size", "12px")
           .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
-          .text(`Hour: ${d.hour}:00, Avg PL: ${d.avgPL.toFixed(2)}`);
+          .text(`Day: ${["Mon", "Tue", "Wed", "Thu", "Fri"][d.day - 1]}, HR: ${d.hour}:00, Avg RR: ${d.avgRR.toFixed(2)}`);
       })
       .on("mouseout", function () {
-        d3.select(this).attr("fill", "steelblue");
-        d3.select("#tooltip").remove();
-      });
-
-    // Append bars for Average Realized R:R
-    svg.selectAll(".barRR")
-      .data(data)
-      .enter()
-      .append("rect")
-      .attr("class", "barRR")
-      .attr("x", (d) => x(d.hour.toString())! + x.bandwidth() / 2)
-      .attr("y", (d) => yRR(d.avgRR))
-      .attr("width", x.bandwidth() / 2)
-      .attr("height", (d) => height - 50 - yRR(d.avgRR))
-      .attr("fill", "green")
-      .on("mouseover", function (event, d) {
-        d3.select(this).attr("fill", "orange");
-
-        // Calculate the position for the tooltip
-        const tooltipX = x(d.hour.toString())! + (3 * x.bandwidth()) / 4;
-        const tooltipY = yRR(d.avgRR) - 10;
-        const tooltipWidth = 100; // Approximate width of the tooltip
-        const tooltipHeight = 20; // Approximate height of the tooltip
-
-        // Adjust tooltip position to prevent overflow
-        const adjustedX = tooltipX + tooltipWidth > width
-          ? tooltipX - tooltipWidth - 10 // Shift left if overflowing right
-          : tooltipX;
-
-        const adjustedY = tooltipY - tooltipHeight < 0
-          ? tooltipY + tooltipHeight + 20 // Shift down if overflowing top
-          : tooltipY;
-
-        svg
-          .append("text")
-          .attr("id", "tooltip")
-          .attr("x", adjustedX)
-          .attr("y", adjustedY)
-          .attr("text-anchor", "middle")
-          .attr("font-size", "12px")
-          .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
-          .text(`Hour: ${d.hour}:00, Avg RR: ${d.avgRR.toFixed(2)}`);
-      })
-      .on("mouseout", function () {
-        d3.select(this).attr("fill", "green");
+        d3.select(this).attr("stroke", "none");
         d3.select("#tooltip").remove();
       });
 
   }, [trades, svgDimensions, colorScheme]);
 
-  return <div id="tradePerformanceHeatmap"></div>;
+  return <div id="combinedTradePerformanceHeatmap"></div>;
 };
 
 export default TradePerformanceHeatmap;

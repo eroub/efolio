@@ -40,8 +40,8 @@ const RiskRewardScatterPlot: React.FC<RiskRewardScatterPlotProps> = ({
   }, []);  // Empty dependency array ensures this runs once on mount and unmount
 
   useEffect(() => {
-    // Filter out trades with null risk or reward
-    const validTrades = trades.filter(trade => trade.risk !== null && trade.realPL !== null) as { risk: number, realPL: number, direction: "Long" | "Short" }[];
+    // Filter out trades with null risk or realRR
+    const validTrades = trades.filter(trade => trade.risk !== null && trade.realRR !== null) as { risk: number, realRR: number, direction: "Long" | "Short" }[];
 
     // Remove existing SVG if present
     const id = `riskRewardScatterPlot`;
@@ -69,7 +69,7 @@ const RiskRewardScatterPlot: React.FC<RiskRewardScatterPlotProps> = ({
 
     const y = d3
       .scaleLinear()
-      .domain([d3.min(validTrades, (d) => d.realPL)!, d3.max(validTrades, (d) => d.realPL)!])
+      .domain([d3.min(validTrades, (d) => d.realRR)!, d3.max(validTrades, (d) => d.realRR)!])
       .range([height - 50, 0]);
 
     // Create axis
@@ -109,7 +109,7 @@ const RiskRewardScatterPlot: React.FC<RiskRewardScatterPlotProps> = ({
       .enter()
       .append("circle")
       .attr("cx", (d) => x(d.risk))
-      .attr("cy", (d) => y(d.realPL))
+      .attr("cy", (d) => y(d.realRR))
       .attr("r", 5)
       .attr("fill", (d) => color(d.direction))
       .on("mouseover", function (event, d) {
@@ -117,7 +117,7 @@ const RiskRewardScatterPlot: React.FC<RiskRewardScatterPlotProps> = ({
 
         // Calculate the position for the tooltip
         const tooltipX = x(d.risk);
-        const tooltipY = y(d.realPL) - 10;
+        const tooltipY = y(d.realRR) - 10;
         const tooltipWidth = 100; // Approximate width of the tooltip
         const tooltipHeight = 20; // Approximate height of the tooltip
 
@@ -138,7 +138,7 @@ const RiskRewardScatterPlot: React.FC<RiskRewardScatterPlotProps> = ({
           .attr("text-anchor", "middle")
           .attr("font-size", "12px")
           .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
-          .text(`Risk: ${d.risk.toFixed(2)}, Reward: ${d.realPL.toFixed(2)}, ${d.direction}`);
+          .text(`Risk: ${d.risk.toFixed(2)}, Reward: ${d.realRR.toFixed(2)}`);
       })
       .on("mouseout", function () {
         d3.select(this).attr("r", 5).attr("fill", (d) => color(d.direction));
