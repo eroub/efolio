@@ -136,7 +136,7 @@ const RealizedRRHistogram: React.FC<RealizedRRHistogramProps> = ({ trades }) => 
           .attr("text-anchor", "middle")
           .attr("font-size", "12px")
           .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
-          .text(`R:R Range: ${d.x0!.toFixed(1)} - ${d.x1!.toFixed(1)}, Trades: ${d.length}`);
+          .text(`R:R Range: ${d.x0!.toFixed(1)} - ${d.x1!.toFixed(1)}, #: ${d.length}`);
       })
       .on("mouseout", function() {
         d3.select(this).attr("fill", "steelblue");
@@ -184,7 +184,7 @@ const RealizedRRHistogram: React.FC<RealizedRRHistogramProps> = ({ trades }) => 
       .style("fill", "red")
       .style("font-size", "12px")
       .style("font-family", "Arial, sans-serif")
-      .text(`Avg MAE Ratio: ${avgMAERatio.toFixed(2)}`);
+      .text(`Avg MAE: ${avgMAERatio.toFixed(2)}`);
   
     svg.append("line")
       .attr("x1", x(avgMFERatio))
@@ -202,7 +202,7 @@ const RealizedRRHistogram: React.FC<RealizedRRHistogramProps> = ({ trades }) => 
       .style("fill", "green")
       .style("font-size", "12px")
       .style("font-family", "Arial, sans-serif")
-      .text(`Avg MFE Ratio: ${avgMFERatio.toFixed(2)}`);
+      .text(`Avg MFE: ${avgMFERatio.toFixed(2)}`);
   
     // Add a black line at x = 0
     svg.append("line")

@@ -141,7 +141,7 @@ const TradePerformanceHeatmap: React.FC<TradePerformanceHeatmapProps> = ({
           .attr("text-anchor", "middle")
           .attr("font-size", "12px")
           .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
-          .text(`Day: ${["Mon", "Tue", "Wed", "Thu", "Fri"][d.day - 1]}, HR: ${d.hour}:00, Avg RR: ${d.avgRR.toFixed(2)}`);
+          .text(`Avg RR: ${d.avgRR.toFixed(2)}`);
       })
       .on("mouseout", function () {
         d3.select(this).attr("stroke", "none");

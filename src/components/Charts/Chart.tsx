@@ -67,7 +67,7 @@ const Charts: React.FC<ChartsProps> = ({ closedTrades }) => {
 
       {/* Moving Average Trade Performance */}
       <h3>
-        Moving Average Trade Performance (
+        Risk : Reward Moving Average (
         <ModeSelection
           comparisonMode={movingAvgMode}
           handleComparisonModeChange={handlemovingAvgModeChange}

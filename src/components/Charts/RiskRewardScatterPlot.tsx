@@ -40,8 +40,8 @@ const RiskRewardScatterPlot: React.FC<RiskRewardScatterPlotProps> = ({
   }, []);  // Empty dependency array ensures this runs once on mount and unmount
 
   useEffect(() => {
-    // Filter out trades with null risk or realRR
-    const validTrades = trades.filter(trade => trade.risk !== null && trade.realRR !== null) as { risk: number, realRR: number, direction: "Long" | "Short" }[];
+    // Filter out trades with null risk or reward
+    const validTrades = trades.filter(trade => trade.risk !== null && trade.realRR !== null) as { risk: number, realRR: number, direction: "Long" | "Short", volume: number }[];
 
     // Remove existing SVG if present
     const id = `riskRewardScatterPlot`;
@@ -80,14 +80,27 @@ const RiskRewardScatterPlot: React.FC<RiskRewardScatterPlotProps> = ({
     svg
       .append("g")
       .attr("transform", `translate(0, ${height - 50})`)
-      .call(xAxis);
+      .call(xAxis)
+      .append("text")
+      .attr("x", width / 2)
+      .attr("y", 40)
+      .attr("fill", "black")
+      .attr("text-anchor", "middle")
+      .text("Risk");
 
     // Append Y-axis
     svg
       .append("g")
       .attr("class", "grid") // Add a class for easier selection
       .attr("transform", `translate(50, 0)`)
-      .call(yAxis);
+      .call(yAxis)
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("x", -height / 2)
+      .attr("y", -40)
+      .attr("fill", "black")
+      .attr("text-anchor", "middle")
+      .text("Reward (R:R)");
 
     // Add grid lines
     svg
@@ -145,9 +158,41 @@ const RiskRewardScatterPlot: React.FC<RiskRewardScatterPlotProps> = ({
         d3.select("#tooltip").remove();
       });
 
+    // Calculate linear regression line
+    const xValues = validTrades.map(d => x(d.risk));
+    const yValues = validTrades.map(d => y(d.realRR));
+    const regression = linearRegression(xValues, yValues);
+
+    // Append regression line
+    svg.append("line")
+      .attr("x1", x(minRisk))
+      .attr("y1", y(regression.predict(minRisk)))
+      .attr("x2", x(maxRisk))
+      .attr("y2", y(regression.predict(maxRisk)))
+      .attr("stroke", "blue")
+      .attr("stroke-width", 2);
+
   }, [trades, svgDimensions, colorScheme]);
 
   return <div id="riskRewardScatterPlot"></div>;
 };
+
+// Helper function for linear regression
+function linearRegression(x, y) {
+  const n = x.length;
+  const sumX = d3.sum(x);
+  const sumY = d3.sum(y);
+  const sumXY = d3.sum(x.map((d, i) => d * y[i]));
+  const sumXX = d3.sum(x.map(d => d * d));
+
+  const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+  const intercept = (sumY - slope * sumX) / n;
+
+  return {
+    slope,
+    intercept,
+    predict: x => slope * x + intercept
+  };
+}
 
 export default RiskRewardScatterPlot;
