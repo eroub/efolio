@@ -163,7 +163,11 @@ const TradeJournal: React.FC<TradeJournalProps> = ({
           {/* Performance Charts */}
           <Charts closedTrades={closedTrades} />
           {/* Closed Trade Table */}
-          <ClosedTradeTable trades={closedTrades} />
+          {auth.isAuthenticated ? (
+            <ClosedTradeTable trades={closedTrades} />
+          ) : (
+            <div></div>
+          )}
         </>
       ) : (
         <div></div>
