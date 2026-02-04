@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { colorScheme } from "../assets/themes";
 import TradeStatistics from "../components/Statistics/Statistics";
+import { PolyFilters, PolyFilterState } from "../components/PolyFilters";
 import WinLossPieChart from "../components/Charts/WinLossPieChart";
 import ComparisonChart from "../components/Charts/ComparisonBarChart";
 import ModeSelection from "../components/ModeSelection";
@@ -83,6 +84,11 @@ export default function PolymarketOverview() {
   const [positions, setPositions] = useState<PolyPosition[]>([]);
   const [tradesOpen, setTradesOpen] = useState<boolean>(true);
   const [comparisonMode, setComparisonMode] = useState<"R" | "$">("$");
+  const [filters, setFilters] = useState<PolyFilterState>({
+    asset: "all",
+    direction: "all",
+    strategy: "all",
+  });
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -113,7 +119,47 @@ export default function PolymarketOverview() {
 
       {summary && (
         <>
-          <CardRow>
+          <PolyFilters
+            assets={[...new Set(summary.recentTrades.map((t: any) => t.asset))].sort()}
+            strategies={[...new Set(summary.recentTrades.map((t: any) => t.strategy))].sort()}
+            value={filters}
+            onChange={setFilters}
+          />
+          {/** Filtered datasets */}
+          {/** positions are authoritative for P/L + winrate; fills (recentTrades) are the fill-level table */}
+          {(() => {
+            const posTrades = positions
+              .filter((p) => p.result !== null)
+              .map((p, idx) => polyPositionToTrade(p, idx + 1));
+
+            const filteredPos = posTrades.filter((t) => {
+              if (filters.direction !== "all" && t.direction !== (filters.direction === "UP" ? "Long" : "Short")) {
+                return false;
+              }
+              if (filters.asset !== "all" && !String(t.ticker).toUpperCase().includes(filters.asset)) {
+                return false;
+              }
+              // strategy filter for positions: best-effort via substring match on ticker/market name
+              if (filters.strategy !== "all" && !String(t.comment ?? "").includes(filters.strategy)) {
+                // we don't have strategy on positions yet; ignore for now
+              }
+              return true;
+            });
+
+            const filteredFills = summary.recentTrades.filter((t: any) => {
+              if (filters.asset !== "all" && t.asset !== filters.asset) return false;
+              if (filters.direction !== "all" && t.direction !== filters.direction) return false;
+              if (filters.strategy !== "all" && t.strategy !== filters.strategy) return false;
+              return true;
+            });
+
+            const pnl = filteredPos.reduce((acc, t) => acc + (t.realPL ?? 0), 0);
+            const tileTrades = filteredFills.length;
+            const tilePositions = filteredPos.length;
+
+            return (
+              <>
+                <CardRow>
             <Card>
               <div style={{ opacity: 0.7 }}>Strategies</div>
               <div style={{ fontSize: 28, fontWeight: 700 }}>{summary.counts.strategies}</div>
@@ -124,15 +170,15 @@ export default function PolymarketOverview() {
             </Card>
             <Card>
               <div style={{ opacity: 0.7 }}>Trades (fills)</div>
-              <div style={{ fontSize: 28, fontWeight: 700 }}>{summary.counts.trades}</div>
+              <div style={{ fontSize: 28, fontWeight: 700 }}>{tileTrades}</div>
             </Card>
             <Card>
               <div style={{ opacity: 0.7 }}>Positions</div>
-              <div style={{ fontSize: 28, fontWeight: 700 }}>{summary.counts.positions ?? ""}</div>
+              <div style={{ fontSize: 28, fontWeight: 700 }}>{tilePositions}</div>
             </Card>
             <Card>
               <div style={{ opacity: 0.7 }}>P/L (positions)</div>
-              <div style={{ fontSize: 28, fontWeight: 700 }}>{summary.positions?.pnl_usd ?? ""}</div>
+              <div style={{ fontSize: 28, fontWeight: 700 }}>{Math.round(pnl * 100) / 100}</div>
             </Card>
           </CardRow>
 
@@ -145,18 +191,13 @@ export default function PolymarketOverview() {
             }}
           >
             <div style={{ minWidth: 0 }}>
-              <TradeStatistics
-                closedTrades={positions
-                  .filter((p) => p.result !== null)
-                  .map((p, idx) => polyPositionToTrade(p, idx + 1))}
-              />
+              <TradeStatistics closedTrades={filteredPos} />
             </div>
             <div style={{ minWidth: 320 }}>
               <h3>Win Loss %</h3>
               {/* @ts-ignore */}
-              <WinLossPieChart trades={positions
-                .filter((p) => p.result !== null)
-                .map((p, idx) => polyPositionToTrade(p, idx + 1))} />
+              {/* @ts-ignore */}
+              <WinLossPieChart trades={filteredPos} />
               <h3 style={{ marginTop: 16 }}>
                 Win/Loss Comparison (
                 <ModeSelection
@@ -166,9 +207,8 @@ export default function PolymarketOverview() {
                 )
               </h3>
               {/* @ts-ignore */}
-              <ComparisonChart trades={positions
-                .filter((p) => p.result !== null)
-                .map((p, idx) => polyPositionToTrade(p, idx + 1))} mode={comparisonMode} />
+              {/* @ts-ignore */}
+              <ComparisonChart trades={filteredPos} mode={comparisonMode} />
             </div>
           </div>
 
@@ -205,7 +245,7 @@ export default function PolymarketOverview() {
                 </tr>
               </thead>
               <tbody>
-                {summary.recentTrades.map((t, i) => (
+                {filteredFills.map((t: any, i: number) => (
                   <TR key={i}>
                     <TD>{t.ts_open}</TD>
                     <TD>{t.mode}</TD>
@@ -222,6 +262,9 @@ export default function PolymarketOverview() {
               </tbody>
             </Table>
           )}
+              </>
+            );
+          })()}
         </>
       )}
 
