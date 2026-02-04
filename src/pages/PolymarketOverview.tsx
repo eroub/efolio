@@ -105,8 +105,16 @@ export default function PolymarketOverview() {
               <div style={{ fontSize: 28, fontWeight: 700 }}>{summary.counts.runs}</div>
             </Card>
             <Card>
-              <div style={{ opacity: 0.7 }}>Trades</div>
+              <div style={{ opacity: 0.7 }}>Trades (fills)</div>
               <div style={{ fontSize: 28, fontWeight: 700 }}>{summary.counts.trades}</div>
+            </Card>
+            <Card>
+              <div style={{ opacity: 0.7 }}>Positions</div>
+              <div style={{ fontSize: 28, fontWeight: 700 }}>{summary.counts.positions ?? ""}</div>
+            </Card>
+            <Card>
+              <div style={{ opacity: 0.7 }}>P/L (positions)</div>
+              <div style={{ fontSize: 28, fontWeight: 700 }}>{summary.positions?.pnl_usd ?? ""}</div>
             </Card>
           </CardRow>
 
