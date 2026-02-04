@@ -232,7 +232,8 @@ export default function PolymarketOverview() {
               <tr>
                 <TH>last</TH>
                 <TH>mode</TH>
-                <TH>market</TH>
+                <TH>asset</TH>
+                <TH>strategy</TH>
                 <TH>token</TH>
                 <TH>avg_entry</TH>
                 <TH>result</TH>
@@ -245,7 +246,8 @@ export default function PolymarketOverview() {
                 <TR key={i}>
                   <TD>{p.last_ts ?? p.first_ts ?? ""}</TD>
                   <TD>{p.mode}</TD>
-                  <TD style={{ maxWidth: 360, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.market_name}</TD>
+                  <TD>{p.asset ?? ""}</TD>
+                  <TD>{p.strategy ?? ""}</TD>
                   <TD>{p.token_name}</TD>
                   <TD>{p.avg_entry_price ?? ""}</TD>
                   <TD>{p.result ?? ""}</TD>
