@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import http from "../services/http";
 import styled from "styled-components";
 import { colorScheme } from "../assets/themes";
 
@@ -73,7 +73,7 @@ export default function PolymarketOverview() {
     const run = async () => {
       try {
         const mode = window.location.pathname.includes("/polymarket/live") ? "live" : "paper";
-        const resp = await axios.get(`/api/poly/summary?mode=${mode}`);
+        const resp = await http.get(`/api/poly/summary?mode=${mode}`);
         setSummary(resp.data);
       } catch (e: any) {
         setError(e?.message || "Failed to load");
