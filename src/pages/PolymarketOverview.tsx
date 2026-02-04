@@ -123,6 +123,7 @@ export default function PolymarketOverview() {
                 <TH>exit</TH>
                 <TH>result</TH>
                 <TH>pnl</TH>
+                <TH>max_payout</TH>
               </tr>
             </thead>
             <tbody>
@@ -137,6 +138,7 @@ export default function PolymarketOverview() {
                   <TD>{t.exit_price ?? ""}</TD>
                   <TD>{t.result ?? ""}</TD>
                   <TD>{t.pnl_usd ?? ""}</TD>
+                  <TD>{t.implied_pnl_usd ?? ""}</TD>
                 </TR>
               ))}
             </tbody>
