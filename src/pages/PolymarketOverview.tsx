@@ -89,6 +89,13 @@ export default function PolymarketOverview() {
     direction: "all",
     strategy: "all",
   });
+
+  // For positions-based statistics we only support filters we can apply reliably today.
+  const statsFilters: PolyFilterState = {
+    asset: filters.asset,
+    direction: filters.direction,
+    strategy: "all",
+  };
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -125,6 +132,11 @@ export default function PolymarketOverview() {
             value={filters}
             onChange={setFilters}
           />
+          {filters.strategy !== "all" && (
+            <div style={{ marginTop: -10, marginBottom: 12, fontSize: 12, opacity: 0.7 }}>
+              Note: Strategy filter currently applies to the fills table only (historical positions don’t have strategy attribution yet).
+            </div>
+          )}
           {/** Filtered datasets */}
           {/** positions are authoritative for P/L + winrate; fills (recentTrades) are the fill-level table */}
           {(() => {
@@ -133,16 +145,14 @@ export default function PolymarketOverview() {
               .map((p, idx) => polyPositionToTrade(p, idx + 1));
 
             const filteredPos = posTrades.filter((t) => {
-              if (filters.direction !== "all" && t.direction !== (filters.direction === "UP" ? "Long" : "Short")) {
+              if (statsFilters.direction !== "all" && t.direction !== (statsFilters.direction === "UP" ? "Long" : "Short")) {
                 return false;
               }
-              if (filters.asset !== "all" && !String(t.ticker).toUpperCase().includes(filters.asset)) {
+              if (statsFilters.asset !== "all" && !String(t.ticker).toUpperCase().includes(statsFilters.asset)) {
                 return false;
               }
-              // strategy filter for positions: best-effort via substring match on ticker/market name
-              if (filters.strategy !== "all" && !String(t.comment ?? "").includes(filters.strategy)) {
-                // we don't have strategy on positions yet; ignore for now
-              }
+              // strategy filter for positions: we DO NOT have strategy attribution on positions yet,
+              // so we intentionally ignore it here. (Fills table will still filter by strategy.)
               return true;
             });
 
