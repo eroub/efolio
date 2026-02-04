@@ -17,12 +17,15 @@ export function polyPositionToTrade(p: PolyPosition, id: number): Trade {
 
   const direction = p.token_name.toLowerCase() === "up" ? "Long" : "Short";
 
+  const totalHrs =
+    p.first_ts && p.last_ts ? (p.last_ts - p.first_ts) / 3600 : null;
+
   return {
     id,
     accountID: 0,
     datetimeIn,
     datetimeOut,
-    totalHrs: null,
+    totalHrs,
     ticker: p.market_name,
     direction,
     equity: 0,

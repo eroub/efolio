@@ -4,6 +4,9 @@ import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { colorScheme } from "../assets/themes";
 import TradeStatistics from "../components/Statistics/Statistics";
+import WinLossPieChart from "../components/Charts/WinLossPieChart";
+import ComparisonChart from "../components/Charts/ComparisonBarChart";
+import ModeSelection from "../components/ModeSelection";
 import { PolyPosition } from "../models/PolyTypes";
 import { polyPositionToTrade } from "../utils/polyPositionToTrade";
 
@@ -78,7 +81,8 @@ export default function PolymarketOverview() {
 
   const [summary, setSummary] = useState<Summary | null>(null);
   const [positions, setPositions] = useState<PolyPosition[]>([]);
-  const [statsOpen, setStatsOpen] = useState<boolean>(false);
+  const [tradesOpen, setTradesOpen] = useState<boolean>(true);
+  const [comparisonMode, setComparisonMode] = useState<"R" | "$">("$");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -97,6 +101,10 @@ export default function PolymarketOverview() {
     };
     run();
   }, [mode]);
+
+  const handleComparisonModeChange = (event: any) => {
+    setComparisonMode(event.target.value);
+  };
 
   return (
     <Container>
@@ -128,10 +136,39 @@ export default function PolymarketOverview() {
             </Card>
           </CardRow>
 
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <h3 style={{ marginTop: 0 }}>Trade Statistics</h3>
+          <div style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
+            <div style={{ flex: 3 }}>
+              <TradeStatistics
+                closedTrades={positions
+                  .filter((p) => p.result !== null)
+                  .map((p, idx) => polyPositionToTrade(p, idx + 1))}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <h3>Win Loss %</h3>
+              {/* @ts-ignore */}
+              <WinLossPieChart trades={positions
+                .filter((p) => p.result !== null)
+                .map((p, idx) => polyPositionToTrade(p, idx + 1))} />
+              <h3 style={{ marginTop: 16 }}>
+                Win/Loss Comparison (
+                <ModeSelection
+                  comparisonMode={comparisonMode}
+                  handleComparisonModeChange={handleComparisonModeChange}
+                />
+                )
+              </h3>
+              {/* @ts-ignore */}
+              <ComparisonChart trades={positions
+                .filter((p) => p.result !== null)
+                .map((p, idx) => polyPositionToTrade(p, idx + 1))} mode={comparisonMode} />
+            </div>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16 }}>
+            <h3 style={{ marginTop: 0 }}>Recent trades</h3>
             <button
-              onClick={() => setStatsOpen(!statsOpen)}
+              onClick={() => setTradesOpen(!tradesOpen)}
               style={{
                 padding: "6px 10px",
                 borderRadius: 6,
@@ -140,54 +177,44 @@ export default function PolymarketOverview() {
                 cursor: "pointer",
               }}
             >
-              {statsOpen ? "Hide" : "Show"}
+              {tradesOpen ? "Hide" : "Show"}
             </button>
           </div>
 
-          {statsOpen && (
-            <div style={{ marginBottom: 16 }}>
-              <TradeStatistics
-                closedTrades={positions
-                  .filter((p) => p.result !== null)
-                  .map((p, idx) => polyPositionToTrade(p, idx + 1))}
-              />
-            </div>
+          {tradesOpen && (
+            <Table>
+              <thead>
+                <tr>
+                  <TH>ts_open</TH>
+                  <TH>mode</TH>
+                  <TH>asset</TH>
+                  <TH>dir</TH>
+                  <TH>strategy</TH>
+                  <TH>entry</TH>
+                  <TH>exit</TH>
+                  <TH>result</TH>
+                  <TH>pnl</TH>
+                  <TH>max_payout</TH>
+                </tr>
+              </thead>
+              <tbody>
+                {summary.recentTrades.map((t, i) => (
+                  <TR key={i}>
+                    <TD>{t.ts_open}</TD>
+                    <TD>{t.mode}</TD>
+                    <TD>{t.asset}</TD>
+                    <TD>{t.direction}</TD>
+                    <TD>{t.strategy}</TD>
+                    <TD>{t.entry_price}</TD>
+                    <TD>{t.exit_price ?? ""}</TD>
+                    <TD>{t.settled_result ?? t.result ?? ""}</TD>
+                    <TD>{t.settled_pnl_usd ?? t.pnl_usd ?? ""}</TD>
+                    <TD>{t.implied_pnl_usd ?? ""}</TD>
+                  </TR>
+                ))}
+              </tbody>
+            </Table>
           )}
-
-          <h3 style={{ marginTop: 0 }}>Recent trades</h3>
-
-          <Table>
-            <thead>
-              <tr>
-                <TH>ts_open</TH>
-                <TH>mode</TH>
-                <TH>asset</TH>
-                <TH>dir</TH>
-                <TH>strategy</TH>
-                <TH>entry</TH>
-                <TH>exit</TH>
-                <TH>result</TH>
-                <TH>pnl</TH>
-                <TH>max_payout</TH>
-              </tr>
-            </thead>
-            <tbody>
-              {summary.recentTrades.map((t, i) => (
-                <TR key={i}>
-                  <TD>{t.ts_open}</TD>
-                  <TD>{t.mode}</TD>
-                  <TD>{t.asset}</TD>
-                  <TD>{t.direction}</TD>
-                  <TD>{t.strategy}</TD>
-                  <TD>{t.entry_price}</TD>
-                  <TD>{t.exit_price ?? ""}</TD>
-                  <TD>{t.settled_result ?? t.result ?? ""}</TD>
-                  <TD>{t.settled_pnl_usd ?? t.pnl_usd ?? ""}</TD>
-                  <TD>{t.implied_pnl_usd ?? ""}</TD>
-                </TR>
-              ))}
-            </tbody>
-          </Table>
         </>
       )}
 
