@@ -141,9 +141,7 @@ export default function PolymarketOverview() {
           {/** Filtered datasets */}
           {/** positions are authoritative for P/L + winrate; fills (recentTrades) are the fill-level table */}
           {(() => {
-            const posTrades = positions
-              .filter((p) => p.result !== null)
-              .map((p, idx) => polyPositionToTrade(p, idx + 1));
+            const posTrades = positions.map((p, idx) => polyPositionToTrade(p, idx + 1));
 
             const filteredPos = posTrades.filter((t) => {
               if (statsFilters.direction !== "all" && t.direction !== (statsFilters.direction === "UP" ? "Long" : "Short")) {
