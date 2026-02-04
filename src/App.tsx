@@ -7,6 +7,7 @@ import Sizing from "./pages/Sizing";
 import PolymarketOverview from "./pages/PolymarketOverview";
 import PolymarketStrategies from "./pages/PolymarketStrategies";
 import PolymarketRegime from "./pages/PolymarketRegime";
+import PolymarketExperiments from "./pages/PolymarketExperiments";
 // Auth and Account Select
 import AuthButton from "./auth/AuthButton";
 import AccountSelection from "./components/AccountSelection";
@@ -138,7 +139,7 @@ function App() {
                   <StyledLink to="/sizing">Sizing</StyledLink>
                 </NavItem>
                 <NavItem>
-                  <StyledLink to="/polymarket/paper">PM Paper</StyledLink>
+                  <StyledLink to="/polymarket/experiments">Experiments</StyledLink>
                 </NavItem>
                 <NavItem>
                   <StyledLink to="/polymarket/live">PM Live</StyledLink>
@@ -171,6 +172,7 @@ function App() {
               path="/sizing"
               element={<Sizing conversionRates={conversionRates} />}
             />
+            <Route path="/polymarket/experiments" element={<PolymarketExperiments />} />
             <Route path="/polymarket/paper" element={<PolymarketOverview />} />
             <Route
               path="/polymarket/paper/strategies"
