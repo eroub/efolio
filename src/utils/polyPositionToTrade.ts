@@ -26,7 +26,7 @@ export function polyPositionToTrade(p: PolyPosition, id: number): Trade {
     datetimeIn,
     datetimeOut,
     totalHrs,
-    ticker: p.market_name,
+    ticker: (p.asset ?? p.market_name) as any,
     direction,
     equity: 0,
     entry,
