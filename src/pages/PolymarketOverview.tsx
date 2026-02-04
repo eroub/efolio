@@ -3,6 +3,9 @@ import http from "../services/http";
 import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { colorScheme } from "../assets/themes";
+import TradeStatistics from "../components/Statistics/Statistics";
+import { PolyPosition } from "../models/PolyTypes";
+import { polyPositionToTrade } from "../utils/polyPositionToTrade";
 
 const Container = styled.div`
   padding: 24px;
@@ -74,13 +77,20 @@ export default function PolymarketOverview() {
   );
 
   const [summary, setSummary] = useState<Summary | null>(null);
+  const [positions, setPositions] = useState<PolyPosition[]>([]);
+  const [statsOpen, setStatsOpen] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const run = async () => {
       try {
-        const resp = await http.get(`/api/poly/summary?mode=${mode}`);
-        setSummary(resp.data);
+        setError(null);
+        const [sumResp, posResp] = await Promise.all([
+          http.get(`/api/poly/summary?mode=${mode}`),
+          http.get(`/api/poly/positions?mode=${mode}&limit=500`),
+        ]);
+        setSummary(sumResp.data);
+        setPositions(posResp.data?.rows ?? []);
       } catch (e: any) {
         setError(e?.message || "Failed to load");
       }
@@ -118,7 +128,34 @@ export default function PolymarketOverview() {
             </Card>
           </CardRow>
 
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <h3 style={{ marginTop: 0 }}>Trade Statistics</h3>
+            <button
+              onClick={() => setStatsOpen(!statsOpen)}
+              style={{
+                padding: "6px 10px",
+                borderRadius: 6,
+                border: `1px solid ${colorScheme.base["300"]}`,
+                background: "white",
+                cursor: "pointer",
+              }}
+            >
+              {statsOpen ? "Hide" : "Show"}
+            </button>
+          </div>
+
+          {statsOpen && (
+            <div style={{ marginBottom: 16 }}>
+              <TradeStatistics
+                closedTrades={positions
+                  .filter((p) => p.result !== null)
+                  .map((p, idx) => polyPositionToTrade(p, idx + 1))}
+              />
+            </div>
+          )}
+
           <h3 style={{ marginTop: 0 }}>Recent trades</h3>
+
           <Table>
             <thead>
               <tr>
