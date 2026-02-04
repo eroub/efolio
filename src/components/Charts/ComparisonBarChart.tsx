@@ -111,10 +111,11 @@ const ComparisonChart: React.FC<ComparisonChartProps> = ({ trades, mode }) => {
       .attr("dy", ".35em")
       .attr("fill", colorScheme === "dark" ? "#E6E3D3" : "black")
       .text((d) => {
+        const v = Number(d?.value ?? 0);
         if (mode === "$") {
-          return formatCurrency(Number(d.value.toFixed(2))); // Use formatCurrency for "$" mode
+          return formatCurrency(Number(v.toFixed(2))); // Use formatCurrency for "$" mode
         }
-        return d.value.toFixed(2); // Keep as-is for "R:R" mode
+        return v.toFixed(2); // Keep as-is for "R:R" mode
       });
   }, [trades, mode, sanitizedMode, colorScheme]);
 

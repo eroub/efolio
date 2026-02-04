@@ -1,12 +1,14 @@
 // formatters.ts
-export const formatCurrency = (value: number | null) => {
-  if (value === null) {
+export const formatCurrency = (value: number | null | undefined) => {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) {
     return "";
   }
-  if (value < 0) {
-    return `-$${Math.abs(value)}`;
+  const v = Number(value);
+  const s = Math.abs(v).toFixed(2);
+  if (v < 0) {
+    return `-$${s}`;
   }
-  return `$${value}`;
+  return `$${s}`;
 };
 
 export const formatPercentage = (value: number | null) => {
