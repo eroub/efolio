@@ -10,6 +10,7 @@ import ComparisonChart from "../components/Charts/ComparisonBarChart";
 import ModeSelection from "../components/ModeSelection";
 import { PolyPosition } from "../models/PolyTypes";
 import { polyPositionToTrade } from "../utils/polyPositionToTrade";
+import { groupPolyFills } from "../utils/groupPolyFills";
 
 const Container = styled.div`
   padding: 24px;
@@ -163,6 +164,8 @@ export default function PolymarketOverview() {
               return true;
             });
 
+            const groupedFills = groupPolyFills(filteredFills);
+
             const pnl = filteredPos.reduce((acc, t) => acc + (t.realPL ?? 0), 0);
             const tileTrades = filteredFills.length;
             const tilePositions = filteredPos.length;
@@ -255,17 +258,17 @@ export default function PolymarketOverview() {
                 </tr>
               </thead>
               <tbody>
-                {filteredFills.map((t: any, i: number) => (
-                  <TR key={i}>
+                {groupedFills.map((t: any, i: number) => (
+                  <TR key={t.key ?? i}>
                     <TD>{t.ts_open}</TD>
                     <TD>{t.mode}</TD>
                     <TD>{t.asset}</TD>
                     <TD>{t.direction}</TD>
                     <TD>{t.strategy}</TD>
-                    <TD>{t.entry_price}</TD>
-                    <TD>{t.exit_price ?? ""}</TD>
-                    <TD>{t.settled_result ?? t.result ?? ""}</TD>
-                    <TD>{t.settled_pnl_usd ?? t.pnl_usd ?? ""}</TD>
+                    <TD>{t.entry_price ?? ""}</TD>
+                    <TD>{""}</TD>
+                    <TD>{t.settled_result ?? ""}</TD>
+                    <TD>{t.settled_pnl_usd ?? ""}</TD>
                     <TD>{t.implied_pnl_usd ?? ""}</TD>
                   </TR>
                 ))}
