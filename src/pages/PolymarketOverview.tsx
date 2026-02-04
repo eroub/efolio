@@ -136,15 +136,22 @@ export default function PolymarketOverview() {
             </Card>
           </CardRow>
 
-          <div style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
-            <div style={{ flex: 3 }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "minmax(0, 3fr) minmax(320px, 1fr)",
+              gap: 24,
+              alignItems: "start",
+            }}
+          >
+            <div style={{ minWidth: 0 }}>
               <TradeStatistics
                 closedTrades={positions
                   .filter((p) => p.result !== null)
                   .map((p, idx) => polyPositionToTrade(p, idx + 1))}
               />
             </div>
-            <div style={{ flex: 1 }}>
+            <div style={{ minWidth: 320 }}>
               <h3>Win Loss %</h3>
               {/* @ts-ignore */}
               <WinLossPieChart trades={positions

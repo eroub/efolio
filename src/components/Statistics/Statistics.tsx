@@ -116,7 +116,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
   const { VaR, CVaR } = calculateVaRandCVaR(closedTrades);
 
   return (
-    <div style={{ marginLeft: "40px", width: "100%" }}>
+    <div style={{ marginLeft: 0, width: "100%" }}>
       <h2 style={{ display: "flex", alignItems: "center" }}>
         Trade Statistics
       </h2>
