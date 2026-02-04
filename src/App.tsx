@@ -138,13 +138,10 @@ function App() {
                   <StyledLink to="/sizing">Sizing</StyledLink>
                 </NavItem>
                 <NavItem>
-                  <StyledLink to="/polymarket">Polymarket</StyledLink>
+                  <StyledLink to="/polymarket/paper">PM Paper</StyledLink>
                 </NavItem>
                 <NavItem>
-                  <StyledLink to="/polymarket/strategies">PM Strategies</StyledLink>
-                </NavItem>
-                <NavItem>
-                  <StyledLink to="/polymarket/regime">PM Regime</StyledLink>
+                  <StyledLink to="/polymarket/live">PM Live</StyledLink>
                 </NavItem>
               </Nav>
             )}
@@ -174,12 +171,19 @@ function App() {
               path="/sizing"
               element={<Sizing conversionRates={conversionRates} />}
             />
-            <Route path="/polymarket" element={<PolymarketOverview />} />
+            <Route path="/polymarket/paper" element={<PolymarketOverview />} />
             <Route
-              path="/polymarket/strategies"
+              path="/polymarket/paper/strategies"
               element={<PolymarketStrategies />}
             />
-            <Route path="/polymarket/regime" element={<PolymarketRegime />} />
+            <Route path="/polymarket/paper/regime" element={<PolymarketRegime />} />
+
+            <Route path="/polymarket/live" element={<PolymarketOverview />} />
+            <Route
+              path="/polymarket/live/strategies"
+              element={<PolymarketStrategies />}
+            />
+            <Route path="/polymarket/live/regime" element={<PolymarketRegime />} />
           </>
         )}
       </Routes>

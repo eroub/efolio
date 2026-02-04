@@ -31,19 +31,33 @@ const H2 = styled.h2`
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
+  background: ${colorScheme.base.paper};
+  color: ${colorScheme.base.black};
 `;
 
 const TH = styled.th`
   text-align: left;
-  border-bottom: 1px solid ${colorScheme.base["200"]};
-  padding: 8px;
+  border-bottom: 1px solid ${colorScheme.base["300"]};
+  padding: 10px 8px;
+  background: ${colorScheme.base["100"]};
+  color: ${colorScheme.base.black};
+  position: sticky;
+  top: 0;
 `;
 
 const TD = styled.td`
-  border-bottom: 1px solid ${colorScheme.base["100"]};
-  padding: 8px;
-  font-family: monospace;
+  border-bottom: 1px solid ${colorScheme.base["150"]};
+  padding: 10px 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
   font-size: 12px;
+  color: ${colorScheme.base.black};
+`;
+
+const TR = styled.tr`
+  &:nth-child(even) {
+    background: ${colorScheme.base["50"]};
+  }
 `;
 
 type Summary = {
@@ -58,7 +72,8 @@ export default function PolymarketOverview() {
   useEffect(() => {
     const run = async () => {
       try {
-        const resp = await axios.get(`/api/poly/summary?mode=paper`);
+        const mode = window.location.pathname.includes("/polymarket/live") ? "live" : "paper";
+        const resp = await axios.get(`/api/poly/summary?mode=${mode}`);
         setSummary(resp.data);
       } catch (e: any) {
         setError(e?.message || "Failed to load");
@@ -106,7 +121,7 @@ export default function PolymarketOverview() {
             </thead>
             <tbody>
               {summary.recentTrades.map((t, i) => (
-                <tr key={i}>
+                <TR key={i}>
                   <TD>{t.ts_open}</TD>
                   <TD>{t.mode}</TD>
                   <TD>{t.asset}</TD>
@@ -116,7 +131,7 @@ export default function PolymarketOverview() {
                   <TD>{t.exit_price ?? ""}</TD>
                   <TD>{t.result ?? ""}</TD>
                   <TD>{t.pnl_usd ?? ""}</TD>
-                </tr>
+                </TR>
               ))}
             </tbody>
           </Table>

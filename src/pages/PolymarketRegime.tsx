@@ -12,19 +12,33 @@ const Container = styled.div`
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
+  background: ${colorScheme.base.paper};
+  color: ${colorScheme.base.black};
 `;
 
 const TH = styled.th`
   text-align: left;
-  border-bottom: 1px solid ${colorScheme.base["200"]};
-  padding: 8px;
+  border-bottom: 1px solid ${colorScheme.base["300"]};
+  padding: 10px 8px;
+  background: ${colorScheme.base["100"]};
+  color: ${colorScheme.base.black};
+  position: sticky;
+  top: 0;
 `;
 
 const TD = styled.td`
-  border-bottom: 1px solid ${colorScheme.base["100"]};
-  padding: 8px;
-  font-family: monospace;
+  border-bottom: 1px solid ${colorScheme.base["150"]};
+  padding: 10px 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
   font-size: 12px;
+  color: ${colorScheme.base.black};
+`;
+
+const TR = styled.tr`
+  &:nth-child(even) {
+    background: ${colorScheme.base["50"]};
+  }
 `;
 
 type Row = {
@@ -42,7 +56,8 @@ export default function PolymarketRegime() {
   useEffect(() => {
     const run = async () => {
       try {
-        const resp = await axios.get(`/api/poly/performance/regime`);
+        const mode = window.location.pathname.includes("/polymarket/live") ? "live" : "paper";
+        const resp = await axios.get(`/api/poly/performance/regime?mode=${mode}`);
         setRows(resp.data.rows || []);
       } catch (e: any) {
         setError(e?.message || "Failed to load");
@@ -67,13 +82,13 @@ export default function PolymarketRegime() {
         </thead>
         <tbody>
           {rows.map((r, i) => (
-            <tr key={i}>
+            <TR key={i}>
               <TD>{r.btc_regime ?? "(null)"}</TD>
               <TD>{r.mode}</TD>
               <TD>{r.n}</TD>
               <TD>{r.wins}</TD>
               <TD>{r.pnl_usd}</TD>
-            </tr>
+            </TR>
           ))}
         </tbody>
       </Table>
