@@ -4,6 +4,9 @@ import styled from "styled-components";
 // Pages
 import TradeJournal from "./pages/TradeJournal";
 import Sizing from "./pages/Sizing";
+import PolymarketOverview from "./pages/PolymarketOverview";
+import PolymarketStrategies from "./pages/PolymarketStrategies";
+import PolymarketRegime from "./pages/PolymarketRegime";
 // Auth and Account Select
 import AuthButton from "./auth/AuthButton";
 import AccountSelection from "./components/AccountSelection";
@@ -134,7 +137,15 @@ function App() {
                 <NavItem>
                   <StyledLink to="/sizing">Sizing</StyledLink>
                 </NavItem>
-                {/* Add more NavItems as needed */}
+                <NavItem>
+                  <StyledLink to="/polymarket">Polymarket</StyledLink>
+                </NavItem>
+                <NavItem>
+                  <StyledLink to="/polymarket/strategies">PM Strategies</StyledLink>
+                </NavItem>
+                <NavItem>
+                  <StyledLink to="/polymarket/regime">PM Regime</StyledLink>
+                </NavItem>
               </Nav>
             )}
           </TitleContainer>
@@ -158,10 +169,18 @@ function App() {
           }
         />
         {auth.isAuthenticated && (
-          <Route
-            path="/sizing"
-            element={<Sizing conversionRates={conversionRates} />}
-          />
+          <>
+            <Route
+              path="/sizing"
+              element={<Sizing conversionRates={conversionRates} />}
+            />
+            <Route path="/polymarket" element={<PolymarketOverview />} />
+            <Route
+              path="/polymarket/strategies"
+              element={<PolymarketStrategies />}
+            />
+            <Route path="/polymarket/regime" element={<PolymarketRegime />} />
+          </>
         )}
       </Routes>
     </AppContainer>
