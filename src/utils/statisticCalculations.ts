@@ -9,8 +9,11 @@ const validateNumber = (value: number, defaultValue: number = 0): number => {
 // Helper function to calculate the sum of an array of numbers
 const sum = (arr: number[]) => arr.reduce((acc, val) => acc + val, 0);
 // Helper to truncate to two decimals
-const truncateToTwoDecimals = (num: number) =>
-  validateNumber(parseFloat(num.toFixed(2)));
+const truncateToTwoDecimals = (num: number) => {
+  const n = Number(num);
+  if (!Number.isFinite(n)) return 0;
+  return validateNumber(parseFloat(n.toFixed(2)));
+};
 // Helper function to calculate the standard deviation of an array of numbers
 const standardDeviation = (arr: number[]) => {
   const avg = sum(arr) / arr.length;
