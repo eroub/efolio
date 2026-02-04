@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import http from "../services/http";
+import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { colorScheme } from "../assets/themes";
 
@@ -66,13 +67,18 @@ type Summary = {
 };
 
 export default function PolymarketOverview() {
+  const location = useLocation();
+  const mode = useMemo(
+    () => (location.pathname.includes("/polymarket/live") ? "live" : "paper"),
+    [location.pathname]
+  );
+
   const [summary, setSummary] = useState<Summary | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const run = async () => {
       try {
-        const mode = window.location.pathname.includes("/polymarket/live") ? "live" : "paper";
         const resp = await http.get(`/api/poly/summary?mode=${mode}`);
         setSummary(resp.data);
       } catch (e: any) {
@@ -80,7 +86,7 @@ export default function PolymarketOverview() {
       }
     };
     run();
-  }, []);
+  }, [mode]);
 
   return (
     <Container>
