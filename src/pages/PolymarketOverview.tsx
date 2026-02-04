@@ -226,7 +226,40 @@ export default function PolymarketOverview() {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16 }}>
-            <h3 style={{ marginTop: 0 }}>Recent trades</h3>
+            <h3 style={{ marginTop: 0 }}>Recent positions (resolved outcomes)</h3>
+          </div>
+
+          <Table>
+            <thead>
+              <tr>
+                <TH>last</TH>
+                <TH>mode</TH>
+                <TH>market</TH>
+                <TH>token</TH>
+                <TH>avg_entry</TH>
+                <TH>result</TH>
+                <TH>pnl</TH>
+                <TH>fills</TH>
+              </tr>
+            </thead>
+            <tbody>
+              {positions.slice(0, 50).map((p: any, i: number) => (
+                <TR key={i}>
+                  <TD>{p.last_ts ?? p.first_ts ?? ""}</TD>
+                  <TD>{p.mode}</TD>
+                  <TD style={{ maxWidth: 360, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.market_name}</TD>
+                  <TD>{p.token_name}</TD>
+                  <TD>{p.avg_entry_price ?? ""}</TD>
+                  <TD>{p.result ?? ""}</TD>
+                  <TD>{p.realized_pnl_usd ?? ""}</TD>
+                  <TD>{p.fills ?? ""}</TD>
+                </TR>
+              ))}
+            </tbody>
+          </Table>
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 16 }}>
+            <h3 style={{ marginTop: 0 }}>Recent fills (execution audit)</h3>
             <button
               onClick={() => setTradesOpen(!tradesOpen)}
               style={{
@@ -251,7 +284,6 @@ export default function PolymarketOverview() {
                   <TH>dir</TH>
                   <TH>strategy</TH>
                   <TH>entry</TH>
-                  <TH>exit</TH>
                   <TH>result</TH>
                   <TH>pnl</TH>
                   <TH>max_payout</TH>
@@ -266,7 +298,6 @@ export default function PolymarketOverview() {
                     <TD>{t.direction}</TD>
                     <TD>{t.strategy}</TD>
                     <TD>{t.entry_price ?? ""}</TD>
-                    <TD>{""}</TD>
                     <TD>{t.settled_result ?? ""}</TD>
                     <TD>{t.settled_pnl_usd ?? ""}</TD>
                     <TD>{t.implied_pnl_usd ?? ""}</TD>
