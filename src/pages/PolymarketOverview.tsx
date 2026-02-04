@@ -136,8 +136,8 @@ export default function PolymarketOverview() {
                   <TD>{t.strategy}</TD>
                   <TD>{t.entry_price}</TD>
                   <TD>{t.exit_price ?? ""}</TD>
-                  <TD>{t.result ?? ""}</TD>
-                  <TD>{t.pnl_usd ?? ""}</TD>
+                  <TD>{t.settled_result ?? t.result ?? ""}</TD>
+                  <TD>{t.settled_pnl_usd ?? t.pnl_usd ?? ""}</TD>
                   <TD>{t.implied_pnl_usd ?? ""}</TD>
                 </TR>
               ))}
