@@ -58,7 +58,7 @@ export default function PolymarketOverview() {
   useEffect(() => {
     const run = async () => {
       try {
-        const resp = await axios.get(`/api/poly/summary`);
+        const resp = await axios.get(`/api/poly/summary?mode=paper`);
         setSummary(resp.data);
       } catch (e: any) {
         setError(e?.message || "Failed to load");
