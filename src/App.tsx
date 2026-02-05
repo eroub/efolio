@@ -8,6 +8,7 @@ import PolymarketOverview from "./pages/PolymarketOverview";
 import PolymarketStrategies from "./pages/PolymarketStrategies";
 import PolymarketRegime from "./pages/PolymarketRegime";
 import PolymarketExperiments from "./pages/PolymarketExperiments";
+import PolymarketLogs from "./pages/PolymarketLogs";
 // Auth and Account Select
 import AuthButton from "./auth/AuthButton";
 import AccountSelection from "./components/AccountSelection";
@@ -140,6 +141,7 @@ function App() {
                 </NavItem>
                 <NavItem>
                   <StyledLink to="/polymarket/experiments">Experiments</StyledLink>
+                  <StyledLink to="/polymarket/logs">Logs</StyledLink>
                 </NavItem>
                 <NavItem>
                   <StyledLink to="/polymarket/live">PM Live</StyledLink>
@@ -173,6 +175,7 @@ function App() {
               element={<Sizing conversionRates={conversionRates} />}
             />
             <Route path="/polymarket/experiments" element={<PolymarketExperiments />} />
+            <Route path="/polymarket/logs" element={<PolymarketLogs />} />
             <Route path="/polymarket/paper" element={<PolymarketOverview />} />
             <Route
               path="/polymarket/paper/strategies"
