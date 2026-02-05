@@ -74,6 +74,8 @@ export default function PolymarketLogs() {
   const [name, setName] = useState<string>("live_executor");
   const [minutes, setMinutes] = useState<number>(15);
   const [maxLines, setMaxLines] = useState<number>(1200);
+  const [from, setFrom] = useState<string>("");
+  const [to, setTo] = useState<string>("");
   const [resp, setResp] = useState<TailResp | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -82,7 +84,14 @@ export default function PolymarketLogs() {
     try {
       setLoading(true);
       setError(null);
-      const r = await http.get(`/api/poly/logs/tail?name=${encodeURIComponent(name)}&minutes=${minutes}&maxLines=${maxLines}`);
+      const qs = new URLSearchParams({
+        name,
+        minutes: String(minutes),
+        maxLines: String(maxLines),
+      });
+      if (from) qs.set("from", new Date(from).toISOString());
+      if (to) qs.set("to", new Date(to).toISOString());
+      const r = await http.get(`/api/poly/logs/tail?${qs.toString()}`);
       setResp(r.data);
     } catch (e: any) {
       setError(e?.message || "Failed to load logs");
@@ -119,6 +128,16 @@ export default function PolymarketLogs() {
         <label>
           Minutes:&nbsp;
           <Input type="number" min={1} max={60} value={minutes} onChange={(e) => setMinutes(Number(e.target.value))} />
+        </label>
+
+        <label>
+          From:&nbsp;
+          <Input type="datetime-local" value={from} onChange={(e) => setFrom(e.target.value)} style={{ width: 220 }} />
+        </label>
+
+        <label>
+          To:&nbsp;
+          <Input type="datetime-local" value={to} onChange={(e) => setTo(e.target.value)} style={{ width: 220 }} />
         </label>
 
         <label>
