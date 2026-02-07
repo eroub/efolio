@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
-import { Link, Routes, Route } from "react-router-dom";
+import { Link, Routes, Route, Navigate } from "react-router-dom";
 import styled from "styled-components";
 // Pages
 import TradeJournal from "./pages/TradeJournal";
-import Sizing from "./pages/Sizing";
+import Maverick from "./pages/Maverick";
 import PolymarketOverview from "./pages/PolymarketOverview";
 import PolymarketStrategies from "./pages/PolymarketStrategies";
 import PolymarketRegime from "./pages/PolymarketRegime";
-import PolymarketExperiments from "./pages/PolymarketExperiments";
+// (removed) PolymarketExperiments page
 import PolymarketLogs from "./pages/PolymarketLogs";
 // Auth and Account Select
 import AuthButton from "./auth/AuthButton";
 import AccountSelection from "./components/AccountSelection";
 // Utility for fetching exchange rates
-import { fetchExchangeRates } from "./utils/fetchExchangeRates";
+// import { fetchExchangeRates } from "./utils/fetchExchangeRates"; // disabled
 // Global Style
 import { colorScheme } from "./assets/themes";
 // Context
@@ -99,23 +99,20 @@ const NavItem = styled.div`
 function App() {
   // Get auth token
   const { auth } = useAuth();
+
+  const RequireAuth = ({ children }: { children: JSX.Element }) => {
+    if (!auth.isAuthenticated) return <Navigate to="/" replace />;
+    return children;
+  };
   const [selectedAccount, setSelectedAccount] = useState<number | null>(null);
   // Conversion Rates State
   const [conversionRates, setConversionRates] = useState<
     Record<string, number>
   >({});
 
-  // UseEffect for getting conversion rates from external API
+  // FX fetching disabled (not needed for Polymarket; was involved in blank-screen debugging)
   useEffect(() => {
-    const getRates = async () => {
-      try {
-        const rates = await fetchExchangeRates();
-        setConversionRates(rates);
-      } catch (error: any) {
-        console.log(error.message);
-      }
-    };
-    getRates();
+    setConversionRates({ USD: 1 });
   }, []);
 
   useEffect(() => {
@@ -137,10 +134,10 @@ function App() {
             {auth.isAuthenticated && (
               <Nav>
                 <NavItem>
-                  <StyledLink to="/sizing">Sizing</StyledLink>
+                  <StyledLink to="/maverick">Maverick</StyledLink>
                 </NavItem>
                 <NavItem>
-                  <StyledLink to="/polymarket/experiments">Experiments</StyledLink>
+                  {/* Experiments removed */}
                   <StyledLink to="/polymarket/logs">Logs</StyledLink>
                 </NavItem>
                 <NavItem>
@@ -168,29 +165,75 @@ function App() {
             />
           }
         />
-        {auth.isAuthenticated && (
-          <>
-            <Route
-              path="/sizing"
-              element={<Sizing conversionRates={conversionRates} />}
-            />
-            <Route path="/polymarket/experiments" element={<PolymarketExperiments />} />
-            <Route path="/polymarket/logs" element={<PolymarketLogs />} />
-            <Route path="/polymarket/paper" element={<PolymarketOverview />} />
-            <Route
-              path="/polymarket/paper/strategies"
-              element={<PolymarketStrategies />}
-            />
-            <Route path="/polymarket/paper/regime" element={<PolymarketRegime />} />
 
-            <Route path="/polymarket/live" element={<PolymarketOverview />} />
-            <Route
-              path="/polymarket/live/strategies"
-              element={<PolymarketStrategies />}
-            />
-            <Route path="/polymarket/live/regime" element={<PolymarketRegime />} />
-          </>
-        )}
+        {/* Public routes (render but self-gate if needed) */}
+        <Route
+          path="/maverick"
+          element={
+            <RequireAuth>
+              <Maverick conversionRates={conversionRates} />
+            </RequireAuth>
+          }
+        />
+
+        {/* /polymarket/experiments removed */}
+        <Route
+          path="/polymarket/logs"
+          element={
+            <RequireAuth>
+              <PolymarketLogs />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/polymarket/paper"
+          element={
+            <RequireAuth>
+              <PolymarketOverview />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/polymarket/paper/strategies"
+          element={
+            <RequireAuth>
+              <PolymarketStrategies />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/polymarket/paper/regime"
+          element={
+            <RequireAuth>
+              <PolymarketRegime />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/polymarket/live"
+          element={
+            <RequireAuth>
+              <PolymarketOverview />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/polymarket/live/strategies"
+          element={
+            <RequireAuth>
+              <PolymarketStrategies />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/polymarket/live/regime"
+          element={
+            <RequireAuth>
+              <PolymarketRegime />
+            </RequireAuth>
+          }
+        />
       </Routes>
     </AppContainer>
   );
