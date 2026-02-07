@@ -37,9 +37,15 @@ window.addEventListener("error", (ev: any) => {
     pre.style.padding = "16px";
     pre.style.fontFamily =
       "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace";
-    pre.textContent = `WINDOW_ERROR\n\n${String(ev?.message || ev?.error?.message || ev)}`;
+
+    const msg = String(ev?.message || ev?.error?.message || ev);
+    const stack = (ev?.error && (ev.error.stack || ev.error.toString())) || "";
+
+    pre.textContent = `WINDOW_ERROR\n\n${msg}\n\n${stack}`;
     document.body.innerHTML = "";
     document.body.appendChild(pre);
+    // eslint-disable-next-line no-console
+    console.error("WINDOW_ERROR", ev?.error || ev);
   } catch {}
 });
 
