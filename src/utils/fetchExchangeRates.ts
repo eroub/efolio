@@ -5,11 +5,14 @@ type ConversionRates = Record<string, number>;
 
 export const fetchExchangeRates = async (): Promise<ConversionRates> => {
   try {
-    const response = await axios.get(
-      "https://v6.exchangerate-api.com/v6/8db55165607b79288936de0b/latest/USD",
-    );
-    if (response.data.result === "success") {
-      const allRates = response.data.conversion_rates;
+    // NOTE: Avoid hard-failing the entire app if this external API/key breaks.
+    // Polymarket pages do not depend on FX rates.
+    const url =
+      process.env.REACT_APP_EXCHANGE_RATE_URL ||
+      "https://open.er-api.com/v6/latest/USD";
+    const response = await axios.get(url);
+    const allRates = response.data?.conversion_rates;
+    if (allRates && typeof allRates === "object") {
       const neededRates = [
         "AUD",
         "USD",
@@ -24,10 +27,12 @@ export const fetchExchangeRates = async (): Promise<ConversionRates> => {
         Object.entries(allRates).filter(([key]) => neededRates.includes(key)),
       );
       return filteredRates as ConversionRates;
-    } else {
-      throw new Error("API response was not successful");
     }
+
+    // If API format is unexpected, degrade gracefully.
+    return { USD: 1 } as ConversionRates;
   } catch (error) {
-    throw new Error(`Error fetching conversion rates: ${error}`);
+    // Degrade gracefully: return a minimal mapping so the app renders.
+    return { USD: 1 } as ConversionRates;
   }
 };
