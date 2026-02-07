@@ -3,9 +3,9 @@
 import React from "react";
 // Internal Utilities / Assets / Themes
 import {
-  calculateAverageHoldTime,
-  calculateAverageHoldTimeLosses,
-  calculateAverageHoldTimeWins,
+  // calculateAverageHoldTime,
+  // calculateAverageHoldTimeLosses,
+  // calculateAverageHoldTimeWins,
   calculateAverageLoss,
   calculateAveragePayoffRatio,
   calculateAveragePercentMove,
@@ -15,7 +15,7 @@ import {
   calculateAverageProfitabilityPerShort,
   calculateAverageWin,
   calculateCommissionMetrics,
-  calculateDrawdownDuration,
+  // calculateDrawdownDuration,
   calculateKRatio,
   calculateKellyPercentage,
   calculateLargestGain,
@@ -28,7 +28,7 @@ import {
   calculateMaxDrawdown,
   calculateMaxFavorableExcursionRatio,
   calculateNetDrawdown,
-  calculatePipGainLoss,
+  // calculatePipGainLoss, // removed for Polymarket
   calculatePLStandardDeviation,
   calculateProbabilityOfRandomChance,
   calculateProfitFactor,
@@ -55,12 +55,13 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
   const averagePayoffRatio = calculateAveragePayoffRatio(closedTrades);
   const { averageProfitabilityDollar, averageProfitabilityRR } =
     calculateAverageProfitability(closedTrades);
-  const { mean: avgHoldTimeLossesMean, median: avgHoldTimeLossesMedian } =
-    calculateAverageHoldTimeLosses(closedTrades);
-  const { mean: avgHoldTimeMean, median: avgHoldTimeMedian } =
-    calculateAverageHoldTime(closedTrades);
-  const { mean: avgHoldTimeWinsMean, median: avgHoldTimeWinsMedian } =
-    calculateAverageHoldTimeWins(closedTrades);
+  // Timing removed for Polymarket
+  // const { mean: avgHoldTimeLossesMean, median: avgHoldTimeLossesMedian } =
+  //   calculateAverageHoldTimeLosses(closedTrades);
+  // const { mean: avgHoldTimeMean, median: avgHoldTimeMedian } =
+  //   calculateAverageHoldTime(closedTrades);
+  // const { mean: avgHoldTimeWinsMean, median: avgHoldTimeWinsMedian } =
+  //   calculateAverageHoldTimeWins(closedTrades);
   const averagePercentMove = calculateAveragePercentMove(closedTrades);
   const averagePercentRisked = calculateAveragePercentRisked(closedTrades);
   const { avgLossDollar: averageLossDollar, avgLossRR: averageLossRR } =
@@ -73,8 +74,9 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
     calculateAverageWin(closedTrades);
   const { totalCommission, avgAdditionalRiskPercent } =
     calculateCommissionMetrics(closedTrades);
-  const { drawdownDurationDays, drawdownDurationHours } =
-    calculateDrawdownDuration(closedTrades);
+  // const { drawdownDurationDays, drawdownDurationHours } =
+  //   calculateDrawdownDuration(closedTrades);
+  // NOTE: Timing + pip metrics are not meaningful for Polymarket (fixed expiry, binary outcomes)
   const avgMaxAdverseExcursion =
     calculateMaxAdverseExcursionRatio(closedTrades);
   const avgMaxFavorableExcursion =
@@ -109,7 +111,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
     calculatePLStandardDeviation(closedTrades);
   const { totalGainLossDollar, totalGainLossRR, percentageGainLossDollar } =
     calculateTotalGainLoss(closedTrades);
-  const totalPipGainLoss = calculatePipGainLoss(closedTrades);
+  // const totalPipGainLoss = calculatePipGainLoss(closedTrades); // removed for Polymarket
   const { wins, losses } = calculateWinsLosses(closedTrades);
   const shortWinPercentage = calculateShortWinPercentage(closedTrades);
   const ulcerIndex = calculateUlcerIndex(closedTrades);
@@ -209,52 +211,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
           />,
         ]}
       />
-      {/* Trade Timing */}
-      <MetricRow
-        groupingTitle="Timing"
-        statLines={[
-          <StatLine
-            title="Avg. Hold Time"
-            style={{ flexBasis: "25%" }}
-            stats={
-              <>
-                <p>Mean: {avgHoldTimeMean} hrs</p>
-                <p>Median: {avgHoldTimeMedian} hrs</p>
-              </>
-            }
-          />,
-          <StatLine
-            title="Avg. Hold Time (Wins)"
-            style={{ flexBasis: "25%" }}
-            stats={
-              <>
-                <p>Mean: {avgHoldTimeWinsMean} hrs</p>
-                <p>Median: {avgHoldTimeWinsMedian} hrs</p>
-              </>
-            }
-          />,
-          <StatLine
-            title="Avg. Hold Time (Losses)"
-            style={{ flexBasis: "25%" }}
-            stats={
-              <>
-                <p>Mean: {avgHoldTimeLossesMean} hrs</p>
-                <p>Median: {avgHoldTimeLossesMedian} hrs</p>
-              </>
-            }
-          />,
-          <StatLine
-            title="Drawdown Duration"
-            style={{ flexBasis: "25%" }}
-            stats={
-              <>
-                <p>Days: {drawdownDurationDays}</p>
-                <p>Hours: {drawdownDurationHours}</p>
-              </>
-            }
-          />,
-        ]}
-      />
+      {/* Timing removed for Polymarket (fixed expiries; hold-time stats not meaningful here) */}
       {/* Trade Direction Metrics */}
       <MetricRow
         groupingTitle="Direction Metrics"
@@ -287,15 +244,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
               </>
             }
           />,
-          <StatLine
-            title="Pip Gain/Loss"
-            style={{ flexBasis: "25%" }}
-            stats={
-              <>
-                <p>{totalPipGainLoss}</p>
-              </>
-            }
-          />,
+          {/* Pip Gain/Loss removed for Polymarket */}
         ]}
       />
       {/* Trade Behavior */}
