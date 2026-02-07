@@ -245,12 +245,12 @@ export default function Maverick({ conversionRates }: MaverickProps) {
               <AccountsGrid>
                 {accounts.map((account) => (
                   <AccountCard key={account.accountID}>
-                    <AccountLabel>{account.accountName}</AccountLabel>
+                    <AccountLabel>{String((account as any).accountName ?? (account as any).name ?? (account as any).accountID)}</AccountLabel>
                     <AccountInfo>
                       <TextField label="Equity" type="number" variant="outlined" value={account.editableEquity} onChange={(e) => handleFieldChange(account.accountID, "editableEquity", e.target.value)} size="small" style={{ marginRight: 8 }} />
                       <TextField label="Risk %" type="number" variant="outlined" value={account.editableRiskPercent} onChange={(e) => handleFieldChange(account.accountID, "editableRiskPercent", e.target.value)} size="small" style={{ marginRight: 8 }} />
                       <Typography variant="subtitle1" style={{ fontWeight: 650 }}>
-                        Size: {Number.isFinite(calculatedSizes[account.accountID]) ? calculatedSizes[account.accountID].toFixed(2) : "0"}
+                        Size: {Number.isFinite(Number(calculatedSizes[account.accountID])) ? Number(calculatedSizes[account.accountID]).toFixed(2) : "0"}
                       </Typography>
                     </AccountInfo>
                   </AccountCard>
