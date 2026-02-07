@@ -84,25 +84,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    const fetchAccountsAndSetInitial = async () => {
-      try {
-        if (auth.isAuthenticated) {
-          const response = await http.get("/api/users/get-accounts");
-          const visibleAccounts = response.data.filter((account: Account) => account.visible === 1 || account.visible === true);
-          console.log(visibleAccounts);
-          if (visibleAccounts.length > 0 && selectedAccount === null) {
-            setSelectedAccount(visibleAccounts[0].accountID);
-          }
-        }
-      } catch (error: any) {
-        console.error(error);
-      }
-    };
-
-    fetchAccountsAndSetInitial();
-    // eslint-disable-next-line
-  }, [auth.isAuthenticated]); // Only re-run the effect if auth.isAuthenticated changes
+  // Account fetch disabled (was implicated in prod blank-screen debugging)
+  // useEffect(() => {
+  //   const fetchAccountsAndSetInitial = async () => {
+  //     try {
+  //       if (auth.isAuthenticated) {
+  //         const response = await http.get("/api/users/get-accounts");
+  //         const visibleAccounts = response.data.filter((account: Account) => account.visible === 1 || account.visible === true);
+  //         if (visibleAccounts.length > 0 && selectedAccount === null) {
+  //           setSelectedAccount(visibleAccounts[0].accountID);
+  //         }
+  //       }
+  //     } catch (error: any) {
+  //       console.error(error);
+  //     }
+  //   };
+  //
+  //   fetchAccountsAndSetInitial();
+  //   // eslint-disable-next-line
+  // }, [auth.isAuthenticated]);
 
   const value = {
     auth: { ...auth, selectedAccount },

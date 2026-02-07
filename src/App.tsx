@@ -11,7 +11,7 @@ import PolymarketRegime from "./pages/PolymarketRegime";
 import PolymarketLogs from "./pages/PolymarketLogs";
 // Auth and Account Select
 import AuthButton from "./auth/AuthButton";
-import AccountSelection from "./components/AccountSelection";
+// import AccountSelection from "./components/AccountSelection"; // disabled
 // Utility for fetching exchange rates
 // import { fetchExchangeRates } from "./utils/fetchExchangeRates"; // disabled
 // Global Style
@@ -146,13 +146,8 @@ function App() {
               </Nav>
             )}
           </TitleContainer>
-          {auth.isAuthenticated ? (
-            <>
-              <AccountSelection onSelectAccount={setSelectedAccount} />
-            </>
-          ) : (
-            <AuthButton />
-          )}
+          {auth.isAuthenticated ? null : <AuthButton />}
+
         </Header>
       </AppHeader>
       <Routes>
