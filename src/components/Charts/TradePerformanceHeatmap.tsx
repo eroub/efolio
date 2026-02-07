@@ -41,7 +41,7 @@ const TradePerformanceHeatmap: React.FC<TradePerformanceHeatmapProps> = ({
 
   useEffect(() => {
     // Initialize the data with all days and hours
-    const days = Array.from({ length: 5 }, (_, i) => i + 1); // Monday to Friday
+    const days = Array.from({ length: 7 }, (_, i) => i); // Sunday (0) to Saturday (6)
     const hours = Array.from({ length: 18 }, (_, i) => i + 6); // 6am to 11pm
 
     const data = [];
@@ -90,7 +90,8 @@ const TradePerformanceHeatmap: React.FC<TradePerformanceHeatmapProps> = ({
 
     // Create axes
     const xAxis = d3.axisBottom(x).tickFormat(d => `${d}:00`);
-    const yAxis = d3.axisLeft(y).tickFormat(d => ["Mon", "Tue", "Wed", "Thu", "Fri"][+d - 1]);
+    const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const yAxis = d3.axisLeft(y).tickFormat(d => dayLabels[+d] ?? d);
 
     // Append X-axis
     svg
