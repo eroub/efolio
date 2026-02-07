@@ -43,7 +43,7 @@ const AccountSelection: React.FC<{ onSelectAccount: (id: number) => void }> = ({
     >
       {accounts.map((account: Account) => (
         <option key={account.accountID} value={account.accountID}>
-          {account.accountName}
+          {String((account as any).accountName ?? (account as any).name ?? (account as any).accountID)}
         </option>
       ))}
     </select>
