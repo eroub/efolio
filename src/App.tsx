@@ -156,16 +156,10 @@ function App() {
         <Route
           path="/"
           element={
-            auth.isAuthenticated ? (
-              <Navigate to="/polymarket/live" replace />
-            ) : (
-              <div style={{ padding: 24, textAlign: "left" }}>
-                <h2 style={{ marginTop: 0 }}>Welcome</h2>
-                <p style={{ marginBottom: 0 }}>
-                  Please sign in to view Polymarket dashboards.
-                </p>
-              </div>
-            )
+            <TradeJournal
+              selectedAccount={selectedAccount}
+              conversionRates={conversionRates}
+            />
           }
         />
 
