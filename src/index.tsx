@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { ThemeProvider } from "styled-components";
 import { BrowserRouter as Router } from "react-router-dom";
 import App from "./App";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { AuthProvider } from "./auth/AuthContext";
 import GlobalStyle from "./assets/GlobalStyle";
 import { useAppColorScheme } from "./hooks/useAppColorScheme";
@@ -19,11 +20,13 @@ const RootComponent = () => {
     <React.StrictMode>
       <ThemeProvider theme={colorScheme === "light" ? lightTheme : darkTheme}>
         <GlobalStyle theme={colorScheme === "light" ? lightTheme : darkTheme} />
-        <AuthProvider>
-          <Router>
-            <App />
-          </Router>
-        </AuthProvider>
+        <ErrorBoundary>
+          <AuthProvider>
+            <Router>
+              <App />
+            </Router>
+          </AuthProvider>
+        </ErrorBoundary>
       </ThemeProvider>
     </React.StrictMode>
   );
