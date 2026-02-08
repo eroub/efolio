@@ -117,8 +117,9 @@ const TDLag = styled(TD)<{ $ms: number | null }>`
 `;
 
 const TR = styled.tr`
+  background: ${colorScheme.base["100"]};
   &:nth-child(even) {
-    background: ${colorScheme.base["50"]};
+    background: #c9c6bf; /* match screenshot's light gray stripes */
   }
 `;
 
