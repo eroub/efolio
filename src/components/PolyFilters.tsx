@@ -60,11 +60,15 @@ export function PolyFilters({
           onChange={(e) => onChange({ ...value, asset: e.target.value })}
         >
           <option value="all">All</option>
-          {assets.map((a) => (
-            <option key={a} value={a}>
-              {a}
-            </option>
-          ))}
+          {(assets || []).map((a: any, idx: number) => {
+            const key = String(a ?? idx);
+            const val = String(a ?? "");
+            return (
+              <option key={key} value={val}>
+                {val}
+              </option>
+            );
+          })}
         </Select>
       </Group>
 
@@ -87,11 +91,15 @@ export function PolyFilters({
           onChange={(e) => onChange({ ...value, strategy: e.target.value })}
         >
           <option value="all">All</option>
-          {strategies.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
+          {(strategies || []).map((s: any, idx: number) => {
+            const key = String(s ?? idx);
+            const val = String(s ?? "");
+            return (
+              <option key={key} value={val}>
+                {val}
+              </option>
+            );
+          })}
         </Select>
       </Group>
 
