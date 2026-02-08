@@ -50,6 +50,30 @@ interface StatisticsProps {
   closedTrades: Trade[];
 }
 
+// React #31 guard: some stats values are ReactNodes (Fragments with <p> etc). If any leaf
+// value accidentally becomes a plain object, React will crash the whole page.
+const safeNode = (node: any): any => {
+  if (node == null) return "";
+  if (typeof node === "string" || typeof node === "number" || typeof node === "boolean") return node;
+  if (React.isValidElement(node)) {
+    const children: any = (node as any).props?.children;
+    if (children !== undefined) {
+      return React.cloneElement(node as any, {
+        ...(node as any).props,
+        children: safeNode(children),
+      });
+    }
+    return node;
+  }
+  if (Array.isArray(node)) return node.map(safeNode);
+  // plain object/function/symbol/etc → stringify to keep UI alive
+  try {
+    return JSON.stringify(node);
+  } catch {
+    return String(node);
+  }
+};
+
 const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
   // Calculate statistics using the utility functions
   const averagePayoffRatio = calculateAveragePayoffRatio(closedTrades);
@@ -125,7 +149,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
       {/* Profitability Metrics */}
       <MetricRow
         groupingTitle="Profitability Metrics"
-        statLines={[
+        statLines={safeNode([
           <StatLine
             title="Total Gain/Loss"
             stats={
@@ -163,12 +187,12 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
               </>
             }
           />,
-        ]}
+        ])}
       />
       {/* Trade Characteristics */}
       <MetricRow
         groupingTitle="Characteristics"
-        statLines={[
+        statLines={safeNode([
           <StatLine
             title="Wins:Losses"
             style={{ flexBasis: "25%" }}
@@ -209,13 +233,13 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
               </>
             }
           />,
-        ]}
+        ])}
       />
       {/* Timing removed for Polymarket (fixed expiries; hold-time stats not meaningful here) */}
       {/* Trade Direction Metrics */}
       <MetricRow
         groupingTitle="Direction Metrics"
-        statLines={[
+        statLines={safeNode([
           <StatLine
             title="Long Short Ratio"
             style={{ flexBasis: "25%" }}
@@ -245,12 +269,12 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
             }
           />,
           {/* Pip Gain/Loss removed for Polymarket */}
-        ]}
+        ])}
       />
       {/* Trade Behavior */}
       <MetricRow
         groupingTitle="Behavior"
-        statLines={[
+        statLines={safeNode([
           <StatLine
             title="Avg. Payoff Ratio"
             tooltip="Measures the average profit relative to the average loss per trade, guiding you on the system's reward-to-risk efficiency."
@@ -291,12 +315,12 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
               </>
             }
           />,
-        ]}
+        ])}
       />
       {/* Risk Metrics */}
       <MetricRow
         groupingTitle="Risk Metrics"
-        statLines={[
+        statLines={safeNode([
           <StatLine
             title="P/L Standard Deviation"
             style={{ flexBasis: "25%" }}
@@ -337,12 +361,12 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
               </>
             }
           />,
-        ]}
+        ])}
       />
       {/* Advanced Risk Metrics */}
       <MetricRow
         groupingTitle="Advanced Risk Metrics"
-        statLines={[
+        statLines={safeNode([
           <StatLine
             title="Max Drawdown"
             style={{ flexBasis: "25%" }}
@@ -390,12 +414,12 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
               </>
             }
           />,
-        ]}
+        ])}
       />
       {/* Trading Strategy Quality */}
       <MetricRow
         groupingTitle="Trading Strategy Quality"
-        statLines={[
+        statLines={safeNode([
           <StatLine
             title="System Quality Number"
             tooltip="A single metric that evaluates the performance, risk, and consistency of a trading system, useful for comparing different strategies."
@@ -437,12 +461,12 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
               </>
             }
           />,
-        ]}
+        ])}
       />
       {/* Extreme Outcomes & Cost Metrics */}
       <MetricRow
         groupingTitle="Extreme Outcomes & Cost Metrics"
-        statLines={[
+        statLines={safeNode([
           <StatLine
             title="Net Drawdown"
             style={{ flexBasis: "25%" }}
@@ -484,7 +508,7 @@ const TradeStatistics: React.FC<StatisticsProps> = ({ closedTrades }) => {
               </>
             }
           />,
-        ]}
+        ])}
       />
     </div>
   );
