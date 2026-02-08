@@ -93,13 +93,13 @@ export default function PolymarketStrategies() {
         <tbody>
           {rows.map((r, i) => (
             <TR key={i}>
-              <TD>{r.strategy}</TD>
-              <TD>{r.mode}</TD>
-              <TD>{r.n}</TD>
-              <TD>{r.wins}</TD>
-              <TD>{r.losses}</TD>
-              <TD>{r.avg_entry}</TD>
-              <TD>{r.pnl_usd}</TD>
+              <TD>{String((r as any).strategy ?? "")}</TD>
+              <TD>{String((r as any).mode ?? "")}</TD>
+              <TD>{String((r as any).n ?? "")}</TD>
+              <TD>{String((r as any).wins ?? "")}</TD>
+              <TD>{String((r as any).losses ?? "")}</TD>
+              <TD>{(r as any).avg_entry != null ? String((r as any).avg_entry) : ""}</TD>
+              <TD>{(r as any).pnl_usd != null ? String((r as any).pnl_usd) : ""}</TD>
             </TR>
           ))}
         </tbody>

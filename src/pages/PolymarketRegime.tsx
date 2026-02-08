@@ -89,11 +89,11 @@ export default function PolymarketRegime() {
         <tbody>
           {rows.map((r, i) => (
             <TR key={i}>
-              <TD>{r.btc_regime ?? "(null)"}</TD>
-              <TD>{r.mode}</TD>
-              <TD>{r.n}</TD>
-              <TD>{r.wins}</TD>
-              <TD>{r.pnl_usd}</TD>
+              <TD>{String((r as any).btc_regime ?? "(null)")}</TD>
+              <TD>{String((r as any).mode ?? "")}</TD>
+              <TD>{String((r as any).n ?? "")}</TD>
+              <TD>{String((r as any).wins ?? "")}</TD>
+              <TD>{(r as any).pnl_usd != null ? String((r as any).pnl_usd) : ""}</TD>
             </TR>
           ))}
         </tbody>
