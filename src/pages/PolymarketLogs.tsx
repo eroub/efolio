@@ -355,17 +355,17 @@ export default function PolymarketLogs() {
       <div style={{ marginBottom: 16 }}>
         <H2 style={{ fontSize: 16, marginBottom: 8 }}>Copytrade Compare (leader → us)</H2>
         <div style={{ fontSize: 12, opacity: 0.8, marginBottom: 8 }}>
-          {((compareShow === "copied" ? copiedResp : leaderResp) as any)?.summary ? (
+          {leaderResp?.summary ? (
             <>
-              <b>last {String((((compareShow === "copied" ? copiedResp : leaderResp) as any)?.minutes ?? minutes))}m</b> | total={String(((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.total ?? "")} | copied={String(((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.copied ?? "")} | skipped={String(((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.skipped ?? "")} | unknown={String(((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.unknown ?? "")} | copy_rate={((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.copy_rate != null ? (Number(((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.copy_rate) * 100).toFixed(1) + "%" : "?"}
+              <b>last {String((leaderResp?.minutes ?? minutes))}m</b> | total={String(leaderResp.summary.total ?? "")} | copied={String(leaderResp.summary.copied ?? "")} | skipped={String(leaderResp.summary.skipped ?? "")} | unknown={String(leaderResp.summary.unknown ?? "")} | copy_rate={leaderResp.summary.copy_rate != null ? (Number(leaderResp.summary.copy_rate) * 100).toFixed(1) + "%" : "?"}
               <br />
-              reasons: {Object.entries(((((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.reasons || {}) as any) || {})
+              reasons: {Object.entries(((leaderResp.summary.reasons || {}) as any) || {})
                 .sort((a: any, b: any) => Number(b?.[1] ?? 0) - Number(a?.[1] ?? 0))
                 .slice(0, 8)
                 .map(([k, v]: any) => `${String(k)}=${String(v)}`)
                 .join(" | ")}
               <br />
-              dPx avg={((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.dpx_avg != null ? Number(((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.dpx_avg).toFixed(4) : "-"} | dPx abs avg={((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.dpx_abs_avg != null ? Number(((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.dpx_abs_avg).toFixed(4) : "-"}
+              dPx avg={leaderResp.summary.dpx_avg != null ? Number(leaderResp.summary.dpx_avg).toFixed(4) : "-"} | dPx abs avg={leaderResp.summary.dpx_abs_avg != null ? Number(leaderResp.summary.dpx_abs_avg).toFixed(4) : "-"}
             </>
           ) : (
             "(no summary yet)"
@@ -375,20 +375,20 @@ export default function PolymarketLogs() {
           <label style={{ fontSize: 12 }}>
             show:&nbsp;
             <Select value={compareShow} onChange={(e) => setCompareShow(e.target.value)}>
-              <option value="copied">COPIED only</option>
               <option value="all">All</option>
               <option value="skipped">SKIPPED only</option>
+              <option value="copied">COPIED only</option>
             </Select>
           </label>
         </div>
 
-        {((compareShow === "copied" ? copiedResp?.rows : leaderResp?.rows) || []).length ? (
+        {(leaderResp?.rows || []).length ? (
           <CopytradeCompareTable
-            rows={((compareShow === "copied" ? copiedResp?.rows : leaderResp?.rows) || [])
-              .filter((r) => {
+            rows={(leaderResp?.rows || [])
+              .filter((r: any) => {
                 if (compareShow === "all") return true;
-                if (compareShow === "copied") return true;
-                if (compareShow === "skipped") return r.status === "SKIPPED";
+                if (compareShow === "skipped") return String(r?.status ?? "") === "SKIPPED";
+                if (compareShow === "copied") return String(r?.status ?? "") === "COPIED";
                 return true;
               })
               .slice(0, 200)}
