@@ -70,8 +70,21 @@ const TR = styled.tr`
 `;
 
 type Summary = {
-  counts: { strategies: number; runs: number; trades: number };
+  counts: { strategies: number; runs: number; trades: number; fills?: number };
+  positions?: { wins?: number; losses?: number; pnl_usd?: number; winrate?: number };
   recentTrades: any[];
+};
+
+type ActivityRow = {
+  mode: string;
+  ts: number;
+  market_name: string;
+  action: string;
+  usdc_amount: number;
+  token_amount: number;
+  token_name: string | null;
+  tx_hash: string;
+  strategy: string | null;
 };
 
 export default function PolymarketOverview() {
@@ -83,6 +96,7 @@ export default function PolymarketOverview() {
 
   const [summary, setSummary] = useState<Summary | null>(null);
   const [positions, setPositions] = useState<PolyPosition[]>([]);
+  const [activity, setActivity] = useState<ActivityRow[]>([]);
   const [tradesOpen, setTradesOpen] = useState<boolean>(true);
   const [comparisonMode, setComparisonMode] = useState<"R" | "$">("$");
   const [filters, setFilters] = useState<PolyFilterState>({
@@ -103,12 +117,14 @@ export default function PolymarketOverview() {
     const run = async () => {
       try {
         setError(null);
-        const [sumResp, posResp] = await Promise.all([
+        const [sumResp, posResp, actResp] = await Promise.all([
           http.get(`/api/poly/summary?mode=${mode}`),
           http.get(`/api/poly/positions?mode=${mode}&limit=500`),
+          http.get(`/api/poly/activity?mode=${mode}&limit=500`),
         ]);
         setSummary(sumResp.data);
         setPositions(posResp.data?.rows ?? []);
+        setActivity(actResp.data?.rows ?? []);
       } catch (e: any) {
         setError(e?.message || "Failed to load");
       }
@@ -155,12 +171,23 @@ export default function PolymarketOverview() {
               return true;
             });
 
-            const filteredFills = summary.recentTrades.filter((t: any) => {
-              if (filters.asset !== "all" && t.asset !== filters.asset) return false;
-              if (filters.direction !== "all" && t.direction !== filters.direction) return false;
-              if (filters.strategy !== "all" && t.strategy !== filters.strategy) return false;
-              return true;
-            });
+            // Canonical fill/activity table comes from poly_orders via /api/poly/activity.
+            // We filter only Buy actions here.
+            const filteredFills = activity
+              .filter((t) => String(t.action).toLowerCase() === "buy")
+              .filter((t) => {
+                const m = String(t.market_name || "");
+                const asset = m.toUpperCase().includes("BITCOIN") ? "BTC" :
+                              m.toUpperCase().includes("ETHEREUM") ? "ETH" :
+                              m.toUpperCase().includes("SOLANA") ? "SOL" :
+                              m.toUpperCase().includes("XRP") ? "XRP" : "";
+                const dir = (t.token_name || "").toUpperCase() === "UP" ? "UP" : ((t.token_name || "").toUpperCase() === "DOWN" ? "DOWN" : "");
+                const strat = t.strategy || "unknown";
+                if (filters.asset !== "all" && asset !== filters.asset) return false;
+                if (filters.direction !== "all" && dir !== filters.direction) return false;
+                if (filters.strategy !== "all" && strat !== filters.strategy) return false;
+                return true;
+              });
 
             const groupedFills = groupPolyFills(filteredFills);
 
@@ -180,8 +207,22 @@ export default function PolymarketOverview() {
               <div style={{ fontSize: 28, fontWeight: 700 }}>{summary.counts.runs}</div>
             </Card>
             <Card>
-              <div style={{ opacity: 0.7 }}>Trades (fills)</div>
-              <div style={{ fontSize: 28, fontWeight: 700 }}>{tileTrades}</div>
+              <div style={{ opacity: 0.7 }}>Trades</div>
+              <div style={{ fontSize: 28, fontWeight: 700 }}>
+                {summary.counts.trades}
+                <span style={{ fontSize: 12, opacity: 0.65, marginLeft: 8 }}>
+                  ({summary.counts.fills ?? tileTrades} fills)
+                </span>
+              </div>
+            </Card>
+            <Card>
+              <div style={{ opacity: 0.7 }}>Resolved</div>
+              <div style={{ fontSize: 28, fontWeight: 700 }}>
+                {(summary?.positions?.wins ?? 0) + (summary?.positions?.losses ?? 0)}
+                <span style={{ fontSize: 12, opacity: 0.65, marginLeft: 8 }}>
+                  / {tilePositions} positions
+                </span>
+              </div>
             </Card>
             <Card>
               <div style={{ opacity: 0.7 }}>Positions</div>
@@ -230,11 +271,12 @@ export default function PolymarketOverview() {
           <Table>
             <thead>
               <tr>
-                <TH>last</TH>
+                <TH>exec_time (ET)</TH>
                 <TH>mode</TH>
-                <TH>asset</TH>
-                <TH>strategy</TH>
+                <TH>instrument</TH>
                 <TH>token</TH>
+                <TH>strategy</TH>
+                <TH>timeframe</TH>
                 <TH>avg_entry</TH>
                 <TH>result</TH>
                 <TH>pnl</TH>
@@ -242,19 +284,47 @@ export default function PolymarketOverview() {
               </tr>
             </thead>
             <tbody>
-              {positions.slice(0, 50).map((p: any, i: number) => (
-                <TR key={i}>
-                  <TD>{p.last_ts ?? p.first_ts ?? ""}</TD>
-                  <TD>{p.mode}</TD>
-                  <TD>{p.asset ?? ""}</TD>
-                  <TD>{p.strategy ?? ""}</TD>
-                  <TD>{p.token_name}</TD>
-                  <TD>{p.avg_entry_price ?? ""}</TD>
-                  <TD>{p.result ?? ""}</TD>
-                  <TD>{p.realized_pnl_usd ?? ""}</TD>
-                  <TD>{p.fills ?? ""}</TD>
-                </TR>
-              ))}
+              {positions.slice(0, 50).map((p: any, i: number) => {
+                const ts = p.last_ts ?? p.first_ts;
+                const et = ts
+                  ? new Date(ts * 1000).toLocaleString("en-US", {
+                      timeZone: "America/New_York",
+                      month: "short",
+                      day: "2-digit",
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })
+                  : "";
+
+                const title = String(p.market_name || "");
+                const instrument = title.toUpperCase().includes("BITCOIN")
+                  ? "BTC"
+                  : title.toUpperCase().includes("ETHEREUM")
+                  ? "ETH"
+                  : title.toUpperCase().includes("SOLANA")
+                  ? "SOL"
+                  : title.toUpperCase().includes("XRP")
+                  ? "XRP"
+                  : (p.asset || "");
+
+                const timeframe = title.includes("-") ? title.split("-").slice(1).join("-").trim() : "";
+                const strat = p.strategy || "unknown";
+
+                return (
+                  <TR key={i}>
+                    <TD>{et}</TD>
+                    <TD>{String(p.mode ?? "")}</TD>
+                    <TD>{String(instrument ?? "")}</TD>
+                    <TD>{String(p.token_name ?? "")}</TD>
+                    <TD>{String(strat ?? "")}</TD>
+                    <TD>{String(timeframe ?? "")}</TD>
+                    <TD>{p.avg_entry_price ?? ""}</TD>
+                    <TD>{String(p.result ?? "")}</TD>
+                    <TD>{p.realized_pnl_usd ?? ""}</TD>
+                    <TD>{p.fills ?? ""}</TD>
+                  </TR>
+                );
+              })}
             </tbody>
           </Table>
 
@@ -292,11 +362,11 @@ export default function PolymarketOverview() {
               <tbody>
                 {groupedFills.map((t: any, i: number) => (
                   <TR key={t.key ?? i}>
-                    <TD>{t.ts_open}</TD>
-                    <TD>{t.mode}</TD>
-                    <TD>{t.asset}</TD>
-                    <TD>{t.direction}</TD>
-                    <TD>{t.strategy}</TD>
+                    <TD>{String(t.ts_open ?? "")}</TD>
+                    <TD>{String(t.mode ?? "")}</TD>
+                    <TD>{String(t.asset ?? "")}</TD>
+                    <TD>{String(t.direction ?? "")}</TD>
+                    <TD>{String(t.strategy ?? "")}</TD>
                     <TD>{t.entry_price ?? ""}</TD>
                     <TD>{t.settled_result ?? ""}</TD>
                     <TD>{t.settled_pnl_usd ?? ""}</TD>
