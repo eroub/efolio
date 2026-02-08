@@ -83,17 +83,18 @@ const TDDelta = styled(TD)<{ $v: number | null }>`
   font-weight: 700;
   color: ${(p) => {
     const v = p.$v;
-    if (v == null || !Number.isFinite(v)) return colorScheme.base.black;
+    if (v == null || !Number.isFinite(v)) return "#333";
     if (v > 0) return "#1b5e20";
     if (v < 0) return "#b71c1c";
     return "#333";
   }};
   background: ${(p) => {
     const v = p.$v;
-    if (v == null || !Number.isFinite(v)) return "transparent";
-    if (v > 0) return "#e8f5e9";
-    if (v < 0) return "#ffebee";
-    return "#f5f5f5";
+    if (v == null || !Number.isFinite(v)) return "#f7f7f7"; // light column tint
+    const mag = Math.min(1, Math.abs(v) / 0.5); // clamp at 0.50
+    if (v > 0) return `rgba(27,94,32,${0.06 + 0.10 * mag})`; // light green tint
+    if (v < 0) return `rgba(183,28,28,${0.06 + 0.10 * mag})`; // light red tint
+    return "#f7f7f7";
   }};
 `;
 
@@ -101,17 +102,17 @@ const TDLag = styled(TD)<{ $ms: number | null }>`
   font-weight: 700;
   color: ${(p) => {
     const ms = p.$ms;
-    if (ms == null || !Number.isFinite(ms)) return colorScheme.base.black;
+    if (ms == null || !Number.isFinite(ms)) return "#333";
     if (ms <= 5000) return "#1b5e20";
     if (ms <= 15000) return "#7a4f00";
     return "#b71c1c";
   }};
   background: ${(p) => {
     const ms = p.$ms;
-    if (ms == null || !Number.isFinite(ms)) return "transparent";
-    if (ms <= 5000) return "#e8f5e9";
-    if (ms <= 15000) return "#fff8e1";
-    return "#ffebee";
+    if (ms == null || !Number.isFinite(ms)) return "#f7f7f7"; // light column tint
+    const mag = Math.min(1, ms / 30000); // clamp at 30s
+    // Always a light pink-ish tint, stronger as lag increases (matches screenshot feel)
+    return `rgba(255, 0, 0, ${0.04 + 0.10 * mag})`;
   }};
 `;
 
@@ -242,7 +243,9 @@ export default function CopytradeCompareTable({ rows }: { rows: CompareRow[] }) 
               (r.attempt_rich && r.attempt_rich.err ? r.attempt_rich.err : null) ??
               "";
 
-            const reasonText = detail ? `${reason} — ${fmtText(detail)}` : reason;
+            // Keep the cell readable; raw detail goes to tooltip.
+            const reasonText = reason || "";
+            const reasonTooltip = detail ? `${reason} — ${fmtText(detail)}` : reason;
 
             return (
               <TR key={r.id ?? r.key ?? i}>
@@ -275,7 +278,7 @@ export default function CopytradeCompareTable({ rows }: { rows: CompareRow[] }) 
                   {fmtMs(fillLagMsForRow(r))}
                 </TDLag>
                 <TDDelta $v={r.dpx == null ? null : Number(r.dpx)}>{r.dpx == null ? "—" : fmtNum(r.dpx)}</TDDelta>
-                <TD title={reasonText}>{reasonText}</TD>
+                <TD title={reasonTooltip}>{reasonText}</TD>
               </TR>
             );
           })}
