@@ -16,7 +16,9 @@ if ! git diff --quiet || ! git diff --cached --quiet; then
   exit 2
 fi
 
-echo "[deploy_efolio] npm ci"
+echo "[deploy_efolio] npm ci (clean install)"
+# Occasionally npm leaves behind non-empty scoped dirs on this box; ensure a clean install.
+rm -rf node_modules
 npm ci
 
 echo "[deploy_efolio] build"
