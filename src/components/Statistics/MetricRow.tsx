@@ -87,7 +87,13 @@ const StatLine: React.FC<StatLineProps> = ({
         </h3>
       </div>
       <div style={{ flexBasis: "70%", textAlign: "center" }}>
-        {typeof safeStats === "number" ? (isNaN(safeStats) ? "N/A" : safeStats) : safeStats}
+        {typeof safeStats === "number"
+          ? isNaN(safeStats)
+            ? "N/A"
+            : safeStats
+          : safeStats && typeof safeStats === "object" && !React.isValidElement(safeStats)
+            ? JSON.stringify(safeStats)
+            : String(safeStats ?? "")}
       </div>
     </div>
   );
