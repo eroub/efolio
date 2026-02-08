@@ -100,13 +100,13 @@ const TradeJournal: React.FC<TradeJournalProps> = ({
 
   //  Get list of closed trades, most recent, and first open trade if any
   const closedTrades = accountFilteredTrades
-    .filter((trade) => trade.status === "Closed")
-    .sort((a, b) => b.id - a.id) as Trade[];
+    .filter((trade: any) => String(trade?.status ?? "") === "Closed")
+    .sort((a: any, b: any) => Number(b?.id ?? 0) - Number(a?.id ?? 0)) as Trade[];
 
   const mostRecentTrade: Trade | null =
     closedTrades.length > 0 ? closedTrades[0] : null;
   const firstOpenTrade = accountFilteredTrades.find(
-    (trade) => trade.status === "Open",
+    (trade: any) => String(trade?.status ?? "") === "Open",
   );
 
   return (
