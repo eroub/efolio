@@ -357,15 +357,15 @@ export default function PolymarketLogs() {
         <div style={{ fontSize: 12, opacity: 0.8, marginBottom: 8 }}>
           {((compareShow === "copied" ? copiedResp : leaderResp) as any)?.summary ? (
             <>
-              <b>last {(((compareShow === "copied" ? copiedResp : leaderResp) as any)?.minutes ?? minutes)}m</b> | total={((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.total} | copied={((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.copied} | skipped={((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.skipped} | unknown={((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.unknown} | copy_rate={((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.copy_rate != null ? (((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.copy_rate * 100).toFixed(1) + "%" : "?"}
+              <b>last {String((((compareShow === "copied" ? copiedResp : leaderResp) as any)?.minutes ?? minutes))}m</b> | total={String(((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.total ?? "")} | copied={String(((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.copied ?? "")} | skipped={String(((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.skipped ?? "")} | unknown={String(((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.unknown ?? "")} | copy_rate={((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.copy_rate != null ? (Number(((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.copy_rate) * 100).toFixed(1) + "%" : "?"}
               <br />
-              reasons: {Object.entries((((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.reasons || {}) as any)
-                .sort((a: any, b: any) => b[1] - a[1])
+              reasons: {Object.entries(((((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.reasons || {}) as any) || {})
+                .sort((a: any, b: any) => Number(b?.[1] ?? 0) - Number(a?.[1] ?? 0))
                 .slice(0, 8)
-                .map(([k, v]: any) => `${k}=${v}`)
+                .map(([k, v]: any) => `${String(k)}=${String(v)}`)
                 .join(" | ")}
               <br />
-              dPx avg={((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.dpx_avg != null ? ((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.dpx_avg.toFixed(4) : "-"} | dPx abs avg={((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.dpx_abs_avg != null ? ((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.dpx_abs_avg.toFixed(4) : "-"}
+              dPx avg={((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.dpx_avg != null ? Number(((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.dpx_avg).toFixed(4) : "-"} | dPx abs avg={((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.dpx_abs_avg != null ? Number(((compareShow === "copied" ? copiedResp : leaderResp) as any).summary.dpx_abs_avg).toFixed(4) : "-"}
             </>
           ) : (
             "(no summary yet)"
@@ -421,7 +421,7 @@ export default function PolymarketLogs() {
               <br />
               <b>Copytrade Risk Params (cap = % of equity)</b>
               <br />
-              equity=${copyRisk.equity_usd.toFixed(2)} | active_risk=${Number(copyRisk.exposures?.active_usd || 0).toFixed(2)} | breaker={String(copyRisk.circuit_breaker?.tripped)}
+              equity=${Number(copyRisk.equity_usd ?? 0).toFixed(2)} | active_risk=${Number(copyRisk.exposures?.active_usd || 0).toFixed(2)} | breaker={String(copyRisk.circuit_breaker?.tripped)}
               {copyRisk.circuit_breaker?.tripped ? (
                 <>
                   <br />
@@ -429,13 +429,13 @@ export default function PolymarketLogs() {
                 </>
               ) : null}
               <br />
-              clip_usd=${copyRisk.params_usd.clip_usd.toFixed(2)} — {copyRisk.descriptions.clip_usd}
+              clip_usd=${Number(copyRisk.params_usd?.clip_usd ?? 0).toFixed(2)} — {String(copyRisk.descriptions?.clip_usd ?? "")}
               <br />
-              max_active_pct={(copyRisk.params_pct.max_active_pct * 100).toFixed(1)}% (=${copyRisk.params_usd.max_active_usd.toFixed(2)}) — {copyRisk.descriptions.max_active_pct}
+              max_active_pct={(Number(copyRisk.params_pct?.max_active_pct ?? 0) * 100).toFixed(1)}% (=${Number(copyRisk.params_usd?.max_active_usd ?? 0).toFixed(2)}) — {String(copyRisk.descriptions?.max_active_pct ?? "")}
               <br />
-              max_per_asset_pct={(copyRisk.params_pct.max_per_asset_pct * 100).toFixed(1)}% (=${copyRisk.params_usd.max_per_asset_usd.toFixed(2)}) — {copyRisk.descriptions.max_per_asset_pct}
+              max_per_asset_pct={(Number(copyRisk.params_pct?.max_per_asset_pct ?? 0) * 100).toFixed(1)}% (=${Number(copyRisk.params_usd?.max_per_asset_usd ?? 0).toFixed(2)}) — {String(copyRisk.descriptions?.max_per_asset_pct ?? "")}
               <br />
-              max_per_window_pct={(copyRisk.params_pct.max_per_window_pct * 100).toFixed(1)}% (=${copyRisk.params_usd.max_per_window_usd.toFixed(2)}) — {copyRisk.descriptions.max_per_window_pct}
+              max_per_window_pct={(Number(copyRisk.params_pct?.max_per_window_pct ?? 0) * 100).toFixed(1)}% (=${Number(copyRisk.params_usd?.max_per_window_usd ?? 0).toFixed(2)}) — {String(copyRisk.descriptions?.max_per_window_pct ?? "")}
             </>
           ) : null}
         </div>
