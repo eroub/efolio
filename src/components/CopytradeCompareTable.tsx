@@ -177,6 +177,15 @@ function fmtMs(x: any): string {
   return `${n.toFixed(0)}ms`;
 }
 
+function fillLagMsForRow(r: any): number | null {
+  // Fill lag should mean: leader fill time -> our fill time.
+  // If we didn't fill (SKIPPED/UNKNOWN), show null (render as —).
+  const status = String(r?.status ?? "");
+  if (status !== "COPIED") return null;
+  const ms = Number(r?.fill_lag_ms);
+  return Number.isFinite(ms) ? ms : null;
+}
+
 function fmtText(x: any): string {
   if (x == null) return "";
   if (typeof x === "string") return x;
@@ -259,8 +268,11 @@ export default function CopytradeCompareTable({ rows }: { rows: CompareRow[] }) 
                   <Badge $kind={status || ""}>{status || "—"}</Badge>
                 </TD>
                 <TD>{fmtUsCell(our)}</TD>
-                <TDLag $ms={Number(r.fill_lag_ms ?? NaN)} title={`detect_lag=${fmtMs(r.detect_lag_ms ?? "")}`}>
-                  {fmtMs(r.fill_lag_ms ?? "")}
+                <TDLag
+                  $ms={fillLagMsForRow(r)}
+                  title={`detect_lag=${fmtMs(r.detect_lag_ms ?? "")}`}
+                >
+                  {fmtMs(fillLagMsForRow(r))}
                 </TDLag>
                 <TDDelta $v={r.dpx == null ? null : Number(r.dpx)}>{r.dpx == null ? "—" : fmtNum(r.dpx)}</TDDelta>
                 <TD title={reasonText}>{reasonText}</TD>
