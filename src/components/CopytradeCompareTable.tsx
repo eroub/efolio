@@ -126,14 +126,7 @@ const TR = styled.tr`
 const MarketCell = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 2px;
   min-width: 340px;
-`;
-
-const OpenLink = styled.a`
-  font-size: 11px;
-  opacity: 0.8;
-  text-decoration: underline;
 `;
 
 const Badge = styled.span<{ $kind: string }>`
@@ -260,11 +253,7 @@ export default function CopytradeCompareTable({ rows }: { rows: CompareRow[] }) 
                     ) : (
                       <span>{marketLabel}</span>
                     )}
-                    {marketUrl ? (
-                      <OpenLink href={marketUrl} target="_blank" rel="noreferrer">
-                        open
-                      </OpenLink>
-                    ) : null}
+                    {null}
                   </MarketCell>
                 </TD>
                 <TD>{fmtLeaderCell(leader)}</TD>
