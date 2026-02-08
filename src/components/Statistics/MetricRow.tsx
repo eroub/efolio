@@ -121,7 +121,7 @@ const MetricRow: React.FC<MetricRowProps> = ({ groupingTitle, statLines }) => {
     >
       <Grid item xs={gridSize}>
         <div style={{ textAlign: "left" }}>
-          <h3>{groupingTitle}</h3>
+          <h3>{String(groupingTitle ?? "")}</h3>
         </div>
       </Grid>
       {statLines.map((statLine, index) => (
