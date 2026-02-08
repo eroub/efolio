@@ -79,6 +79,42 @@ const TD = styled.td`
   vertical-align: top;
 `;
 
+const TDDelta = styled(TD)<{ $v: number | null }>`
+  font-weight: 700;
+  color: ${(p) => {
+    const v = p.$v;
+    if (v == null || !Number.isFinite(v)) return colorScheme.base.black;
+    if (v > 0) return "#1b5e20";
+    if (v < 0) return "#b71c1c";
+    return "#333";
+  }};
+  background: ${(p) => {
+    const v = p.$v;
+    if (v == null || !Number.isFinite(v)) return "transparent";
+    if (v > 0) return "#e8f5e9";
+    if (v < 0) return "#ffebee";
+    return "#f5f5f5";
+  }};
+`;
+
+const TDLag = styled(TD)<{ $ms: number | null }>`
+  font-weight: 700;
+  color: ${(p) => {
+    const ms = p.$ms;
+    if (ms == null || !Number.isFinite(ms)) return colorScheme.base.black;
+    if (ms <= 5000) return "#1b5e20";
+    if (ms <= 15000) return "#7a4f00";
+    return "#b71c1c";
+  }};
+  background: ${(p) => {
+    const ms = p.$ms;
+    if (ms == null || !Number.isFinite(ms)) return "transparent";
+    if (ms <= 5000) return "#e8f5e9";
+    if (ms <= 15000) return "#fff8e1";
+    return "#ffebee";
+  }};
+`;
+
 const TR = styled.tr`
   &:nth-child(even) {
     background: ${colorScheme.base["50"]};
@@ -223,8 +259,10 @@ export default function CopytradeCompareTable({ rows }: { rows: CompareRow[] }) 
                   <Badge $kind={status || ""}>{status || "—"}</Badge>
                 </TD>
                 <TD>{fmtUsCell(our)}</TD>
-                <TD title={`detect_lag=${fmtMs(r.detect_lag_ms ?? "")}`}>{fmtMs(r.fill_lag_ms ?? "")}</TD>
-                <TD>{r.dpx == null ? "—" : fmtNum(r.dpx)}</TD>
+                <TDLag $ms={Number(r.fill_lag_ms ?? NaN)} title={`detect_lag=${fmtMs(r.detect_lag_ms ?? "")}`}>
+                  {fmtMs(r.fill_lag_ms ?? "")}
+                </TDLag>
+                <TDDelta $v={r.dpx == null ? null : Number(r.dpx)}>{r.dpx == null ? "—" : fmtNum(r.dpx)}</TDDelta>
                 <TD title={reasonText}>{reasonText}</TD>
               </TR>
             );
