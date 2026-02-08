@@ -144,8 +144,8 @@ export default function PolymarketOverview() {
       {summary && (
         <>
           <PolyFilters
-            assets={[...new Set(summary.recentTrades.map((t: any) => t.asset))].sort()}
-            strategies={[...new Set(summary.recentTrades.map((t: any) => t.strategy))].sort()}
+            assets={[...new Set((summary.recentTrades || []).map((t: any) => String(t.asset ?? "")))].filter((x) => x && x !== "undefined").sort()}
+            strategies={[...new Set((summary.recentTrades || []).map((t: any) => String(t.strategy ?? "unknown")))].filter((x) => x && x !== "undefined").sort()}
             value={filters}
             onChange={setFilters}
           />
