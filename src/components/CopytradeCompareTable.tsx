@@ -3,19 +3,47 @@ import styled from "styled-components";
 import { colorScheme } from "../assets/themes";
 
 export type CompareRow = {
-  // common
   ts?: any;
-  market?: any;
-  asset?: any;
-  token?: any;
-  side?: any;
-  leader_price?: any;
-  our_price?: any;
+  slug?: any;
+  title?: any;
+  market_url?: any;
+  status?: any;
+  reason?: any;
+  reason_detail?: any;
+
+  leader?: {
+    ts_ms?: any;
+    side?: any;
+    price?: any;
+    usd?: any;
+    tx?: any;
+    token_id?: any;
+  };
+  our?: {
+    ts_ms?: any;
+    price?: any;
+    usd?: any;
+    tx?: any;
+    order_id?: any;
+  };
+  attempt?: {
+    ts_ms?: any;
+    dedupe_key?: any;
+    status_code?: any;
+  };
+  attempt_rich?: {
+    ts?: any;
+    outcome?: any;
+    status_code?: any;
+    resp?: any;
+    err?: any;
+    mirror?: any;
+    dedupe_key?: any;
+  };
+
   dpx?: any;
   fill_lag_ms?: any;
   detect_lag_ms?: any;
-  status?: any;
-  reason?: any;
 };
 
 const Table = styled.table`
@@ -65,38 +93,78 @@ function fmtMs(x: any): string {
   return `${n.toFixed(0)}ms`;
 }
 
+function fmtText(x: any): string {
+  if (x == null) return "";
+  if (typeof x === "string") return x;
+  try {
+    return JSON.stringify(x);
+  } catch {
+    return String(x);
+  }
+}
+
 export default function CopytradeCompareTable({ rows }: { rows: CompareRow[] }) {
   return (
     <Table>
       <thead>
         <tr>
           <TH>ts</TH>
-          <TH>asset</TH>
-          <TH>token</TH>
+          <TH>market</TH>
+          <TH>token_id</TH>
           <TH>side</TH>
           <TH>leader_px</TH>
+          <TH>leader_usd</TH>
           <TH>our_px</TH>
+          <TH>our_usd</TH>
           <TH>dPx</TH>
           <TH>fill_lag</TH>
           <TH>status</TH>
           <TH>reason</TH>
+          <TH>detail</TH>
         </tr>
       </thead>
       <tbody>
-        {(rows || []).map((r: any, i: number) => (
-          <TR key={r.id ?? r.key ?? i}>
-            <TD>{String(r.ts ?? r.ts_s ?? r.ingested_at ?? "")}</TD>
-            <TD>{String(r.asset ?? "")}</TD>
-            <TD>{String(r.token ?? r.token_name ?? "")}</TD>
-            <TD>{String(r.side ?? "")}</TD>
-            <TD>{fmtNum(r.leader_price ?? r.leader_px ?? r.leader_entry ?? r.price)}</TD>
-            <TD>{fmtNum(r.our_price ?? r.our_px ?? r.our_entry)}</TD>
-            <TD>{fmtNum(r.dpx ?? r.dPx ?? r.delta_px)}</TD>
-            <TD title={`detect_lag=${fmtMs(r.detect_lag_ms ?? "")}`}>{fmtMs(r.fill_lag_ms ?? r.fill_lag)}</TD>
-            <TD>{String(r.status ?? "")}</TD>
-            <TD>{String(r.reason ?? r.outcome ?? "")}</TD>
-          </TR>
-        ))}
+        {(rows || []).map((r: any, i: number) => {
+          const leader = r.leader || {};
+          const our = r.our || {};
+
+          const marketLabel = String(r.title ?? r.slug ?? "");
+          const marketUrl = r.market_url ? String(r.market_url) : "";
+          const tokenId = String(leader.token_id ?? "");
+          const side = String(leader.side ?? "");
+
+          const detail =
+            r.reason_detail ??
+            (r.attempt_rich && r.attempt_rich.resp ? r.attempt_rich.resp : null) ??
+            (r.attempt_rich && r.attempt_rich.err ? r.attempt_rich.err : null) ??
+            "";
+
+          return (
+            <TR key={r.id ?? r.key ?? i}>
+              <TD>{String(r.ts ?? "")}</TD>
+              <TD>
+                {marketUrl ? (
+                  <a href={marketUrl} target="_blank" rel="noreferrer">
+                    {marketLabel}
+                  </a>
+                ) : (
+                  marketLabel
+                )}
+              </TD>
+              <TD>{tokenId}</TD>
+              <TD>{side}</TD>
+              <TD>{fmtNum(leader.price)}</TD>
+              <TD>{fmtNum(leader.usd, 2)}</TD>
+              <TD>{fmtNum(our.price)}</TD>
+              <TD>{fmtNum(our.usd, 2)}</TD>
+              <TD>{fmtNum(r.dpx)}</TD>
+              <TD title={`detect_lag=${fmtMs(r.detect_lag_ms ?? "")}`}>{fmtMs(r.fill_lag_ms ?? "")}</TD>
+              <TD>{String(r.status ?? "")}</TD>
+              <TD>{String(r.reason ?? "")}</TD>
+              <TD title={fmtText(detail)}>{fmtText(detail).slice(0, 120)}</TD>
+            </TR>
+          );
+        })}
       </tbody>
     </Table>
   );
