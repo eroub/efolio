@@ -217,6 +217,8 @@ export default function CopytradeCompareTable({ rows }: { rows: CompareRow[] }) 
             <TH style={{ minWidth: 110 }}>Status</TH>
             <TH style={{ minWidth: 160 }}>Us</TH>
             <TH style={{ minWidth: 90 }}>Fill Lag</TH>
+            <TH style={{ minWidth: 90 }}>Detect</TH>
+            <TH style={{ minWidth: 90 }}>Submit</TH>
             <TH style={{ minWidth: 80 }}>ΔPx</TH>
             <TH style={{ minWidth: 200 }}>Reason</TH>
           </tr>
@@ -261,11 +263,12 @@ export default function CopytradeCompareTable({ rows }: { rows: CompareRow[] }) 
                   <Badge $kind={status || ""}>{status || "—"}</Badge>
                 </TD>
                 <TD>{fmtUsCell(our)}</TD>
-                <TDLag
-                  $ms={fillLagMsForRow(r)}
-                  title={`detect_lag=${fmtMs(r.detect_lag_ms ?? "")}`}
-                >
-                  {fmtMs(fillLagMsForRow(r))}
+                <TDLag $ms={fillLagMsForRow(r)}>{fmtMs(fillLagMsForRow(r))}</TDLag>
+                <TDLag $ms={status === "COPIED" ? Number(r.detect_lag_ms ?? NaN) : null}>
+                  {status === "COPIED" ? fmtMs(r.detect_lag_ms ?? "") : "—"}
+                </TDLag>
+                <TDLag $ms={status === "COPIED" ? Number(r.submit_lag_ms ?? NaN) : null}>
+                  {status === "COPIED" ? fmtMs(r.submit_lag_ms ?? "") : "—"}
                 </TDLag>
                 <TDDelta $v={r.dpx == null ? null : Number(r.dpx)}>{r.dpx == null ? "—" : fmtNum(r.dpx)}</TDDelta>
                 <TD title={reasonTooltip}>{reasonText}</TD>
