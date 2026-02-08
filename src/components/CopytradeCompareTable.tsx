@@ -46,18 +46,23 @@ export type CompareRow = {
   detect_lag_ms?: any;
 };
 
+const TableWrap = styled.div`
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid ${colorScheme.base["200"]};
+  background: ${colorScheme.base.paper};
+`;
+
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
-  background: ${colorScheme.base.paper};
   color: ${colorScheme.base.black};
-  border: 1px solid ${colorScheme.base["200"]};
 `;
 
 const TH = styled.th`
   text-align: left;
   border-bottom: 1px solid ${colorScheme.base["300"]};
-  padding: 8px 8px;
+  padding: 8px 10px;
   background: ${colorScheme.base["100"]};
   color: ${colorScheme.base.black};
   position: sticky;
@@ -66,7 +71,7 @@ const TH = styled.th`
 
 const TD = styled.td`
   border-bottom: 1px solid ${colorScheme.base["150"]};
-  padding: 8px 8px;
+  padding: 8px 10px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
     "Courier New", monospace;
   font-size: 12px;
@@ -80,15 +85,58 @@ const TR = styled.tr`
   }
 `;
 
+const MarketCell = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 340px;
+`;
+
+const OpenLink = styled.a`
+  font-size: 11px;
+  opacity: 0.8;
+  text-decoration: underline;
+`;
+
+const Badge = styled.span<{ $kind: string }>`
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  border: 1px solid ${colorScheme.base["300"]};
+  background: ${(p) => {
+    const k = p.$kind;
+    if (k === "COPIED") return "#e8f5e9";
+    if (k === "SKIPPED") return "#fff8e1";
+    if (k === "UNKNOWN") return "#ffebee";
+    return colorScheme.base["100"];
+  }};
+  color: ${(p) => {
+    const k = p.$kind;
+    if (k === "COPIED") return "#1b5e20";
+    if (k === "SKIPPED") return "#7a4f00";
+    if (k === "UNKNOWN") return "#b71c1c";
+    return colorScheme.base.black;
+  }};
+`;
+
 function fmtNum(x: any, digits = 4): string {
   const n = Number(x);
-  if (!Number.isFinite(n)) return "";
+  if (!Number.isFinite(n)) return "—";
   return n.toFixed(digits);
+}
+
+function fmtUsd(x: any): string {
+  const n = Number(x);
+  if (!Number.isFinite(n)) return "—";
+  return `$${n.toFixed(2)}`;
 }
 
 function fmtMs(x: any): string {
   const n = Number(x);
-  if (!Number.isFinite(n)) return "";
+  if (!Number.isFinite(n)) return "—";
   if (Math.abs(n) >= 1000) return `${(n / 1000).toFixed(1)}s`;
   return `${n.toFixed(0)}ms`;
 }
@@ -103,69 +151,86 @@ function fmtText(x: any): string {
   }
 }
 
+function fmtLeaderCell(leader: any): string {
+  const side = String(leader?.side ?? "");
+  const usd = fmtUsd(leader?.usd);
+  const px = leader?.price == null ? "—" : Number(leader.price).toFixed(4);
+  return `${side} ${usd} @ ${px}`.trim();
+}
+
+function fmtUsCell(our: any): string {
+  if (!our || (our.price == null && our.usd == null)) return "—";
+  const usd = fmtUsd(our?.usd);
+  const px = our?.price == null ? "—" : Number(our.price).toFixed(4);
+  return `${usd} @ ${px}`;
+}
+
 export default function CopytradeCompareTable({ rows }: { rows: CompareRow[] }) {
   return (
-    <Table>
-      <thead>
-        <tr>
-          <TH>ts</TH>
-          <TH>market</TH>
-          <TH>token_id</TH>
-          <TH>side</TH>
-          <TH>leader_px</TH>
-          <TH>leader_usd</TH>
-          <TH>our_px</TH>
-          <TH>our_usd</TH>
-          <TH>dPx</TH>
-          <TH>fill_lag</TH>
-          <TH>status</TH>
-          <TH>reason</TH>
-          <TH>detail</TH>
-        </tr>
-      </thead>
-      <tbody>
-        {(rows || []).map((r: any, i: number) => {
-          const leader = r.leader || {};
-          const our = r.our || {};
+    <TableWrap>
+      <Table>
+        <thead>
+          <tr>
+            <TH style={{ minWidth: 160 }}>Time</TH>
+            <TH>Market</TH>
+            <TH style={{ minWidth: 170 }}>Leader</TH>
+            <TH style={{ minWidth: 110 }}>Status</TH>
+            <TH style={{ minWidth: 160 }}>Us</TH>
+            <TH style={{ minWidth: 90 }}>Fill Lag</TH>
+            <TH style={{ minWidth: 80 }}>ΔPx</TH>
+            <TH style={{ minWidth: 200 }}>Reason</TH>
+          </tr>
+        </thead>
+        <tbody>
+          {(rows || []).map((r: any, i: number) => {
+            const leader = r.leader || {};
+            const our = r.our || {};
 
-          const marketLabel = String(r.title ?? r.slug ?? "");
-          const marketUrl = r.market_url ? String(r.market_url) : "";
-          const tokenId = String(leader.token_id ?? "");
-          const side = String(leader.side ?? "");
+            const marketLabel = String(r.title ?? r.slug ?? "");
+            const marketUrl = r.market_url ? String(r.market_url) : "";
 
-          const detail =
-            r.reason_detail ??
-            (r.attempt_rich && r.attempt_rich.resp ? r.attempt_rich.resp : null) ??
-            (r.attempt_rich && r.attempt_rich.err ? r.attempt_rich.err : null) ??
-            "";
+            const status = String(r.status ?? "");
+            const reason = String(r.reason ?? "");
+            const detail =
+              r.reason_detail ??
+              (r.attempt_rich && r.attempt_rich.resp ? r.attempt_rich.resp : null) ??
+              (r.attempt_rich && r.attempt_rich.err ? r.attempt_rich.err : null) ??
+              "";
 
-          return (
-            <TR key={r.id ?? r.key ?? i}>
-              <TD>{String(r.ts ?? "")}</TD>
-              <TD>
-                {marketUrl ? (
-                  <a href={marketUrl} target="_blank" rel="noreferrer">
-                    {marketLabel}
-                  </a>
-                ) : (
-                  marketLabel
-                )}
-              </TD>
-              <TD>{tokenId}</TD>
-              <TD>{side}</TD>
-              <TD>{fmtNum(leader.price)}</TD>
-              <TD>{fmtNum(leader.usd, 2)}</TD>
-              <TD>{fmtNum(our.price)}</TD>
-              <TD>{fmtNum(our.usd, 2)}</TD>
-              <TD>{fmtNum(r.dpx)}</TD>
-              <TD title={`detect_lag=${fmtMs(r.detect_lag_ms ?? "")}`}>{fmtMs(r.fill_lag_ms ?? "")}</TD>
-              <TD>{String(r.status ?? "")}</TD>
-              <TD>{String(r.reason ?? "")}</TD>
-              <TD title={fmtText(detail)}>{fmtText(detail).slice(0, 120)}</TD>
-            </TR>
-          );
-        })}
-      </tbody>
-    </Table>
+            const reasonText = detail ? `${reason} — ${fmtText(detail)}` : reason;
+
+            return (
+              <TR key={r.id ?? r.key ?? i}>
+                <TD>{String(r.ts ?? "")}</TD>
+                <TD>
+                  <MarketCell>
+                    {marketUrl ? (
+                      <a href={marketUrl} target="_blank" rel="noreferrer">
+                        {marketLabel}
+                      </a>
+                    ) : (
+                      <span>{marketLabel}</span>
+                    )}
+                    {marketUrl ? (
+                      <OpenLink href={marketUrl} target="_blank" rel="noreferrer">
+                        open
+                      </OpenLink>
+                    ) : null}
+                  </MarketCell>
+                </TD>
+                <TD>{fmtLeaderCell(leader)}</TD>
+                <TD>
+                  <Badge $kind={status || ""}>{status || "—"}</Badge>
+                </TD>
+                <TD>{fmtUsCell(our)}</TD>
+                <TD title={`detect_lag=${fmtMs(r.detect_lag_ms ?? "")}`}>{fmtMs(r.fill_lag_ms ?? "")}</TD>
+                <TD>{r.dpx == null ? "—" : fmtNum(r.dpx)}</TD>
+                <TD title={reasonText}>{reasonText}</TD>
+              </TR>
+            );
+          })}
+        </tbody>
+      </Table>
+    </TableWrap>
   );
 }
