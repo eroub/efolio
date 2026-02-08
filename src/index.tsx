@@ -41,7 +41,11 @@ window.addEventListener("error", (ev: any) => {
     const msg = String(ev?.message || ev?.error?.message || ev);
     const stack = (ev?.error && (ev.error.stack || ev.error.toString())) || "";
 
-    pre.textContent = `WINDOW_ERROR\n\n${msg}\n\n${stack}`;
+    // Try to decode React minified errors quickly in-prod.
+    const m = msg.match(/error #(?<code>\d+)/i);
+    const code = m?.groups?.code ? Number(m.groups.code) : null;
+
+    pre.textContent = `WINDOW_ERROR\n\n${msg}\n\n${stack}\n\nreact_error_code=${code ?? ""}\n\nIf this is React #31, it usually means a component tried to render a plain object as a child (e.g. {foo:1}).`;
     document.body.innerHTML = "";
     document.body.appendChild(pre);
     // eslint-disable-next-line no-console
