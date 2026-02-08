@@ -41,6 +41,12 @@ const StatLine: React.FC<StatLineProps> = ({
     whiteSpace: "normal",
   };
 
+  // React #31 guard: never render a plain object as a child
+  const safeStats =
+    stats && typeof stats === "object" && !React.isValidElement(stats)
+      ? JSON.stringify(stats)
+      : stats;
+
   return (
     <div
       style={{
@@ -81,14 +87,7 @@ const StatLine: React.FC<StatLineProps> = ({
         </h3>
       </div>
       <div style={{ flexBasis: "70%", textAlign: "center" }}>
-        {typeof stats === "number"
-          ? isNaN(stats)
-            ? "N/A"
-            : stats
-          : // React #31 guard: never try to render a plain object
-            stats && typeof stats === "object" && !React.isValidElement(stats)
-            ? JSON.stringify(stats)
-            : stats}
+        {typeof safeStats === "number" ? (isNaN(safeStats) ? "N/A" : safeStats) : safeStats}
       </div>
     </div>
   );
