@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, Routes, Route, Navigate } from "react-router-dom";
 import styled from "styled-components";
 // Pages
+// TradeJournal was previously used on "/" but caused recurrent prod crashes (React #31).
+// Keep it importable for now, but remove it from the root route.
 import TradeJournal from "./pages/TradeJournal";
 import Maverick from "./pages/Maverick";
 import PolymarketOverview from "./pages/PolymarketOverview";
@@ -154,10 +156,16 @@ function App() {
         <Route
           path="/"
           element={
-            <TradeJournal
-              selectedAccount={selectedAccount}
-              conversionRates={conversionRates}
-            />
+            auth.isAuthenticated ? (
+              <Navigate to="/polymarket/live" replace />
+            ) : (
+              <div style={{ padding: 24, textAlign: "left" }}>
+                <h2 style={{ marginTop: 0 }}>Welcome</h2>
+                <p style={{ marginBottom: 0 }}>
+                  Please sign in to view Polymarket dashboards.
+                </p>
+              </div>
+            )
           }
         />
 
